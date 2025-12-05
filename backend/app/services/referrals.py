@@ -307,4 +307,4 @@ async def generate_ref_link(db: AsyncSession, ref_code: str) -> str:
 
 def get_share_text() -> str:
     """Get default share text for referral link."""
-    return "Join Pixel Pets and earn XPET with your virtual pets! 🐾"
+    return "Join Pixel Pets and earn USDT with your virtual pets! 🐾"

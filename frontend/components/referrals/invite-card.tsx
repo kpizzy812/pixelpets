@@ -57,8 +57,10 @@ export function InviteCard({
 
       {/* Share Button */}
       <Button variant="cyan" fullWidth onClick={onShare}>
-        <Icon name="share" size={16} className="mr-2" />
-        Share with Friends
+        <span className="inline-flex items-center gap-2">
+          <Icon name="share" size={16} />
+          Share with Friends
+        </span>
       </Button>
     </div>
   );
