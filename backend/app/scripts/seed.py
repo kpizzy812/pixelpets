@@ -101,22 +101,6 @@ TASKS_DATA = [
         "task_type": TaskType.TWITTER,
         "order": 3,
     },
-    {
-        "title": "Retweet Announcement",
-        "description": "Retweet our pinned post",
-        "reward_xpet": Decimal("0.10"),
-        "link": "https://twitter.com/pixelpets/status/123",
-        "task_type": TaskType.TWITTER,
-        "order": 4,
-    },
-    {
-        "title": "Visit Website",
-        "description": "Check out our website",
-        "reward_xpet": Decimal("0.10"),
-        "link": "https://pixelpets.io",
-        "task_type": TaskType.WEBSITE,
-        "order": 5,
-    },
 ]
 
 
