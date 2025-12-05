@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { XpetCoin } from '@/components/ui/xpet-coin';
 import { useGameStore, useBalance } from '@/store/game-store';
@@ -40,6 +41,7 @@ const SNACK_NAMES: Record<SnackType, string> = {
 const ROI_OPTIONS = ['5', '10', '15', '20', '25'];
 
 export function BoostModal({ isOpen, onClose, pet }: BoostModalProps) {
+  const router = useRouter();
   const balance = useBalance();
   const { updateBalance } = useGameStore();
   const [activeTab, setActiveTab] = useState<BoostTab>('snacks');
@@ -47,6 +49,12 @@ export function BoostModal({ isOpen, onClose, pet }: BoostModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const { impact, success, error: hapticError, tap } = useHaptic();
   const t = useTranslations('boosts');
+
+  const handleInsufficientBalance = () => {
+    tap();
+    onClose();
+    router.push('/wallet');
+  };
 
   // Data states
   const [snackPrices, setSnackPrices] = useState<SnackPricesResponse | null>(null);
@@ -238,19 +246,28 @@ export function BoostModal({ isOpen, onClose, pet }: BoostModalProps) {
         )}
 
         {/* Buy Button */}
-        <Button
-          variant="lime"
-          fullWidth
-          onClick={handleBuySnack}
-          disabled={isProcessing || balance < Number(snackPrices.prices[selectedSnack]?.cost || 0)}
-          haptic="heavy"
-        >
-          {isProcessing
-            ? t('processing')
-            : balance < Number(snackPrices.prices[selectedSnack]?.cost || 0)
-            ? t('insufficientBalance')
-            : t('buySnack', { price: formatNumber(snackPrices.prices[selectedSnack]?.cost || 0) })}
-        </Button>
+        {balance < Number(snackPrices.prices[selectedSnack]?.cost || 0) ? (
+          <Button
+            variant="lime"
+            fullWidth
+            onClick={handleInsufficientBalance}
+            haptic="medium"
+          >
+            {t('topUpBalance')}
+          </Button>
+        ) : (
+          <Button
+            variant="lime"
+            fullWidth
+            onClick={handleBuySnack}
+            disabled={isProcessing}
+            haptic="heavy"
+          >
+            {isProcessing
+              ? t('processing')
+              : t('buySnack', { price: formatNumber(snackPrices.prices[selectedSnack]?.cost || 0) })}
+          </Button>
+        )}
       </div>
     );
   };
@@ -356,23 +373,28 @@ export function BoostModal({ isOpen, onClose, pet }: BoostModalProps) {
         )}
 
         {/* Buy Button */}
-        <Button
-          variant="lime"
-          fullWidth
-          onClick={handleBuyRoiBoost}
-          disabled={
-            isProcessing ||
-            !roiPrices.options[`+${selectedRoiOption}%`]?.can_buy ||
-            balance < Number(roiPrices.options[`+${selectedRoiOption}%`]?.cost || 0)
-          }
-          haptic="heavy"
-        >
-          {isProcessing
-            ? t('processing')
-            : balance < Number(roiPrices.options[`+${selectedRoiOption}%`]?.cost || 0)
-            ? t('insufficientBalance')
-            : t('buyRoiBoost', { percent: selectedRoiOption, price: formatNumber(roiPrices.options[`+${selectedRoiOption}%`]?.cost || 0) })}
-        </Button>
+        {balance < Number(roiPrices.options[`+${selectedRoiOption}%`]?.cost || 0) ? (
+          <Button
+            variant="lime"
+            fullWidth
+            onClick={handleInsufficientBalance}
+            haptic="medium"
+          >
+            {t('topUpBalance')}
+          </Button>
+        ) : (
+          <Button
+            variant="lime"
+            fullWidth
+            onClick={handleBuyRoiBoost}
+            disabled={isProcessing || !roiPrices.options[`+${selectedRoiOption}%`]?.can_buy}
+            haptic="heavy"
+          >
+            {isProcessing
+              ? t('processing')
+              : t('buyRoiBoost', { percent: selectedRoiOption, price: formatNumber(roiPrices.options[`+${selectedRoiOption}%`]?.cost || 0) })}
+          </Button>
+        )}
       </div>
     );
   };
@@ -479,19 +501,28 @@ export function BoostModal({ isOpen, onClose, pet }: BoostModalProps) {
         </div>
 
         {/* Buy Button */}
-        <Button
-          variant="cyan"
-          fullWidth
-          onClick={handleBuyAutoClaim}
-          disabled={isProcessing || balance < getAutoClaimCost(selectedMonths)}
-          haptic="heavy"
-        >
-          {isProcessing
-            ? t('processing')
-            : balance < getAutoClaimCost(selectedMonths)
-            ? t('insufficientBalance')
-            : t('buyAutoClaim', { price: formatNumber(getAutoClaimCost(selectedMonths)) })}
-        </Button>
+        {balance < getAutoClaimCost(selectedMonths) ? (
+          <Button
+            variant="cyan"
+            fullWidth
+            onClick={handleInsufficientBalance}
+            haptic="medium"
+          >
+            {t('topUpBalance')}
+          </Button>
+        ) : (
+          <Button
+            variant="cyan"
+            fullWidth
+            onClick={handleBuyAutoClaim}
+            disabled={isProcessing}
+            haptic="heavy"
+          >
+            {isProcessing
+              ? t('processing')
+              : t('buyAutoClaim', { price: formatNumber(getAutoClaimCost(selectedMonths)) })}
+          </Button>
+        )}
       </div>
     );
   };

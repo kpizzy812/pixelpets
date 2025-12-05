@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { PetImage } from '@/components/ui/pet-image';
 import { XpetCoin } from '@/components/ui/xpet-coin';
@@ -17,11 +18,18 @@ interface BuyModalProps {
 }
 
 export function BuyModal({ petType, balance, onConfirm, onClose, isLoading }: BuyModalProps) {
+  const router = useRouter();
   const { impact, tap } = useHaptic();
   const maxProfit = petType.base_price * petType.roi_cap_multiplier;
   const netProfit = maxProfit - petType.base_price;
   const newBalance = balance - petType.base_price;
   const canAfford = balance >= petType.base_price;
+
+  const handleInsufficientBalance = () => {
+    tap();
+    onClose();
+    router.push('/wallet');
+  };
 
   // Haptic on modal open
   useEffect(() => {
@@ -91,15 +99,26 @@ export function BuyModal({ petType, balance, onConfirm, onClose, isLoading }: Bu
           <Button variant="ghost" fullWidth onClick={handleClose} disabled={isLoading}>
             Cancel
           </Button>
-          <Button
-            variant={canAfford ? 'lime' : 'disabled'}
-            fullWidth
-            onClick={onConfirm}
-            disabled={!canAfford || isLoading}
-            haptic="heavy"
-          >
-            {isLoading ? 'Processing...' : 'Recruit'}
-          </Button>
+          {canAfford ? (
+            <Button
+              variant="lime"
+              fullWidth
+              onClick={onConfirm}
+              disabled={isLoading}
+              haptic="heavy"
+            >
+              {isLoading ? 'Processing...' : 'Recruit'}
+            </Button>
+          ) : (
+            <Button
+              variant="lime"
+              fullWidth
+              onClick={handleInsufficientBalance}
+              haptic="medium"
+            >
+              Top Up Balance
+            </Button>
+          )}
         </div>
       </div>
     </div>

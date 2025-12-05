@@ -246,6 +246,7 @@
     "loadError": "Ошибка загрузки",
     "processing": "Обработка...",
     "insufficientBalance": "Недостаточно средств",
+    "topUpBalance": "Пополнить баланс",
     "purchaseFailed": "Ошибка покупки",
     "yourBalance": "Ваш баланс",
     "cost": "Стоимость",

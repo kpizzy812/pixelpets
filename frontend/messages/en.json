@@ -246,6 +246,7 @@
     "loadError": "Failed to load",
     "processing": "Processing...",
     "insufficientBalance": "Insufficient Balance",
+    "topUpBalance": "Top Up Balance",
     "purchaseFailed": "Purchase failed",
     "yourBalance": "Your Balance",
     "cost": "Cost",
