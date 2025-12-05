@@ -20,6 +20,8 @@ const TX_TYPE_CONFIG: Record<TxType, { label: string; color: string; icon: strin
   task_reward: { label: 'Task Reward', color: 'text-yellow-400', icon: '+' },
   admin_adjust: { label: 'Admin Adjustment', color: 'text-gray-400', icon: '~' },
   withdraw_refund: { label: 'Withdrawal Refund', color: 'text-green-400', icon: '+' },
+  spin_cost: { label: 'Spin Cost', color: 'text-orange-400', icon: '-' },
+  spin_win: { label: 'Spin Win', color: 'text-yellow-400', icon: '+' },
 };
 
 const FILTER_OPTIONS: { value: TxType | 'ALL'; label: string }[] = [

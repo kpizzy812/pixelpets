@@ -16,6 +16,11 @@ interface LanguageOption {
 const LANGUAGES: LanguageOption[] = [
   { code: 'en', nativeName: 'English' },
   { code: 'ru', nativeName: 'Русский' },
+  { code: 'de', nativeName: 'Deutsch' },
+  { code: 'es', nativeName: 'Español' },
+  { code: 'fr', nativeName: 'Français' },
+  { code: 'pt', nativeName: 'Português' },
+  { code: 'it', nativeName: 'Italiano' },
 ];
 
 export function SettingsScreen() {

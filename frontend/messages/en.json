@@ -96,7 +96,7 @@
     "available": "Available",
     "completed": "Completed",
     "noTasks": "No Tasks Available",
-    "noTasksMessage": "Check back later for new tasks to complete and earn USDT!",
+    "noTasksMessage": "Check back later for new tasks to complete and earn XPET!",
     "go": "Go",
     "check": "Check",
     "checking": "Checking...",
@@ -132,8 +132,8 @@
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "network": "Network",
-    "amount": "Amount (USDT)",
-    "amountPlaceholder": "Min: 5 USDT",
+    "amount": "Amount (XPET)",
+    "amountPlaceholder": "Min: 5 XPET",
     "walletAddress": "Wallet Address",
     "walletAddressPlaceholder": "Enter your wallet address",
     "fee": "Fee ($1 + 2%)",
@@ -143,7 +143,7 @@
     "processing": "Processing...",
     "depositInfo": "Deposits are processed manually within 24 hours.",
     "withdrawInfo": "Withdrawals are processed manually within 24-48 hours.",
-    "minDeposit": "Minimum deposit is 5 USDT",
+    "minDeposit": "Minimum deposit is 5 XPET",
     "minWithdraw": "Minimum withdrawal is 5 USDT",
     "enterAddress": "Please enter your wallet address",
     "insufficientBalance": "Insufficient balance",
@@ -182,7 +182,9 @@
       "ref_reward": "Referral Reward",
       "task_reward": "Task Reward",
       "admin_adjust": "Admin Adjustment",
-      "withdraw_refund": "Withdrawal Refund"
+      "withdraw_refund": "Withdrawal Refund",
+      "spin_cost": "Spin Cost",
+      "spin_win": "Spin Win"
     },
     "empty": "No transactions yet",
     "emptyMessage": "Your transaction history will appear here",
@@ -226,7 +228,7 @@
     "tryAgain": "Try Again!",
     "insufficientBalance": "Insufficient balance",
     "spinFailed": "Spin failed. Please try again.",
-    "spinInfo": "Free spin available every 24 hours. Paid spins cost 1 USDT."
+    "spinInfo": "Free spin available every 24 hours. Paid spins cost 1 XPET."
   },
   "errors": {
     "generic": "Something went wrong",

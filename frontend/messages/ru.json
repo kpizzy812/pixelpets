@@ -31,8 +31,8 @@
     "evolved": "Эволюция",
     "unknown": "Неизвестно",
     "startedTraining": "{name} начал тренировку!",
-    "evolutionMessage": "{name} эволюционировал! +{profit} XPET заработано",
-    "claimMessage": "+{profit} XPET получено!"
+    "evolutionMessage": "{name} эволюционировал! +{profit} USDT заработано",
+    "claimMessage": "+{profit} USDT получено!"
   },
   "shop": {
     "title": "Магазин питомцев",
@@ -67,7 +67,7 @@
     "loss": "Потеря",
     "sellPet": "Продать",
     "selling": "Продажа...",
-    "soldMessage": "{name} продан! +{refund} XPET возвращено",
+    "soldMessage": "{name} продан! +{refund} USDT возвращено",
     "failedToSell": "Не удалось продать питомца"
   },
   "upgradeModal": {
@@ -144,11 +144,11 @@
     "depositInfo": "Пополнения обрабатываются вручную в течение 24 часов.",
     "withdrawInfo": "Выводы обрабатываются вручную в течение 24-48 часов.",
     "minDeposit": "Минимальное пополнение — 5 XPET",
-    "minWithdraw": "Минимальный вывод — 5 XPET",
+    "minWithdraw": "Минимальный вывод — 5 USDT",
     "enterAddress": "Пожалуйста, введите адрес кошелька",
     "insufficientBalance": "Недостаточно средств",
     "depositCreated": "Запрос на пополнение создан!",
-    "withdrawSubmitted": "Запрос на вывод отправлен! Комиссия: {fee} XPET",
+    "withdrawSubmitted": "Запрос на вывод отправлен! Комиссия: {fee} USDT",
     "failedDeposit": "Не удалось создать запрос на пополнение",
     "failedWithdraw": "Не удалось отправить запрос на вывод",
     "depositSuccess": {
@@ -182,7 +182,9 @@
       "ref_reward": "Реферальная награда",
       "task_reward": "Награда за задание",
       "admin_adjust": "Корректировка админа",
-      "withdraw_refund": "Возврат за вывод"
+      "withdraw_refund": "Возврат за вывод",
+      "spin_cost": "Платный спин",
+      "spin_win": "Выигрыш в спине"
     },
     "empty": "Транзакций пока нет",
     "emptyMessage": "Ваша история транзакций появится здесь",
