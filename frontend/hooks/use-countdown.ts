@@ -9,7 +9,16 @@ export function useCountdown(targetTime: number | undefined) {
   });
 
   useEffect(() => {
-    if (!targetTime) return;
+    if (!targetTime) {
+      setTimeLeft(0);
+      return;
+    }
+
+    // Immediately set the correct time left when targetTime changes
+    const initialRemaining = Math.max(0, targetTime - Date.now());
+    setTimeLeft(initialRemaining);
+
+    if (initialRemaining === 0) return;
 
     const interval = setInterval(() => {
       const remaining = Math.max(0, targetTime - Date.now());
