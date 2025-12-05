@@ -324,6 +324,126 @@ export default function ConfigPage() {
                 )}
               </div>
             </div>
+            <div className="space-y-2">
+              <Label>Sell Penalty (%)</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  value={getConfigValue("sell_penalty_percent")}
+                  onChange={(e) =>
+                    setConfigValues({ ...configValues, sell_penalty_percent: e.target.value })
+                  }
+                  disabled={!isSuperAdmin()}
+                />
+                {isSuperAdmin() && (
+                  <Button
+                    size="icon"
+                    onClick={() => handleSaveConfig("sell_penalty_percent")}
+                    disabled={updateConfigMutation.isPending}
+                  >
+                    <Save className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Telegram Config */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Telegram Settings</CardTitle>
+            <CardDescription>Bot and channel configuration</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Bot Username</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={getConfigValue("bot_username")}
+                  onChange={(e) =>
+                    setConfigValues({ ...configValues, bot_username: e.target.value })
+                  }
+                  placeholder="Pixel_PetsBot"
+                  disabled={!isSuperAdmin()}
+                />
+                {isSuperAdmin() && (
+                  <Button
+                    size="icon"
+                    onClick={() => handleSaveConfig("bot_username")}
+                    disabled={updateConfigMutation.isPending}
+                  >
+                    <Save className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>CIS Channel</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={getConfigValue("channel_cis")}
+                  onChange={(e) =>
+                    setConfigValues({ ...configValues, channel_cis: e.target.value })
+                  }
+                  placeholder="PIXELPETS_CISOFFICIAL"
+                  disabled={!isSuperAdmin()}
+                />
+                {isSuperAdmin() && (
+                  <Button
+                    size="icon"
+                    onClick={() => handleSaveConfig("channel_cis")}
+                    disabled={updateConfigMutation.isPending}
+                  >
+                    <Save className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Western Channel</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={getConfigValue("channel_west")}
+                  onChange={(e) =>
+                    setConfigValues({ ...configValues, channel_west: e.target.value })
+                  }
+                  placeholder="pixelpets_en"
+                  disabled={!isSuperAdmin()}
+                />
+                {isSuperAdmin() && (
+                  <Button
+                    size="icon"
+                    onClick={() => handleSaveConfig("channel_west")}
+                    disabled={updateConfigMutation.isPending}
+                  >
+                    <Save className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>General Chat</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={getConfigValue("chat_general")}
+                  onChange={(e) =>
+                    setConfigValues({ ...configValues, chat_general: e.target.value })
+                  }
+                  placeholder="pixelpets_chat"
+                  disabled={!isSuperAdmin()}
+                />
+                {isSuperAdmin() && (
+                  <Button
+                    size="icon"
+                    onClick={() => handleSaveConfig("chat_general")}
+                    disabled={updateConfigMutation.isPending}
+                  >
+                    <Save className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
 

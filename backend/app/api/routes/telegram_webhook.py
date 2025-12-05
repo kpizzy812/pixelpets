@@ -214,9 +214,8 @@ async def handle_start_command(message: dict) -> None:
         ref_code = text.split(" ", 1)[1].strip()
 
     # Get config values from database
-    # Note: bot_username is hardcoded to avoid DB config issues
-    bot_username = "Pixel_PetsBot"
     async with async_session() as db:
+        bot_username = await get_config_value(db, "bot_username", DEFAULT_CONFIG["bot_username"])
         miniapp_url = await get_config_value(db, "miniapp_url", DEFAULT_CONFIG["miniapp_url"])
         channel_cis = await get_config_value(db, "channel_cis", DEFAULT_CONFIG["channel_cis"])
         channel_west = await get_config_value(db, "channel_west", DEFAULT_CONFIG["channel_west"])
