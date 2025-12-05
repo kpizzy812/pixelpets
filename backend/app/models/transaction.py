@@ -5,7 +5,7 @@ from typing import Optional, TYPE_CHECKING
 from sqlalchemy import ForeignKey, Index, String, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.database import Base
+from app.core.base import Base
 from app.models.enums import TxType, TxStatus, NetworkType, RequestStatus
 
 if TYPE_CHECKING:

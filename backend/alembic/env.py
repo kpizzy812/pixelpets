@@ -6,8 +6,8 @@ from sqlalchemy.engine import Connection
 
 from alembic import context
 
-# Import database Base for models
-from app.core.database import Base
+# Import database Base for models (from base.py to avoid settings import)
+from app.core.base import Base
 from app.models import *  # noqa: F401, F403 - Import all models for autogenerate
 
 # this is the Alembic Config object
