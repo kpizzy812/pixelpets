@@ -22,6 +22,7 @@ from app.services.admin import (
     log_admin_action,
 )
 from app.services.admin.tasks import get_task_by_id
+from app.i18n import get_text as t
 
 router = APIRouter(prefix="/tasks", tags=["admin-tasks"])
 
@@ -94,7 +95,7 @@ async def update_existing_task(
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task not found",
+            detail=t("error.task_not_found"),
         )
 
     old_values = {
@@ -146,7 +147,7 @@ async def delete_existing_task(
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task not found",
+            detail=t("error.task_not_found"),
         )
 
     await delete_task(db, task, soft_delete=not hard_delete)

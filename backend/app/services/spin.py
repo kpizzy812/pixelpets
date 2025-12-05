@@ -11,6 +11,7 @@ from app.models.user import User
 from app.models.spin import SpinReward, UserSpin
 from app.models.transaction import Transaction
 from app.models.enums import SpinRewardType, TxType
+from app.i18n import get_text as t
 
 # Spin costs
 FREE_SPIN_COOLDOWN_HOURS = 24
@@ -102,7 +103,7 @@ async def get_spin_status(db: AsyncSession, user_id: int) -> dict:
 def select_random_reward(rewards: list[SpinReward]) -> SpinReward:
     """Select a random reward based on probability weights."""
     if not rewards:
-        raise ValueError("No rewards available")
+        raise ValueError(t("error.spin_no_rewards"))
 
     weights = [float(r.probability) for r in rewards]
     return random.choices(rewards, weights=weights, k=1)[0]
@@ -122,11 +123,11 @@ async def perform_spin(
     if is_free:
         can_spin, next_time = await can_free_spin(db, user.id)
         if not can_spin:
-            raise ValueError(f"Free spin available at {next_time.isoformat()}")
+            raise ValueError(t("error.spin_cooldown", time=next_time.isoformat()))
     else:
         # Paid spin - check balance
         if user.balance_xpet < PAID_SPIN_COST:
-            raise ValueError("Insufficient balance for paid spin")
+            raise ValueError(t("error.insufficient_balance"))
 
         # Deduct cost
         user.balance_xpet -= PAID_SPIN_COST
@@ -143,7 +144,7 @@ async def perform_spin(
     # Get rewards and select random one
     rewards = await get_spin_rewards(db)
     if not rewards:
-        raise ValueError("No spin rewards configured")
+        raise ValueError(t("error.spin_no_config"))
 
     reward = select_random_reward(rewards)
 

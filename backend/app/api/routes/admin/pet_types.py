@@ -23,6 +23,7 @@ from app.services.admin import (
     log_admin_action,
 )
 from app.services.admin.pet_types import get_pet_type_by_id
+from app.i18n import get_text as t
 
 router = APIRouter(prefix="/pet-types", tags=["admin-pet-types"])
 
@@ -84,7 +85,7 @@ async def update_existing_pet_type(
     if not pet_type:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Pet type not found",
+            detail=t("error.pet_type_not_found"),
         )
 
     old_values = {
@@ -136,7 +137,7 @@ async def delete_existing_pet_type(
     if not pet_type:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Pet type not found",
+            detail=t("error.pet_type_not_found"),
         )
 
     await delete_pet_type(db, pet_type, soft_delete=not hard_delete)

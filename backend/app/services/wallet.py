@@ -9,6 +9,7 @@ from app.models.user import User
 from app.models.transaction import Transaction, DepositRequest, WithdrawRequest
 from app.models.enums import NetworkType, RequestStatus, TxType
 from app.services import telegram_notify
+from app.i18n import get_text as t
 
 logger = logging.getLogger(__name__)
 
@@ -107,13 +108,13 @@ async def create_withdraw_request(
     Returns (request, new_balance) or raises ValueError.
     """
     if amount < WITHDRAW_MIN:
-        raise ValueError(f"Minimum withdrawal is {WITHDRAW_MIN} XPET")
+        raise ValueError(t("error.min_withdrawal", min=str(WITHDRAW_MIN)))
 
     fee = calculate_withdraw_fee(amount)
     net_amount = amount - fee  # User receives this amount
 
     if user.balance_xpet < amount:
-        raise ValueError("Insufficient balance")
+        raise ValueError(t("error.insufficient_balance"))
 
     # Deduct from balance (fee is inside the amount)
     user.balance_xpet -= amount

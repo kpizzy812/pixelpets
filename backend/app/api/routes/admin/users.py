@@ -22,6 +22,7 @@ from app.services.admin import (
     adjust_user_balance,
     log_admin_action,
 )
+from app.i18n import get_text as t
 
 router = APIRouter(prefix="/users", tags=["admin-users"])
 
@@ -88,7 +89,7 @@ async def get_user(
     if not result:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
+            detail=t("error.user_not_found"),
         )
 
     user = result["user"]
@@ -131,7 +132,7 @@ async def adjust_balance(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
+            detail=t("error.user_not_found"),
         )
 
     try:

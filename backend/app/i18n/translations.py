@@ -405,6 +405,234 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "pt": "🎮 Junte-se a mim no Pixel Pets!\n\nCompre pets fofos, treine-os diariamente e ganhe USDT reais!\n\n💰 Use meu link para um bônus:",
         "it": "🎮 Unisciti a me in Pixel Pets!\n\nAcquista pet carini, allenali ogni giorno e guadagna veri USDT!\n\n💰 Usa il mio link per un bonus:"
     },
+
+    # === Spin errors ===
+    "error.spin_no_rewards": {
+        "en": "No rewards available",
+        "ru": "Нет доступных наград",
+        "de": "Keine Belohnungen verfügbar",
+        "es": "No hay recompensas disponibles",
+        "fr": "Aucune récompense disponible",
+        "pt": "Sem recompensas disponíveis",
+        "it": "Nessuna ricompensa disponibile"
+    },
+    "error.spin_cooldown": {
+        "en": "Free spin available at {time}",
+        "ru": "Бесплатное вращение доступно в {time}",
+        "de": "Gratis-Dreh verfügbar um {time}",
+        "es": "Giro gratis disponible a las {time}",
+        "fr": "Tour gratuit disponible à {time}",
+        "pt": "Giro grátis disponível às {time}",
+        "it": "Giro gratuito disponibile alle {time}"
+    },
+    "error.spin_no_config": {
+        "en": "No spin rewards configured",
+        "ru": "Награды для вращения не настроены",
+        "de": "Keine Drehbelohnungen konfiguriert",
+        "es": "No hay recompensas de giro configuradas",
+        "fr": "Aucune récompense de tour configurée",
+        "pt": "Nenhuma recompensa de giro configurada",
+        "it": "Nessuna ricompensa per il giro configurata"
+    },
+
+    # === User errors ===
+    "error.user_not_found": {
+        "en": "User not found",
+        "ru": "Пользователь не найден",
+        "de": "Benutzer nicht gefunden",
+        "es": "Usuario no encontrado",
+        "fr": "Utilisateur non trouvé",
+        "pt": "Usuário não encontrado",
+        "it": "Utente non trovato"
+    },
+
+    # === Request status errors ===
+    "error.already_status": {
+        "en": "Already {status}",
+        "ru": "Уже {status}",
+        "de": "Bereits {status}",
+        "es": "Ya está {status}",
+        "fr": "Déjà {status}",
+        "pt": "Já está {status}",
+        "it": "Già {status}"
+    },
+
+    # === Status labels ===
+    "status.pending": {
+        "en": "pending",
+        "ru": "в ожидании",
+        "de": "ausstehend",
+        "es": "pendiente",
+        "fr": "en attente",
+        "pt": "pendente",
+        "it": "in attesa"
+    },
+    "status.approved": {
+        "en": "approved",
+        "ru": "одобрено",
+        "de": "genehmigt",
+        "es": "aprobado",
+        "fr": "approuvé",
+        "pt": "aprovado",
+        "it": "approvato"
+    },
+    "status.rejected": {
+        "en": "rejected",
+        "ru": "отклонено",
+        "de": "abgelehnt",
+        "es": "rechazado",
+        "fr": "refusé",
+        "pt": "rejeitado",
+        "it": "rifiutato"
+    },
+    "status.completed": {
+        "en": "completed",
+        "ru": "завершено",
+        "de": "abgeschlossen",
+        "es": "completado",
+        "fr": "terminé",
+        "pt": "concluído",
+        "it": "completato"
+    },
+
+    # === Webhook/Admin messages ===
+    "webhook.invalid_json": {
+        "en": "Invalid JSON",
+        "ru": "Неверный JSON",
+        "de": "Ungültiges JSON",
+        "es": "JSON inválido",
+        "fr": "JSON invalide",
+        "pt": "JSON inválido",
+        "it": "JSON non valido"
+    },
+    "webhook.invalid_callback": {
+        "en": "Invalid callback",
+        "ru": "Неверный callback",
+        "de": "Ungültiger Callback",
+        "es": "Callback inválido",
+        "fr": "Callback invalide",
+        "pt": "Callback inválido",
+        "it": "Callback non valido"
+    },
+    "webhook.invalid_action": {
+        "en": "Invalid action",
+        "ru": "Неверное действие",
+        "de": "Ungültige Aktion",
+        "es": "Acción inválida",
+        "fr": "Action invalide",
+        "pt": "Ação inválida",
+        "it": "Azione non valida"
+    },
+    "webhook.invalid_request_id": {
+        "en": "Invalid request ID",
+        "ru": "Неверный ID запроса",
+        "de": "Ungültige Anfrage-ID",
+        "es": "ID de solicitud inválido",
+        "fr": "ID de demande invalide",
+        "pt": "ID de solicitação inválido",
+        "it": "ID richiesta non valido"
+    },
+    "webhook.unauthorized": {
+        "en": "You are not authorized",
+        "ru": "Вы не авторизованы",
+        "de": "Sie sind nicht autorisiert",
+        "es": "No estás autorizado",
+        "fr": "Vous n'êtes pas autorisé",
+        "pt": "Você não está autorizado",
+        "it": "Non sei autorizzato"
+    },
+    "webhook.unknown_action": {
+        "en": "Unknown action",
+        "ru": "Неизвестное действие",
+        "de": "Unbekannte Aktion",
+        "es": "Acción desconocida",
+        "fr": "Action inconnue",
+        "pt": "Ação desconhecida",
+        "it": "Azione sconosciuta"
+    },
+    "webhook.internal_error": {
+        "en": "Internal error",
+        "ru": "Внутренняя ошибка",
+        "de": "Interner Fehler",
+        "es": "Error interno",
+        "fr": "Erreur interne",
+        "pt": "Erro interno",
+        "it": "Errore interno"
+    },
+    "webhook.deposit_approved": {
+        "en": "Deposit approved!",
+        "ru": "Депозит одобрен!",
+        "de": "Einzahlung genehmigt!",
+        "es": "¡Depósito aprobado!",
+        "fr": "Dépôt approuvé !",
+        "pt": "Depósito aprovado!",
+        "it": "Deposito approvato!"
+    },
+    "webhook.deposit_rejected": {
+        "en": "Deposit rejected",
+        "ru": "Депозит отклонён",
+        "de": "Einzahlung abgelehnt",
+        "es": "Depósito rechazado",
+        "fr": "Dépôt refusé",
+        "pt": "Depósito rejeitado",
+        "it": "Deposito rifiutato"
+    },
+    "webhook.withdrawal_completed": {
+        "en": "Withdrawal completed!",
+        "ru": "Вывод завершён!",
+        "de": "Auszahlung abgeschlossen!",
+        "es": "¡Retiro completado!",
+        "fr": "Retrait terminé !",
+        "pt": "Saque concluído!",
+        "it": "Prelievo completato!"
+    },
+    "webhook.withdrawal_rejected": {
+        "en": "Withdrawal rejected, balance refunded",
+        "ru": "Вывод отклонён, баланс возвращён",
+        "de": "Auszahlung abgelehnt, Guthaben erstattet",
+        "es": "Retiro rechazado, saldo reembolsado",
+        "fr": "Retrait refusé, solde remboursé",
+        "pt": "Saque rejeitado, saldo devolvido",
+        "it": "Prelievo rifiutato, saldo rimborsato"
+    },
+
+    # === Admin auth errors ===
+    "admin.invalid_credentials": {
+        "en": "Invalid username or password",
+        "ru": "Неверное имя пользователя или пароль",
+        "de": "Ungültiger Benutzername oder Passwort",
+        "es": "Usuario o contraseña inválidos",
+        "fr": "Nom d'utilisateur ou mot de passe invalide",
+        "pt": "Usuário ou senha inválidos",
+        "it": "Nome utente o password non validi"
+    },
+    "admin.username_exists": {
+        "en": "Username already exists",
+        "ru": "Имя пользователя уже существует",
+        "de": "Benutzername existiert bereits",
+        "es": "El nombre de usuario ya existe",
+        "fr": "Le nom d'utilisateur existe déjà",
+        "pt": "Nome de usuário já existe",
+        "it": "Nome utente già esistente"
+    },
+    "admin.not_found": {
+        "en": "Admin not found",
+        "ru": "Администратор не найден",
+        "de": "Admin nicht gefunden",
+        "es": "Admin no encontrado",
+        "fr": "Admin non trouvé",
+        "pt": "Admin não encontrado",
+        "it": "Admin non trovato"
+    },
+    "admin.cannot_change_role": {
+        "en": "Cannot change your own role",
+        "ru": "Невозможно изменить свою роль",
+        "de": "Eigene Rolle kann nicht geändert werden",
+        "es": "No puedes cambiar tu propio rol",
+        "fr": "Impossible de modifier votre propre rôle",
+        "pt": "Não é possível alterar seu próprio cargo",
+        "it": "Non puoi modificare il tuo ruolo"
+    },
 }
 
 

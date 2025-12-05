@@ -16,6 +16,7 @@ from app.models import (
     NetworkType,
 )
 from app.services.user_notifications import notify_partner_deposited
+from app.i18n import get_text as t
 
 
 async def get_deposits_list(
@@ -98,10 +99,11 @@ async def approve_deposit(
     deposit = result.scalar_one_or_none()
 
     if not deposit:
-        raise ValueError("Deposit request not found")
+        raise ValueError(t("error.deposit_not_found"))
 
     if deposit.status != RequestStatus.PENDING:
-        raise ValueError(f"Deposit is already {deposit.status.value}")
+        status_label = t(f"status.{deposit.status.value.lower()}")
+        raise ValueError(t("error.already_status", status=status_label))
 
     # Update deposit status
     deposit.status = RequestStatus.APPROVED
@@ -161,10 +163,11 @@ async def reject_deposit(
     deposit = result.scalar_one_or_none()
 
     if not deposit:
-        raise ValueError("Deposit request not found")
+        raise ValueError(t("error.deposit_not_found"))
 
     if deposit.status != RequestStatus.PENDING:
-        raise ValueError(f"Deposit is already {deposit.status.value}")
+        status_label = t(f"status.{deposit.status.value.lower()}")
+        raise ValueError(t("error.already_status", status=status_label))
 
     deposit.status = RequestStatus.REJECTED
     deposit.confirmed_at = datetime.utcnow()

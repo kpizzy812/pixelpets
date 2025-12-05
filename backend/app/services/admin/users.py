@@ -5,6 +5,7 @@ from sqlalchemy import select, func, or_, desc, asc, String, cast
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User, Transaction, UserPet, TxType, PetStatus
+from app.i18n import get_text as t
 
 
 async def get_users_list(
@@ -151,7 +152,7 @@ async def adjust_user_balance(
     new_balance = old_balance + amount
 
     if new_balance < 0:
-        raise ValueError("Resulting balance cannot be negative")
+        raise ValueError(t("error.balance_negative"))
 
     user.balance_xpet = new_balance
 

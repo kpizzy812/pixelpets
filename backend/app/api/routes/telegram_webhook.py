@@ -273,7 +273,7 @@ async def telegram_webhook(request: Request):
     try:
         data = await request.json()
     except Exception:
-        raise HTTPException(status_code=400, detail="Invalid JSON")
+        raise HTTPException(status_code=400, detail=t("webhook.invalid_json"))
 
     # Handle /start command
     message = data.get("message")
@@ -298,13 +298,13 @@ async def telegram_webhook(request: Request):
     telegram_username = from_user.get("username", "unknown")
 
     if not callback_data or not message_id:
-        await telegram_notify.answer_callback_query(callback_id, "Invalid callback")
+        await telegram_notify.answer_callback_query(callback_id, t("webhook.invalid_callback"))
         return {"ok": True}
 
     # Parse callback data: "deposit:approve:123" or "withdraw:complete:456"
     parts = callback_data.split(":")
     if len(parts) != 3:
-        await telegram_notify.answer_callback_query(callback_id, "Invalid action")
+        await telegram_notify.answer_callback_query(callback_id, t("webhook.invalid_action"))
         return {"ok": True}
 
     action_type, action, request_id_str = parts
@@ -312,14 +312,14 @@ async def telegram_webhook(request: Request):
     try:
         request_id = int(request_id_str)
     except ValueError:
-        await telegram_notify.answer_callback_query(callback_id, "Invalid request ID")
+        await telegram_notify.answer_callback_query(callback_id, t("webhook.invalid_request_id"))
         return {"ok": True}
 
     # Get admin (for now, use first admin - in production, verify telegram_id)
     admin = await get_admin_by_telegram_id(telegram_user_id)
     if not admin:
         await telegram_notify.answer_callback_query(
-            callback_id, "You are not authorized", show_alert=True
+            callback_id, t("webhook.unauthorized"), show_alert=True
         )
         return {"ok": True}
 
@@ -334,14 +334,14 @@ async def telegram_webhook(request: Request):
                     db, action, request_id, admin.id, telegram_username, message_id, callback_id
                 )
             else:
-                await telegram_notify.answer_callback_query(callback_id, "Unknown action type")
+                await telegram_notify.answer_callback_query(callback_id, t("webhook.unknown_action"))
 
         except ValueError as e:
             await telegram_notify.answer_callback_query(callback_id, str(e), show_alert=True)
         except Exception as e:
             logger.error(f"Webhook error: {e}")
             await telegram_notify.answer_callback_query(
-                callback_id, "Internal error", show_alert=True
+                callback_id, t("webhook.internal_error"), show_alert=True
             )
 
     return {"ok": True}
@@ -366,12 +366,13 @@ async def handle_deposit_callback(
     deposit = result.scalar_one_or_none()
 
     if not deposit:
-        await telegram_notify.answer_callback_query(callback_id, "Deposit not found", show_alert=True)
+        await telegram_notify.answer_callback_query(callback_id, t("error.deposit_not_found"), show_alert=True)
         return
 
     if deposit.status != RequestStatus.PENDING:
+        status_label = t(f"status.{deposit.status.value.lower()}")
         await telegram_notify.answer_callback_query(
-            callback_id, f"Already {deposit.status.value}", show_alert=True
+            callback_id, t("error.already_status", status=status_label), show_alert=True
         )
         return
 
@@ -384,13 +385,13 @@ async def handle_deposit_callback(
     if action == "approve":
         await approve_deposit(db, deposit_id, admin_id)
         status = RequestStatus.APPROVED
-        await telegram_notify.answer_callback_query(callback_id, "Deposit approved!")
+        await telegram_notify.answer_callback_query(callback_id, t("webhook.deposit_approved"))
     elif action == "reject":
         await reject_deposit(db, deposit_id, admin_id)
         status = RequestStatus.REJECTED
-        await telegram_notify.answer_callback_query(callback_id, "Deposit rejected")
+        await telegram_notify.answer_callback_query(callback_id, t("webhook.deposit_rejected"))
     else:
-        await telegram_notify.answer_callback_query(callback_id, "Unknown action")
+        await telegram_notify.answer_callback_query(callback_id, t("webhook.unknown_action"))
         return
 
     # Update message to remove buttons and show who processed
@@ -425,12 +426,13 @@ async def handle_withdrawal_callback(
     withdrawal = result.scalar_one_or_none()
 
     if not withdrawal:
-        await telegram_notify.answer_callback_query(callback_id, "Withdrawal not found", show_alert=True)
+        await telegram_notify.answer_callback_query(callback_id, t("error.withdrawal_not_found"), show_alert=True)
         return
 
     if withdrawal.status != RequestStatus.PENDING:
+        status_label = t(f"status.{withdrawal.status.value.lower()}")
         await telegram_notify.answer_callback_query(
-            callback_id, f"Already {withdrawal.status.value}", show_alert=True
+            callback_id, t("error.already_status", status=status_label), show_alert=True
         )
         return
 
@@ -445,11 +447,11 @@ async def handle_withdrawal_callback(
     if action == "complete":
         await complete_withdrawal(db, withdrawal_id, admin_id)
         status = RequestStatus.COMPLETED
-        await telegram_notify.answer_callback_query(callback_id, "Withdrawal completed!")
+        await telegram_notify.answer_callback_query(callback_id, t("webhook.withdrawal_completed"))
     elif action == "reject":
         await reject_withdrawal(db, withdrawal_id, admin_id)
         status = RequestStatus.REJECTED
-        await telegram_notify.answer_callback_query(callback_id, "Withdrawal rejected, balance refunded")
+        await telegram_notify.answer_callback_query(callback_id, t("webhook.withdrawal_rejected"))
     elif action == "copy":
         # Just show the full address
         await telegram_notify.answer_callback_query(
@@ -457,7 +459,7 @@ async def handle_withdrawal_callback(
         )
         return
     else:
-        await telegram_notify.answer_callback_query(callback_id, "Unknown action")
+        await telegram_notify.answer_callback_query(callback_id, t("webhook.unknown_action"))
         return
 
     # Update message to remove buttons and show who processed

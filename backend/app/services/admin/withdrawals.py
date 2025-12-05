@@ -14,6 +14,7 @@ from app.models import (
     RequestStatus,
     NetworkType,
 )
+from app.i18n import get_text as t
 
 
 async def get_withdrawals_list(
@@ -97,10 +98,11 @@ async def complete_withdrawal(
     withdrawal = result.scalar_one_or_none()
 
     if not withdrawal:
-        raise ValueError("Withdrawal request not found")
+        raise ValueError(t("error.withdrawal_not_found"))
 
     if withdrawal.status != RequestStatus.PENDING:
-        raise ValueError(f"Withdrawal is already {withdrawal.status.value}")
+        status_label = t(f"status.{withdrawal.status.value.lower()}")
+        raise ValueError(t("error.already_status", status=status_label))
 
     withdrawal.status = RequestStatus.COMPLETED
     withdrawal.processed_at = datetime.utcnow()
@@ -141,10 +143,11 @@ async def reject_withdrawal(
     withdrawal = result.scalar_one_or_none()
 
     if not withdrawal:
-        raise ValueError("Withdrawal request not found")
+        raise ValueError(t("error.withdrawal_not_found"))
 
     if withdrawal.status != RequestStatus.PENDING:
-        raise ValueError(f"Withdrawal is already {withdrawal.status.value}")
+        status_label = t(f"status.{withdrawal.status.value.lower()}")
+        raise ValueError(t("error.already_status", status=status_label))
 
     # Refund user (full amount was deducted when they created request, fee is inside)
     user = withdrawal.user

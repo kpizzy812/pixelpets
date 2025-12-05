@@ -22,6 +22,7 @@ from app.services.admin import (
     get_admin_by_id,
 )
 from app.services.admin.auth import get_admin_by_username
+from app.i18n import get_text as t
 
 router = APIRouter()
 
@@ -37,7 +38,7 @@ async def admin_login(
     if not admin:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password",
+            detail=t("admin.invalid_credentials"),
         )
 
     token = create_admin_access_token(admin.id)
@@ -68,7 +69,7 @@ async def create_new_admin(
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already exists",
+            detail=t("admin.username_exists"),
         )
 
     admin = await create_admin(
@@ -95,14 +96,14 @@ async def update_admin_user(
     if not admin:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Admin not found",
+            detail=t("admin.not_found"),
         )
 
     # Cannot demote yourself
     if admin.id == current_admin.id and request.role and request.role != admin.role:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot change your own role",
+            detail=t("admin.cannot_change_role"),
         )
 
     admin = await update_admin(
