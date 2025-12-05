@@ -43,8 +43,9 @@ export function ShopScreen() {
       return;
     }
 
+    // If balance is insufficient, redirect to wallet for deposit
     if (balance < petType.base_price) {
-      showError(t('notEnoughXpet'));
+      router.push('/wallet');
       return;
     }
 
@@ -120,7 +121,7 @@ export function ShopScreen() {
                     key={petType.id}
                     petType={petType}
                     onBuy={() => handleBuy(petType)}
-                    disabled={!hasEmptySlots || balance < petType.base_price}
+                    disabled={!hasEmptySlots}
                   />
                 ))}
               </div>
