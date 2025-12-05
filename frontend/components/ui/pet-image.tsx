@@ -17,7 +17,7 @@ export function PetImage({ imageKey, alt = 'Pet', size = 64, className }: PetIma
       alt={alt}
       width={size}
       height={size}
-      className={cn('object-contain', className)}
+      className={className}
       priority
     />
   );

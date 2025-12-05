@@ -102,8 +102,8 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
 
       {/* Pet Image Area */}
       <div className="flex-1 flex items-center justify-center">
-        <div className={`w-44 h-44 rounded-3xl bg-gradient-to-br ${getGradient()} border border-[#334155]/30 flex items-center justify-center shadow-lg`}>
-          <PetImage imageKey={pet.imageKey} alt={pet.name} size={120} />
+        <div className={`w-52 h-52 rounded-3xl bg-gradient-to-br ${getGradient()} border border-[#334155]/30 overflow-hidden shadow-lg`}>
+          <PetImage imageKey={pet.imageKey} alt={pet.name} size={208} className="w-full h-full object-cover" />
         </div>
       </div>
 
