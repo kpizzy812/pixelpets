@@ -130,3 +130,17 @@ body {
 .content-safe-area-bottom {
   padding-bottom: var(--tg-content-safe-area-inset-bottom);
 }
+
+/* Combined safe area - accounts for both device and Telegram header */
+.tg-safe-top {
+  padding-top: calc(var(--tg-safe-area-inset-top) + var(--tg-content-safe-area-inset-top));
+}
+
+.tg-safe-bottom {
+  padding-bottom: calc(var(--tg-safe-area-inset-bottom) + var(--tg-content-safe-area-inset-bottom));
+}
+
+/* Margin versions for elements that need margin instead of padding */
+.tg-safe-top-margin {
+  margin-top: calc(var(--tg-safe-area-inset-top) + var(--tg-content-safe-area-inset-top));
+}

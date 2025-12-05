@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { PetImage } from '@/components/ui/pet-image';
 import { useGameStore } from '@/store/game-store';
 import { showSuccess, showError } from '@/lib/toast';
 import { formatNumber } from '@/lib/format';
@@ -33,7 +34,7 @@ export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
 
     try {
       const refund = await sellPet(Number(pet.id));
-      showSuccess(`${pet.emoji} ${pet.name} sold! +${formatNumber(refund)} XPET refunded`);
+      showSuccess(`${pet.name} sold! +${formatNumber(refund)} XPET refunded`);
       onClose();
     } catch (err) {
       showError(err instanceof Error ? err.message : 'Failed to sell pet');
@@ -72,7 +73,9 @@ export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
 
         {/* Pet Info */}
         <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-6 text-center">
-          <span className="text-5xl mb-3 block">{pet.emoji}</span>
+          <div className="flex justify-center mb-3">
+            <PetImage imageKey={pet.imageKey} alt={pet.name} size={80} />
+          </div>
           <h3 className="text-lg font-bold text-[#f1f5f9]">{pet.name}</h3>
           <p className="text-sm text-[#64748b] mt-1">Level {pet.level}</p>
         </div>

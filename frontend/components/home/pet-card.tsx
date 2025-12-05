@@ -3,6 +3,7 @@
 import type { PetSlot } from '@/types/pet';
 import { Button } from '@/components/ui/button';
 import { ProgressBar } from '@/components/ui/progress-bar';
+import { PetImage } from '@/components/ui/pet-image';
 import { useCountdown } from '@/hooks/use-countdown';
 import { useHaptic } from '@/hooks/use-haptic';
 
@@ -102,7 +103,7 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
       {/* Pet Image Area */}
       <div className="flex-1 flex items-center justify-center">
         <div className={`w-44 h-44 rounded-3xl bg-gradient-to-br ${getGradient()} border border-[#334155]/30 flex items-center justify-center shadow-lg`}>
-          <span className="text-7xl">{pet.emoji}</span>
+          <PetImage imageKey={pet.imageKey} alt={pet.name} size={120} />
         </div>
       </div>
 

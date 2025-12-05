@@ -147,7 +147,7 @@ export function TransactionsScreen() {
       <div className="absolute inset-0 bg-gradient-to-b from-[#1a0a2e] via-[#0a0f1a] to-[#050712] pointer-events-none" />
 
       {/* Content */}
-      <div className="relative flex flex-col h-full z-10">
+      <div className="relative flex flex-col h-full z-10 tg-safe-top tg-safe-bottom">
         {/* Header */}
         <div className="p-4">
           <div className="flex items-center gap-4 mb-4">

@@ -1,5 +1,6 @@
 'use client';
 
+import { PetImage } from '@/components/ui/pet-image';
 import { formatNumber } from '@/lib/format';
 import type { UserPet } from '@/types/api';
 
@@ -35,7 +36,7 @@ export function HallPetCard({ pet, rank }: HallPetCardProps) {
 
         {/* Pet Icon */}
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#fbbf24]/20 to-transparent border border-[#fbbf24]/30 flex items-center justify-center">
-          <span className="text-3xl">{pet.pet_type.emoji}</span>
+          <PetImage imageKey={pet.pet_type.image_key} alt={pet.pet_type.name} size={48} />
         </div>
 
         {/* Info */}

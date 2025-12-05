@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { PetImage } from '@/components/ui/pet-image';
 import { formatNumber } from '@/lib/format';
 import type { PetType } from '@/types/api';
 
@@ -46,9 +47,9 @@ export function PetTypeCard({ petType, onBuy, disabled }: PetTypeCardProps) {
   return (
     <div className={`p-4 rounded-2xl bg-gradient-to-r ${rarityGradient} bg-[#0d1220]/90 border border-[#1e293b]/50`}>
       <div className="flex items-center gap-4">
-        {/* Pet Emoji */}
-        <div className="w-16 h-16 rounded-xl bg-[#1e293b]/60 flex items-center justify-center text-4xl">
-          {petType.emoji}
+        {/* Pet Image */}
+        <div className="w-16 h-16 rounded-xl bg-[#1e293b]/60 flex items-center justify-center">
+          <PetImage imageKey={petType.image_key} alt={petType.name} size={56} />
         </div>
 
         {/* Pet Info */}

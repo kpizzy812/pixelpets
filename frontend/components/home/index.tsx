@@ -35,7 +35,7 @@ export function HomeScreen() {
     if (slot?.pet) {
       try {
         await startTraining(Number(slot.pet.id));
-        showPetAction(slot.pet.emoji, `${slot.pet.name} started training!`);
+        showPetAction(slot.pet.imageKey, `${slot.pet.name} started training!`);
       } catch (err) {
         showError(err instanceof Error ? err.message : 'Failed to start training');
       }
@@ -86,7 +86,7 @@ export function HomeScreen() {
       <div className="absolute inset-0 bg-gradient-to-b from-[#1a0a2e] via-[#0a0f1a] to-[#050712] pointer-events-none" />
 
       {/* Content */}
-      <div className="relative flex flex-col h-full z-10">
+      <div className="relative flex flex-col h-full z-10 tg-safe-top tg-safe-bottom">
         {/* Header */}
         <HeaderBalance balance={balance} />
 

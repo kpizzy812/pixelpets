@@ -1,4 +1,4 @@
-import toast, { type Renderable } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { createElement } from 'react';
 import { Coins } from 'lucide-react';
 
@@ -25,9 +25,13 @@ export const showReward = (amount: number) => {
   });
 };
 
-export const showPetAction = (icon: Renderable, message: string) => {
+export const showPetAction = (imageKey: string, message: string) => {
   toast.success(message, {
-    icon,
+    icon: createElement('img', {
+      src: `/pets/${imageKey}.png`,
+      alt: 'pet',
+      style: { width: 24, height: 24, objectFit: 'contain' },
+    }),
     duration: 2500,
   });
 };

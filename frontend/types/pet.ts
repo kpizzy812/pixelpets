@@ -12,7 +12,7 @@ export interface Pet {
   id: string;
   slotIndex: number;
   name: string;
-  emoji: string;
+  imageKey: string;
   level: number;
   rarity: PetRarity;
   invested: number;

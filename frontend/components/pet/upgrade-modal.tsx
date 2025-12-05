@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { PetImage } from '@/components/ui/pet-image';
 import { useGameStore, useBalance } from '@/store/game-store';
 import { showSuccess, showError } from '@/lib/toast';
 import { useHaptic } from '@/hooks/use-haptic';
@@ -58,7 +59,7 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
     try {
       await upgradePet(Number(pet.id));
       success();
-      showSuccess(`${pet.emoji} ${pet.name} upgraded to ${LEVEL_NAMES[nextLevel]}!`);
+      showSuccess(`${pet.name} upgraded to ${LEVEL_NAMES[nextLevel]}!`);
       onClose();
     } catch (err) {
       hapticError();
@@ -92,7 +93,9 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
 
         {/* Pet Info */}
         <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-6 text-center">
-          <span className="text-5xl mb-3 block">{pet.emoji}</span>
+          <div className="flex justify-center mb-3">
+            <PetImage imageKey={pet.imageKey} alt={pet.name} size={80} />
+          </div>
           <h3 className="text-lg font-bold text-[#f1f5f9]">{pet.name}</h3>
           <div className="flex justify-center items-center gap-2 mt-2">
             <span className="px-3 py-1 rounded-lg bg-[#00f5d4]/20 text-[#00f5d4] text-sm">

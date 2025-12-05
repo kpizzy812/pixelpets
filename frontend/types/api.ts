@@ -34,6 +34,7 @@ export interface PetType {
   id: number;
   name: string;
   emoji: string;
+  image_key: string;
   base_price: number;
   daily_rate: number;
   roi_cap_multiplier: number;

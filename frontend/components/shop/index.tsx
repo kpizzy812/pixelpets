@@ -48,7 +48,7 @@ export function ShopScreen() {
 
     try {
       await buyPet(selectedPet.id, selectedSlot);
-      showSuccess(`${selectedPet.emoji} ${selectedPet.name} purchased!`);
+      showSuccess(`${selectedPet.name} purchased!`);
       setSelectedPet(null);
       setSelectedSlot(null);
       router.push('/');

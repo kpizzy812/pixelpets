@@ -17,7 +17,7 @@ function mapUserPetToPet(userPet: UserPet): Pet {
     id: String(userPet.id),
     slotIndex: userPet.slot_index,
     name: userPet.pet_type.name,
-    emoji: userPet.pet_type.emoji,
+    imageKey: userPet.pet_type.image_key,
     level: userPet.level === 'BABY' ? 1 : userPet.level === 'ADULT' ? 2 : 3,
     rarity: getRarity(userPet.pet_type.base_price),
     invested: userPet.invested_total,
