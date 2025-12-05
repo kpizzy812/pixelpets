@@ -103,7 +103,7 @@ async def check_task(
         raise ValueError(t("error.task_not_subscribed"))
 
     # Create or update user task
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     if existing:
         existing.status = TaskStatus.COMPLETED
         existing.completed_at = now

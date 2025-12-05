@@ -31,7 +31,7 @@ async def authenticate_admin(
     admin = result.scalar_one_or_none()
 
     if admin and verify_password(password, admin.password_hash):
-        admin.last_login_at = datetime.now(timezone.utc)
+        admin.last_login_at = datetime.utcnow()
         await db.commit()
         return admin
 

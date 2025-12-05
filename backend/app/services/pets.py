@@ -211,7 +211,7 @@ async def upgrade_pet(
     user.balance_xpet -= upgrade_cost
     pet.invested_total += upgrade_cost
     pet.level = next_level
-    pet.updated_at = datetime.now(timezone.utc)
+    pet.updated_at = datetime.utcnow()
 
     # Record transaction
     tx = Transaction(
@@ -263,7 +263,7 @@ async def sell_pet(
 
     # Update pet status
     pet.status = PetStatus.SOLD
-    pet.updated_at = datetime.now(timezone.utc)
+    pet.updated_at = datetime.utcnow()
 
     # Credit balance
     user.balance_xpet += refund_amount
@@ -308,7 +308,7 @@ async def start_training(
     if pet.status != PetStatus.OWNED_IDLE:
         raise ValueError(t("error.pet_not_idle"))
 
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     pet.status = PetStatus.TRAINING
     pet.training_started_at = now
     pet.training_ends_at = now + timedelta(hours=TRAINING_DURATION_HOURS)
@@ -323,7 +323,7 @@ async def start_training(
 def check_training_status(pet: UserPet) -> UserPet:
     """Check if training is complete and update status if needed."""
     if pet.status == PetStatus.TRAINING:
-        if pet.training_ends_at and datetime.now(timezone.utc) >= pet.training_ends_at:
+        if pet.training_ends_at and datetime.utcnow() >= pet.training_ends_at:
             pet.status = PetStatus.READY_TO_CLAIM
     return pet
 
@@ -410,13 +410,13 @@ async def claim_profit(
     pet.profit_claimed += profit_for_claim + auto_claim_commission  # Total claimed includes commission
     pet.training_started_at = None
     pet.training_ends_at = None
-    pet.updated_at = datetime.now(timezone.utc)
+    pet.updated_at = datetime.utcnow()
 
     # Check if evolved (reached cap)
     evolved = pet.profit_claimed >= max_profit
     if evolved:
         pet.status = PetStatus.EVOLVED
-        pet.evolved_at = datetime.now(timezone.utc)
+        pet.evolved_at = datetime.utcnow()
     else:
         pet.status = PetStatus.OWNED_IDLE
 

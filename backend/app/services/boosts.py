@@ -176,7 +176,7 @@ async def buy_snack(
 async def use_snack(db: AsyncSession, snack: PetSnack) -> None:
     """Mark snack as used (called during claim)."""
     snack.is_used = True
-    snack.used_at = datetime.now(timezone.utc)
+    snack.used_at = datetime.utcnow()
     await db.commit()
 
 
@@ -365,7 +365,7 @@ async def get_roi_boost_prices(db: AsyncSession, pet_id: int) -> dict:
 
 async def get_active_auto_claim(db: AsyncSession, user_id: int) -> Optional[AutoClaimSubscription]:
     """Get active auto-claim subscription for user."""
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     result = await db.execute(
         select(AutoClaimSubscription).where(
             and_(
@@ -408,7 +408,7 @@ async def buy_auto_claim(
     user.balance_xpet -= cost
 
     # Create subscription
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     subscription = AutoClaimSubscription(
         user_id=user.id,
         starts_at=now,
@@ -477,7 +477,7 @@ async def get_auto_claim_status(db: AsyncSession, user_id: int) -> dict:
     return {
         "is_active": True,
         "expires_at": subscription.expires_at.isoformat(),
-        "days_remaining": (subscription.expires_at.replace(tzinfo=timezone.utc) - datetime.now(timezone.utc)).days,
+        "days_remaining": (subscription.expires_at - datetime.utcnow()).days,
         "total_claims": subscription.total_claims,
         "total_commission": subscription.total_commission,
         "commission_percent": subscription.commission_percent * 100,

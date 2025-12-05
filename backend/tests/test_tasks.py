@@ -221,6 +221,56 @@ class TestTaskVerification:
         result = await verify_task_completion(user, task)
         assert result is True
 
+    @pytest.mark.asyncio
+    async def test_verify_task_completion_telegram_channel_no_verification_data(self, db_session):
+        """Test Telegram channel task without verification_data passes."""
+        task = Task(
+            title="Join Channel",
+            reward_xpet=Decimal("0.10"),
+            task_type=TaskType.TELEGRAM_CHANNEL,
+            verification_data=None,
+            is_active=True,
+        )
+        db_session.add(task)
+        await db_session.commit()
+
+        user = User(
+            telegram_id=123,
+            ref_code="VERIFY2",
+            language_code="en",
+        )
+        db_session.add(user)
+        await db_session.commit()
+
+        # Without verification_data, should pass
+        result = await verify_task_completion(user, task)
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_verify_task_completion_telegram_chat_no_verification_data(self, db_session):
+        """Test Telegram chat task without verification_data passes."""
+        task = Task(
+            title="Join Chat",
+            reward_xpet=Decimal("0.10"),
+            task_type=TaskType.TELEGRAM_CHAT,
+            verification_data=None,
+            is_active=True,
+        )
+        db_session.add(task)
+        await db_session.commit()
+
+        user = User(
+            telegram_id=456,
+            ref_code="VERIFY3",
+            language_code="en",
+        )
+        db_session.add(user)
+        await db_session.commit()
+
+        # Without verification_data, should pass
+        result = await verify_task_completion(user, task)
+        assert result is True
+
 
 class TestTaskRoutes:
     """Tests for task API routes."""
