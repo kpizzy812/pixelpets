@@ -1,0 +1,30 @@
+# FastAPI
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Database
+sqlalchemy
+asyncpg
+psycopg2-binary
+alembic
+
+# Auth
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt
+
+# Validation & Settings
+pydantic
+pydantic-settings
+
+# HTTP Client
+httpx
+
+# Utils
+python-dateutil
+
+# Dev
+pytest
+pytest-asyncio
+aiosqlite
