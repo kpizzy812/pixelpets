@@ -5,7 +5,8 @@
 // Enums
 export type PetStatus = 'OWNED_IDLE' | 'TRAINING' | 'READY_TO_CLAIM' | 'EVOLVED' | 'SOLD';
 export type PetLevel = 'BABY' | 'TEEN' | 'ADULT';
-export type TxType = 'DEPOSIT' | 'WITHDRAW' | 'PET_PURCHASE' | 'PET_UPGRADE' | 'PET_SELL' | 'TRAINING_REWARD' | 'REFERRAL_REWARD' | 'TASK_REWARD' | 'ADMIN_ADJUSTMENT';
+// Backend TxType values (lowercase)
+export type TxType = 'deposit' | 'withdraw' | 'claim' | 'ref_reward' | 'task_reward' | 'sell_refund' | 'admin_adjust' | 'pet_buy' | 'pet_upgrade';
 export type NetworkType = 'BEP-20' | 'Solana' | 'TON';
 export type RequestStatus = 'PENDING' | 'COMPLETED' | 'REJECTED' | 'EXPIRED';
 

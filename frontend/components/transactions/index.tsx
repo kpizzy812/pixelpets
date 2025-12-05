@@ -10,23 +10,23 @@ import { formatNumber } from '@/lib/format';
 import type { Transaction, TxType } from '@/types/api';
 
 const TX_TYPE_CONFIG: Record<TxType, { label: string; color: string; icon: string }> = {
-  DEPOSIT: { label: 'Deposit', color: 'text-green-400', icon: '+' },
-  WITHDRAW: { label: 'Withdraw', color: 'text-red-400', icon: '-' },
-  PET_PURCHASE: { label: 'Pet Purchase', color: 'text-orange-400', icon: '-' },
-  PET_UPGRADE: { label: 'Pet Upgrade', color: 'text-orange-400', icon: '-' },
-  PET_SELL: { label: 'Pet Sold', color: 'text-green-400', icon: '+' },
-  TRAINING_REWARD: { label: 'Training Reward', color: 'text-cyan-400', icon: '+' },
-  REFERRAL_REWARD: { label: 'Referral Reward', color: 'text-purple-400', icon: '+' },
-  TASK_REWARD: { label: 'Task Reward', color: 'text-yellow-400', icon: '+' },
-  ADMIN_ADJUSTMENT: { label: 'Admin Adjustment', color: 'text-gray-400', icon: '~' },
+  deposit: { label: 'Deposit', color: 'text-green-400', icon: '+' },
+  withdraw: { label: 'Withdraw', color: 'text-red-400', icon: '-' },
+  pet_buy: { label: 'Pet Purchase', color: 'text-orange-400', icon: '-' },
+  pet_upgrade: { label: 'Pet Upgrade', color: 'text-orange-400', icon: '-' },
+  sell_refund: { label: 'Pet Sold', color: 'text-green-400', icon: '+' },
+  claim: { label: 'Training Reward', color: 'text-cyan-400', icon: '+' },
+  ref_reward: { label: 'Referral Reward', color: 'text-purple-400', icon: '+' },
+  task_reward: { label: 'Task Reward', color: 'text-yellow-400', icon: '+' },
+  admin_adjust: { label: 'Admin Adjustment', color: 'text-gray-400', icon: '~' },
 };
 
 const FILTER_OPTIONS: { value: TxType | 'ALL'; label: string }[] = [
   { value: 'ALL', label: 'All' },
-  { value: 'DEPOSIT', label: 'Deposits' },
-  { value: 'WITHDRAW', label: 'Withdrawals' },
-  { value: 'TRAINING_REWARD', label: 'Rewards' },
-  { value: 'REFERRAL_REWARD', label: 'Referrals' },
+  { value: 'deposit', label: 'Deposits' },
+  { value: 'withdraw', label: 'Withdrawals' },
+  { value: 'claim', label: 'Rewards' },
+  { value: 'ref_reward', label: 'Referrals' },
 ];
 
 function TransactionSkeleton() {
@@ -68,7 +68,7 @@ interface TransactionItemProps {
 }
 
 function TransactionItem({ transaction }: TransactionItemProps) {
-  const config = TX_TYPE_CONFIG[transaction.type] || TX_TYPE_CONFIG.ADMIN_ADJUSTMENT;
+  const config = TX_TYPE_CONFIG[transaction.type] || TX_TYPE_CONFIG.admin_adjust;
   const isPositive = config.icon === '+';
 
   return (
