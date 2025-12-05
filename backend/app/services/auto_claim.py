@@ -4,7 +4,7 @@ Auto-claim service: Automatically claims profits for users with active subscript
 This service should be called by a scheduler (cron job) every few minutes.
 """
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import select, and_
@@ -26,7 +26,7 @@ async def get_pets_ready_for_auto_claim(db: AsyncSession) -> list[tuple[User, Us
     - Pet status is TRAINING and training has ended
     - Owner has active auto-claim subscription
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
 
     # Get users with active auto-claim subscriptions
     active_subs_result = await db.execute(

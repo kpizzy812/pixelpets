@@ -102,8 +102,8 @@ async def get_or_create_user(
     last_name: Optional[str],
     language_code: str,
     ref_code_from_link: Optional[str] = None,
-) -> User:
-    """Get existing user or create a new one."""
+) -> tuple[User, bool]:
+    """Get existing user or create a new one. Returns (user, is_new_user)."""
     # Try to find existing user
     result = await db.execute(select(User).where(User.telegram_id == telegram_id))
     user = result.scalar_one_or_none()
@@ -116,7 +116,7 @@ async def get_or_create_user(
         user.language_code = language_code
         user.updated_at = datetime.utcnow()
         await db.commit()
-        return user
+        return user, False
 
     # Create new user
     referrer = None
@@ -159,4 +159,4 @@ async def get_or_create_user(
             )
         )
 
-    return user
+    return user, True

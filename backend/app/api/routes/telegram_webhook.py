@@ -174,28 +174,17 @@ async def set_message_reaction(chat_id: int, message_id: int, emoji: str = "🔥
         return False
 
 
-async def handle_start_command(message: dict) -> None:
+async def send_welcome_to_user(
+    telegram_id: int,
+    language_code: Optional[str] = None,
+    ref_code: Optional[str] = None,
+) -> None:
     """
-    Handle /start command with optional referral code.
-    Sends banner image with localized message and inline buttons.
+    Send welcome message to user when they first open the Mini App.
+    Sends banner image with localized message and inline buttons, pins it and adds reaction.
     """
-    chat = message.get("chat", {})
-    chat_id = chat.get("id")
-    from_user = message.get("from", {})
-    text = message.get("text", "")
-
-    if not chat_id:
-        return
-
-    # Extract language from user
-    lang_code = from_user.get("language_code")
-    lang = get_language(lang_code)
-    is_cis = is_cis_language(lang_code)
-
-    # Extract ref_code from /start parameter (e.g., "/start ABC123")
-    ref_code = None
-    if text.startswith("/start "):
-        ref_code = text.split(" ", 1)[1].strip()
+    lang = get_language(language_code)
+    is_cis = is_cis_language(language_code)
 
     # Get config values from database
     async with async_session() as db:
@@ -209,7 +198,6 @@ async def handle_start_command(message: dict) -> None:
     channel = channel_cis if is_cis else channel_west
 
     # Build Mini App launch URL with ref code
-    # Format: t.me/BotUsername?startapp=ref_CODE
     if ref_code:
         miniapp_launch_url = f"https://t.me/{bot_username}?startapp=ref_{ref_code}"
     else:
@@ -230,11 +218,10 @@ async def handle_start_command(message: dict) -> None:
     ]
 
     # Send banner with buttons
-    # Banner URL should be publicly accessible
     banner_url = f"{miniapp_url}/banner.png"
 
     message_id = await send_photo_with_buttons(
-        chat_id=chat_id,
+        chat_id=telegram_id,
         photo_url=banner_url,
         caption=welcome_message,
         keyboard=keyboard,
@@ -242,11 +229,45 @@ async def handle_start_command(message: dict) -> None:
 
     if not message_id:
         # Fallback: send text message if photo fails
-        await telegram_notify.send_message(chat_id, welcome_message, keyboard)
+        await telegram_notify.send_message(telegram_id, welcome_message, keyboard)
     else:
         # Pin the message and add fire reaction
-        await pin_message(chat_id, message_id)
-        await set_message_reaction(chat_id, message_id, "🔥")
+        await pin_message(telegram_id, message_id)
+        await set_message_reaction(telegram_id, message_id, "🔥")
+
+    logger.info(
+        f"Sent welcome message to new user {telegram_id} "
+        f"(lang: {language_code})"
+    )
+
+
+async def handle_start_command(message: dict) -> None:
+    """
+    Handle /start command with optional referral code.
+    Sends banner image with localized message and inline buttons.
+    """
+    chat = message.get("chat", {})
+    chat_id = chat.get("id")
+    from_user = message.get("from", {})
+    text = message.get("text", "")
+
+    if not chat_id:
+        return
+
+    # Extract language from user
+    lang_code = from_user.get("language_code")
+
+    # Extract ref_code from /start parameter (e.g., "/start ABC123")
+    ref_code = None
+    if text.startswith("/start "):
+        ref_code = text.split(" ", 1)[1].strip()
+
+    # Use shared function to send welcome
+    await send_welcome_to_user(
+        telegram_id=chat_id,
+        language_code=lang_code,
+        ref_code=ref_code,
+    )
 
     logger.info(
         f"Processed /start for user {from_user.get('id')} "
