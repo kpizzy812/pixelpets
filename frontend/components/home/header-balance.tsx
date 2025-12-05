@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { WalletModal } from '@/components/wallet';
 import { Icon } from '@/components/ui/icon';
 import { formatNumber } from '@/lib/format';
+import Image from 'next/image';
 
 interface HeaderBalanceProps {
   balance: number;
@@ -19,13 +20,16 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
       <div className="mx-4 mt-4 p-4 rounded-3xl bg-[#0d1220]/80 border border-[#1e293b]/50 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           {/* Balance Section */}
-          <div className="flex flex-col">
-            <span className="text-[10px] uppercase tracking-widest text-[#64748b] mb-1">
-              Available
-            </span>
-            <span className="text-2xl font-bold text-[#f1f5f9]">
-              ${formatNumber(balance)}
-            </span>
+          <div className="flex items-center gap-3">
+            <Image src="/USDT.png" alt="USDT" width={40} height={40} />
+            <div className="flex flex-col">
+              <span className="text-[10px] uppercase tracking-widest text-[#64748b] mb-1">
+                Available
+              </span>
+              <span className="text-2xl font-bold text-[#f1f5f9]">
+                ${formatNumber(balance)}
+              </span>
+            </div>
           </div>
 
           {/* Action Buttons */}

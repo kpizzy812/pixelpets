@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { useBalance, useGameStore } from '@/store/game-store';
 import { walletApi } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
-import { Icon, type IconName } from '@/components/ui/icon';
+import { Icon } from '@/components/ui/icon';
 import { formatNumber } from '@/lib/format';
 import type { NetworkType, DepositRequestResponse } from '@/types/api';
+import Image from 'next/image';
 
 type WalletTab = 'deposit' | 'withdraw';
 
@@ -17,10 +18,10 @@ interface WalletModalProps {
   onClose: () => void;
 }
 
-const NETWORKS: { id: NetworkType; name: string; icon: IconName; color: string }[] = [
-  { id: 'BEP-20', name: 'BEP-20 (BSC)', icon: 'network-bep20', color: 'text-yellow-400' },
-  { id: 'Solana', name: 'Solana', icon: 'network-sol', color: 'text-purple-400' },
-  { id: 'TON', name: 'TON', icon: 'network-ton', color: 'text-cyan-400' },
+const NETWORKS: { id: NetworkType; name: string; image: string }[] = [
+  { id: 'BEP-20', name: 'BEP-20', image: '/BNB.png' },
+  { id: 'Solana', name: 'Solana', image: '/SOL.png' },
+  { id: 'TON', name: 'TON', image: '/TON.png' },
 ];
 
 export function WalletModal({ isOpen, onClose }: WalletModalProps) {
@@ -208,10 +209,13 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
         </div>
 
         {/* Balance */}
-        <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-4 text-center">
-          <span className="text-sm text-[#64748b]">Available Balance</span>
-          <div className="text-2xl font-bold text-[#c7f464] mt-1">
-            {formatNumber(balance)} XPET
+        <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-4 flex items-center justify-center gap-3">
+          <Image src="/USDT.png" alt="USDT" width={40} height={40} />
+          <div className="text-center">
+            <span className="text-sm text-[#64748b]">Available Balance</span>
+            <div className="text-2xl font-bold text-[#c7f464]">
+              ${formatNumber(balance)}
+            </div>
           </div>
         </div>
 
@@ -261,13 +265,13 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
               <button
                 key={network.id}
                 onClick={() => setSelectedNetwork(network.id)}
-                className={`flex-1 p-3 rounded-xl text-center transition-all ${
+                className={`flex-1 p-3 rounded-xl text-center transition-all flex flex-col items-center ${
                   selectedNetwork === network.id
                     ? 'bg-[#00f5d4]/20 border border-[#00f5d4]/50'
                     : 'bg-[#1e293b]/40 border border-[#1e293b]/50'
                 }`}
               >
-                <Icon name={network.icon} size={24} className={network.color} />
+                <Image src={network.image} alt={network.name} width={32} height={32} />
                 <div className="text-xs text-[#94a3b8] mt-1">{network.name}</div>
               </button>
             ))}
