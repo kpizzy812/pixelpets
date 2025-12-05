@@ -21,6 +21,10 @@ DEFAULT_CONFIG = {
     "pet_slots_limit": 3,
     "sell_penalty_percent": 15,
     "bot_username": "pixelpets_bot",
+    "miniapp_url": "https://pixelpets.vercel.app",
+    "channel_cis": "PIXELPETS_CISOFFICIAL",  # CIS channel (ru, uk, kk, be, uz)
+    "channel_west": "pixelpets_en",  # Western channel (en, de, es, fr, pt, it, etc)
+    "chat_general": "pixelpets_chat",  # General chat for all users
 }
 
 

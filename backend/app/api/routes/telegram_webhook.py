@@ -1,9 +1,10 @@
 """
-Telegram webhook handler for inline button callbacks.
+Telegram webhook handler for /start command and inline button callbacks.
 """
 import logging
 from typing import Optional
 
+import httpx
 from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -15,38 +16,207 @@ from app.models import DepositRequest, WithdrawRequest, Admin
 from app.models.enums import RequestStatus
 from app.services.admin.deposits import approve_deposit, reject_deposit
 from app.services.admin.withdrawals import complete_withdrawal, reject_withdrawal
+from app.services.admin.config import get_config_value, DEFAULT_CONFIG
 from app.services import telegram_notify
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/webhook", tags=["webhook"])
 
+# CIS language codes (Russian-speaking countries)
+CIS_LANGUAGES = {"ru", "uk", "kk", "be", "uz", "tg", "ky", "az", "hy", "ka"}
+
+# Localized messages for /start
+START_MESSAGES = {
+    "en": "Welcome to Pixel Pets! Collect, train, and earn with your virtual pets.",
+    "ru": "Добро пожаловать в Pixel Pets! Собирай, тренируй и зарабатывай с виртуальными питомцами.",
+    "de": "Willkommen bei Pixel Pets! Sammle, trainiere und verdiene mit deinen virtuellen Haustieren.",
+    "es": "Bienvenido a Pixel Pets! Colecciona, entrena y gana con tus mascotas virtuales.",
+    "fr": "Bienvenue sur Pixel Pets! Collectez, entrainez et gagnez avec vos animaux virtuels.",
+    "pt": "Bem-vindo ao Pixel Pets! Colecione, treine e ganhe com seus pets virtuais.",
+    "it": "Benvenuto in Pixel Pets! Colleziona, allena e guadagna con i tuoi animali virtuali.",
+    "uk": "Ласкаво просимо до Pixel Pets! Збирай, тренуй та заробляй з віртуальними улюбленцями.",
+}
+
+# Localized button labels
+BUTTON_LABELS = {
+    "en": {"launch": "Launch App", "channel": "Channel", "chat": "Chat"},
+    "ru": {"launch": "Запустить", "channel": "Канал", "chat": "Чат"},
+    "de": {"launch": "App starten", "channel": "Kanal", "chat": "Chat"},
+    "es": {"launch": "Iniciar App", "channel": "Canal", "chat": "Chat"},
+    "fr": {"launch": "Lancer l'App", "channel": "Chaîne", "chat": "Discussion"},
+    "pt": {"launch": "Iniciar App", "channel": "Canal", "chat": "Chat"},
+    "it": {"launch": "Avvia App", "channel": "Canale", "chat": "Chat"},
+    "uk": {"launch": "Запустити", "channel": "Канал", "chat": "Чат"},
+}
+
 
 class TelegramUser(BaseModel):
     id: int
     username: Optional[str] = None
     first_name: Optional[str] = None
+    language_code: Optional[str] = None
+
+
+class TelegramChat(BaseModel):
+    id: int
+    type: str
 
 
 class TelegramMessage(BaseModel):
     message_id: int
-    chat: dict
+    chat: TelegramChat
+    from_user: Optional[TelegramUser] = None
+    text: Optional[str] = None
+
+    model_config = {"populate_by_name": True}
+
+    @classmethod
+    def model_validate(cls, obj, **kwargs):
+        if isinstance(obj, dict) and "from" in obj:
+            obj = {**obj, "from_user": obj.pop("from")}
+        return super().model_validate(obj, **kwargs)
 
 
 class CallbackQuery(BaseModel):
     id: str
-    from_: TelegramUser
+    from_user: TelegramUser
     message: Optional[TelegramMessage] = None
     data: Optional[str] = None
 
-    class Config:
-        populate_by_name = True
-        fields = {"from_": "from"}
+    model_config = {"populate_by_name": True}
+
+    @classmethod
+    def model_validate(cls, obj, **kwargs):
+        if isinstance(obj, dict) and "from" in obj:
+            obj = {**obj, "from_user": obj.pop("from")}
+        return super().model_validate(obj, **kwargs)
 
 
 class TelegramUpdate(BaseModel):
     update_id: int
+    message: Optional[TelegramMessage] = None
     callback_query: Optional[CallbackQuery] = None
+
+
+def get_language(lang_code: Optional[str]) -> str:
+    """Get supported language or fallback to English."""
+    if not lang_code:
+        return "en"
+    # Take first 2 chars (e.g., "en-US" -> "en")
+    lang = lang_code[:2].lower()
+    return lang if lang in START_MESSAGES else "en"
+
+
+def is_cis_language(lang_code: Optional[str]) -> bool:
+    """Check if language code belongs to CIS region."""
+    if not lang_code:
+        return False
+    lang = lang_code[:2].lower()
+    return lang in CIS_LANGUAGES
+
+
+async def send_photo_with_buttons(
+    chat_id: int,
+    photo_url: str,
+    caption: str,
+    keyboard: list,
+) -> bool:
+    """Send photo with inline keyboard to Telegram chat."""
+    url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendPhoto"
+
+    payload = {
+        "chat_id": chat_id,
+        "photo": photo_url,
+        "caption": caption,
+        "parse_mode": "HTML",
+        "reply_markup": {"inline_keyboard": keyboard},
+    }
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=payload, timeout=10)
+            if response.status_code != 200:
+                logger.error(f"Failed to send photo: {response.text}")
+                return False
+            return True
+    except Exception as e:
+        logger.error(f"Error sending photo: {e}")
+        return False
+
+
+async def handle_start_command(message: dict) -> None:
+    """
+    Handle /start command with optional referral code.
+    Sends banner image with localized message and inline buttons.
+    """
+    chat = message.get("chat", {})
+    chat_id = chat.get("id")
+    from_user = message.get("from", {})
+    text = message.get("text", "")
+
+    if not chat_id:
+        return
+
+    # Extract language from user
+    lang_code = from_user.get("language_code")
+    lang = get_language(lang_code)
+    is_cis = is_cis_language(lang_code)
+
+    # Extract ref_code from /start parameter (e.g., "/start ABC123")
+    ref_code = None
+    if text.startswith("/start "):
+        ref_code = text.split(" ", 1)[1].strip()
+
+    # Get config values from database
+    async with async_session() as db:
+        miniapp_url = await get_config_value(db, "miniapp_url", DEFAULT_CONFIG["miniapp_url"])
+        bot_username = await get_config_value(db, "bot_username", DEFAULT_CONFIG["bot_username"])
+        channel_cis = await get_config_value(db, "channel_cis", DEFAULT_CONFIG["channel_cis"])
+        channel_west = await get_config_value(db, "channel_west", DEFAULT_CONFIG["channel_west"])
+        chat_general = await get_config_value(db, "chat_general", DEFAULT_CONFIG["chat_general"])
+
+    # Choose channel based on language
+    channel = channel_cis if is_cis else channel_west
+
+    # Build Mini App launch URL with ref code
+    start_param = f"ref_{ref_code}" if ref_code else ""
+    miniapp_launch_url = f"https://t.me/{bot_username}/app"
+    if start_param:
+        miniapp_launch_url += f"?startapp={start_param}"
+
+    # Get localized strings
+    welcome_message = START_MESSAGES.get(lang, START_MESSAGES["en"])
+    labels = BUTTON_LABELS.get(lang, BUTTON_LABELS["en"])
+
+    # Build inline keyboard
+    keyboard = [
+        [{"text": f"🎮 {labels['launch']}", "url": miniapp_launch_url}],
+        [
+            {"text": f"📢 {labels['channel']}", "url": f"https://t.me/{channel}"},
+            {"text": f"💬 {labels['chat']}", "url": f"https://t.me/{chat_general}"},
+        ],
+    ]
+
+    # Send banner with buttons
+    # Banner URL should be publicly accessible
+    banner_url = f"{miniapp_url}/banner.png"
+
+    success = await send_photo_with_buttons(
+        chat_id=chat_id,
+        photo_url=banner_url,
+        caption=welcome_message,
+        keyboard=keyboard,
+    )
+
+    if not success:
+        # Fallback: send text message if photo fails
+        await telegram_notify.send_message(chat_id, welcome_message, keyboard)
+
+    logger.info(
+        f"Processed /start for user {from_user.get('id')} "
+        f"(lang: {lang_code}, ref: {ref_code})"
+    )
 
 
 async def get_admin_by_telegram_id(telegram_id: int) -> Optional[Admin]:
@@ -61,14 +231,24 @@ async def get_admin_by_telegram_id(telegram_id: int) -> Optional[Admin]:
 @router.post("/telegram")
 async def telegram_webhook(request: Request):
     """
-    Handle Telegram webhook updates (callback queries from inline buttons).
+    Handle Telegram webhook updates:
+    - /start command with optional referral code
+    - Callback queries from inline buttons (admin actions)
     """
     try:
         data = await request.json()
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid JSON")
 
-    # Only process callback queries
+    # Handle /start command
+    message = data.get("message")
+    if message:
+        text = message.get("text", "")
+        if text.startswith("/start"):
+            await handle_start_command(message)
+            return {"ok": True}
+
+    # Handle callback queries (admin inline buttons)
     callback_query = data.get("callback_query")
     if not callback_query:
         return {"ok": True}
