@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { PetImage } from '@/components/ui/pet-image';
 import { XpetCoin } from '@/components/ui/xpet-coin';
 import { useGameStore } from '@/store/game-store';
@@ -20,17 +19,13 @@ const SELL_RATE = 0.7; // 70% refund
 export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
   const { sellPet } = useGameStore();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [confirmText, setConfirmText] = useState('');
 
   if (!isOpen || !pet) return null;
 
   const refundAmount = pet.invested * SELL_RATE;
   const lossAmount = pet.invested - refundAmount;
-  const isConfirmed = confirmText.toLowerCase() === 'sell';
 
   const handleSell = async () => {
-    if (!isConfirmed) return;
-
     setIsProcessing(true);
 
     try {
@@ -102,38 +97,19 @@ export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
           </div>
         </div>
 
-        {/* Confirmation Input */}
-        <div className="mb-6">
-          <label className="text-xs text-[#64748b] uppercase tracking-wide mb-2 block">
-            Type &quot;SELL&quot; to confirm
-          </label>
-          <input
-            type="text"
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
-            placeholder="SELL"
-            className="w-full p-4 rounded-xl bg-[#1e293b]/40 border border-[#334155]/50 text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-red-500/50 uppercase"
-          />
-        </div>
-
         {/* Actions */}
         <div className="flex gap-3">
-          <Button
-            variant="ghost"
-            fullWidth
+          <button
             onClick={onClose}
             disabled={isProcessing}
+            className="flex-1 py-4 rounded-xl font-medium bg-[#1e293b]/60 text-[#94a3b8] hover:bg-[#1e293b] transition-all disabled:opacity-50"
           >
             Cancel
-          </Button>
+          </button>
           <button
             onClick={handleSell}
-            disabled={isProcessing || !isConfirmed}
-            className={`flex-1 py-3 rounded-xl font-medium transition-all ${
-              isConfirmed && !isProcessing
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-[#1e293b]/60 text-[#64748b] cursor-not-allowed'
-            }`}
+            disabled={isProcessing}
+            className="flex-1 py-4 rounded-xl font-medium bg-red-500 text-white hover:bg-red-600 transition-all disabled:opacity-50"
           >
             {isProcessing ? 'Selling...' : 'Sell Pet'}
           </button>
