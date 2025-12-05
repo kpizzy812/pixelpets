@@ -4,6 +4,7 @@ import type { PetSlot } from '@/types/pet';
 import { Button } from '@/components/ui/button';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { PetImage } from '@/components/ui/pet-image';
+import { Icon } from '@/components/ui/icon';
 import { useCountdown } from '@/hooks/use-countdown';
 import { useHaptic } from '@/hooks/use-haptic';
 
@@ -98,10 +99,9 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
           {onUpgrade && pet.level < 3 && (
             <button
               onClick={() => { tap(); onUpgrade(); }}
-              className="flex items-center gap-1 px-2 py-1.5 rounded-xl bg-[#c7f464]/20 border border-[#c7f464]/40 hover:bg-[#c7f464]/30 transition-colors"
+              className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#c7f464]/20 border border-[#c7f464]/40 hover:bg-[#c7f464]/30 transition-colors"
             >
-              <span className="text-[10px] text-[#c7f464]">▲</span>
-              <span className="text-[10px] font-medium text-[#c7f464]">UP</span>
+              <Icon name="upgrade" size={16} className="text-[#c7f464]" />
             </button>
           )}
         </div>

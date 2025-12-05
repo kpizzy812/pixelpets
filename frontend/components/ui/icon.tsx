@@ -27,6 +27,7 @@ import {
   Trophy,
   Wallet,
   Settings,
+  ArrowUp,
   type LucideIcon,
   type LucideProps,
 } from 'lucide-react';
@@ -75,6 +76,7 @@ const icons = {
 
   // Actions
   close: X,
+  upgrade: ArrowUp,
 
   // Header
   trophy: Trophy,
@@ -148,4 +150,5 @@ export {
   Trophy,
   Wallet,
   Settings,
+  ArrowUp,
 };
