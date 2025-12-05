@@ -376,6 +376,24 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "pt": "💎 Recompensa de indicação!\n\n+{amount} USDT de indicação nível {level}.",
         "it": "💎 Ricompensa referral!\n\n+{amount} USDT da referral livello {level}."
     },
+    "notify.partner_joined": {
+        "en": "👥 New partner!\n\n{partner} joined via your referral link.",
+        "ru": "👥 Новый партнёр!\n\n{partner} присоединился по вашей реферальной ссылке.",
+        "de": "👥 Neuer Partner!\n\n{partner} ist über deinen Empfehlungslink beigetreten.",
+        "es": "👥 ¡Nuevo socio!\n\n{partner} se unió a través de tu enlace de referido.",
+        "fr": "👥 Nouveau partenaire !\n\n{partner} a rejoint via votre lien de parrainage.",
+        "pt": "👥 Novo parceiro!\n\n{partner} entrou pelo seu link de indicação.",
+        "it": "👥 Nuovo partner!\n\n{partner} si è unito tramite il tuo link referral."
+    },
+    "notify.partner_deposited": {
+        "en": "💰 Partner deposit!\n\n{partner} made a deposit of {amount} USDT.",
+        "ru": "💰 Пополнение партнёра!\n\n{partner} сделал пополнение на {amount} USDT.",
+        "de": "💰 Partner-Einzahlung!\n\n{partner} hat {amount} USDT eingezahlt.",
+        "es": "💰 ¡Depósito de socio!\n\n{partner} hizo un depósito de {amount} USDT.",
+        "fr": "💰 Dépôt du partenaire !\n\n{partner} a effectué un dépôt de {amount} USDT.",
+        "pt": "💰 Depósito do parceiro!\n\n{partner} fez um depósito de {amount} USDT.",
+        "it": "💰 Deposito del partner!\n\n{partner} ha effettuato un deposito di {amount} USDT."
+    },
 
     # === Share text ===
     "share.invite_text": {

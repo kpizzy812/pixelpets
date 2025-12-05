@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 import hmac
 import secrets
@@ -12,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.models.user import User
+from app.services.user_notifications import notify_partner_joined
 
 
 def generate_ref_code(length: int = 8) -> str:
@@ -117,6 +119,7 @@ async def get_or_create_user(
         return user
 
     # Create new user
+    referrer = None
     referrer_id = None
     if ref_code_from_link:
         # Find referrer by ref_code
@@ -144,5 +147,16 @@ async def get_or_create_user(
     db.add(user)
     await db.commit()
     await db.refresh(user)
+
+    # Notify referrer about new partner (fire-and-forget)
+    if referrer:
+        asyncio.create_task(
+            notify_partner_joined(
+                user_telegram_id=referrer.telegram_id,
+                partner_username=username,
+                partner_id=telegram_id,
+                locale=referrer.language_code or "en",
+            )
+        )
 
     return user

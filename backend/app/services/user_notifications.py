@@ -115,3 +115,35 @@ async def notify_referral_reward(
     """Notify user about referral reward."""
     message = t("notify.ref_reward", locale=locale, amount=str(amount), level=str(level))
     return await send_user_message(user_telegram_id, message)
+
+
+async def notify_partner_joined(
+    user_telegram_id: int,
+    partner_username: str | None,
+    partner_id: int,
+    locale: str = "en",
+) -> bool:
+    """Notify user that a new partner joined via their referral link."""
+    message = t(
+        "notify.partner_joined",
+        locale=locale,
+        partner=f"@{partner_username}" if partner_username else f"ID:{partner_id}",
+    )
+    return await send_user_message(user_telegram_id, message)
+
+
+async def notify_partner_deposited(
+    user_telegram_id: int,
+    partner_username: str | None,
+    partner_id: int,
+    amount: Decimal,
+    locale: str = "en",
+) -> bool:
+    """Notify user that their partner made a deposit."""
+    message = t(
+        "notify.partner_deposited",
+        locale=locale,
+        partner=f"@{partner_username}" if partner_username else f"ID:{partner_id}",
+        amount=str(amount),
+    )
+    return await send_user_message(user_telegram_id, message)

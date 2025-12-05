@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional, Tuple, List
@@ -14,6 +15,7 @@ from app.models import (
     RequestStatus,
     NetworkType,
 )
+from app.services.user_notifications import notify_partner_deposited
 
 
 async def get_deposits_list(
@@ -125,6 +127,23 @@ async def approve_deposit(
 
     await db.commit()
     await db.refresh(deposit)
+
+    # Notify referrer about partner's deposit (fire-and-forget)
+    if user.referrer_id:
+        referrer_result = await db.execute(
+            select(User).where(User.id == user.referrer_id)
+        )
+        referrer = referrer_result.scalar_one_or_none()
+        if referrer:
+            asyncio.create_task(
+                notify_partner_deposited(
+                    user_telegram_id=referrer.telegram_id,
+                    partner_username=user.username,
+                    partner_id=user.telegram_id,
+                    amount=deposit.amount,
+                    locale=referrer.language_code or "en",
+                )
+            )
 
     return deposit
 

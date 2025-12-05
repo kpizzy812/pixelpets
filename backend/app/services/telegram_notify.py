@@ -117,7 +117,7 @@ async def notify_new_deposit(
     text = (
         f"💵 <b>Новая заявка на депозит #{request_id}</b>\n\n"
         f"👤 Пользователь: {user_display}\n"
-        f"💰 Сумма: <b>{amount} XPET</b>\n"
+        f"💰 Сумма: <b>{amount} USDT</b>\n"
         f"{emoji} Сеть: <b>{network.value}</b>\n\n"
         f"⏳ Ожидает подтверждения..."
     )
@@ -150,16 +150,17 @@ async def notify_new_withdrawal(
     emoji = _network_emoji(network)
     user_display = f"@{username}" if username else f"ID: {user_telegram_id}"
 
-    # Mask wallet address for display
-    masked_wallet = f"{wallet_address[:8]}...{wallet_address[-6:]}" if len(wallet_address) > 16 else wallet_address
+    # Calculate amount to send (amount - fee)
+    amount_to_send = amount - fee
 
     text = (
         f"💸 <b>Новая заявка на вывод #{request_id}</b>\n\n"
         f"👤 Пользователь: {user_display}\n"
-        f"💰 Сумма: <b>{amount} XPET</b>\n"
-        f"💳 Комиссия: {fee} XPET\n"
-        f"{emoji} Сеть: <b>{network.value}</b>\n"
-        f"📬 Кошелек: <code>{masked_wallet}</code>\n\n"
+        f"💰 Сумма заявки: <b>{amount} USDT</b>\n"
+        f"💳 Комиссия: {fee} USDT\n"
+        f"📤 <b>К отправке: {amount_to_send} USDT</b>\n"
+        f"{emoji} Сеть: <b>{network.value}</b>\n\n"
+        f"📬 Кошелек:\n<code>{wallet_address}</code>\n\n"
         f"⏳ Ожидает обработки..."
     )
 
@@ -168,9 +169,6 @@ async def notify_new_withdrawal(
             [
                 {"text": "✅ Выполнить", "callback_data": f"withdraw:complete:{request_id}"},
                 {"text": "❌ Отклонить", "callback_data": f"withdraw:reject:{request_id}"},
-            ],
-            [
-                {"text": "📋 Копировать адрес", "callback_data": f"withdraw:copy:{request_id}"},
             ]
         ]
     }
@@ -202,7 +200,7 @@ async def update_deposit_message(
     text = (
         f"💵 <b>Заявка на депозит #{request_id}</b>\n\n"
         f"👤 Пользователь: {user_display}\n"
-        f"💰 Сумма: <b>{amount} XPET</b>\n"
+        f"💰 Сумма: <b>{amount} USDT</b>\n"
         f"{emoji} Сеть: <b>{network.value}</b>\n\n"
         f"{status_text}\n"
         f"👨‍💼 Обработал: @{admin_username}"
@@ -226,7 +224,7 @@ async def update_withdrawal_message(
     """Update withdrawal notification after processing."""
     emoji = _network_emoji(network)
     user_display = f"@{username}" if username else f"ID: {user_telegram_id}"
-    masked_wallet = f"{wallet_address[:8]}...{wallet_address[-6:]}" if len(wallet_address) > 16 else wallet_address
+    amount_to_send = amount - fee
 
     if status == RequestStatus.COMPLETED:
         status_text = "✅ <b>ВЫПОЛНЕНО</b>"
@@ -236,10 +234,11 @@ async def update_withdrawal_message(
     text = (
         f"💸 <b>Заявка на вывод #{request_id}</b>\n\n"
         f"👤 Пользователь: {user_display}\n"
-        f"💰 Сумма: <b>{amount} XPET</b>\n"
-        f"💳 Комиссия: {fee} XPET\n"
-        f"{emoji} Сеть: <b>{network.value}</b>\n"
-        f"📬 Кошелек: <code>{masked_wallet}</code>\n\n"
+        f"💰 Сумма заявки: <b>{amount} USDT</b>\n"
+        f"💳 Комиссия: {fee} USDT\n"
+        f"📤 К отправке: {amount_to_send} USDT\n"
+        f"{emoji} Сеть: <b>{network.value}</b>\n\n"
+        f"📬 Кошелек:\n<code>{wallet_address}</code>\n\n"
         f"{status_text}\n"
         f"👨‍💼 Обработал: @{admin_username}"
     )
