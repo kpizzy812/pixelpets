@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { walletApi } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Icon } from '@/components/ui/icon';
+import { XpetCoin } from '@/components/ui/xpet-coin';
 import { formatNumber } from '@/lib/format';
 import type { Transaction, TxType } from '@/types/api';
 
@@ -84,10 +85,9 @@ function TransactionItem({ transaction }: TransactionItemProps) {
       </div>
 
       <div className="text-right">
-        <p className={`font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-          {isPositive ? '+' : '-'}{formatNumber(Math.abs(transaction.amount_xpet))}
+        <p className={`font-bold inline-flex items-center gap-1 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+          {isPositive ? '+' : '-'}{formatNumber(Math.abs(transaction.amount_xpet))} <XpetCoin size={14} />
         </p>
-        <p className="text-xs text-[#64748b]">XPET</p>
       </div>
     </div>
   );

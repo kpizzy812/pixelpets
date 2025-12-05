@@ -7,6 +7,7 @@ import { useBalance, useGameStore } from '@/store/game-store';
 import { walletApi } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { Icon } from '@/components/ui/icon';
+import { XpetCoin } from '@/components/ui/xpet-coin';
 import { formatNumber } from '@/lib/format';
 import type { NetworkType, DepositRequestResponse } from '@/types/api';
 import Image from 'next/image';
@@ -134,8 +135,8 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
             <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-4">
               <div className="text-sm text-[#64748b] mb-1">Send exactly</div>
-              <div className="text-2xl font-bold text-[#c7f464]">
-                {depositResult.amount} XPET
+              <div className="text-2xl font-bold text-[#c7f464] inline-flex items-center gap-2">
+                {depositResult.amount} <XpetCoin size={24} />
               </div>
               <div className="text-sm text-[#64748b] mt-1">
                 via {depositResult.network}
@@ -211,8 +212,8 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
         {/* Balance */}
         <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-4 text-center">
           <span className="text-sm text-[#64748b]">Available Balance</span>
-          <div className="text-2xl font-bold text-[#c7f464] mt-1">
-            {formatNumber(balance)} XPET
+          <div className="text-2xl font-bold text-[#c7f464] mt-1 inline-flex items-center gap-2">
+            {formatNumber(balance)} <XpetCoin size={24} />
           </div>
         </div>
 
@@ -309,16 +310,16 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
             <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-[#64748b]">Amount</span>
-                <span className="text-[#f1f5f9]">{formatNumber(withdrawAmount)} XPET</span>
+                <span className="text-[#f1f5f9] inline-flex items-center gap-1">{formatNumber(withdrawAmount)} <XpetCoin size={14} /></span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-[#64748b]">Fee ($1 + 2%)</span>
-                <span className="text-red-400">-{formatNumber(fee)} XPET</span>
+                <span className="text-red-400 inline-flex items-center gap-1">-{formatNumber(fee)} <XpetCoin size={14} /></span>
               </div>
               <div className="h-px bg-[#334155]" />
               <div className="flex justify-between text-sm">
                 <span className="text-[#64748b]">You Receive</span>
-                <span className="text-[#c7f464] font-medium">{formatNumber(netAmount)} XPET</span>
+                <span className="text-[#c7f464] font-medium inline-flex items-center gap-1">{formatNumber(netAmount)} <XpetCoin size={14} /></span>
               </div>
             </div>
           </>

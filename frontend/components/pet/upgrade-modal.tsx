@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PetImage } from '@/components/ui/pet-image';
+import { XpetCoin } from '@/components/ui/xpet-coin';
 import { useGameStore, useBalance } from '@/store/game-store';
 import { showSuccess, showError } from '@/lib/toast';
 import { useHaptic } from '@/hooks/use-haptic';
@@ -135,14 +136,14 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
             <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-6">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-[#64748b]">Upgrade Cost</span>
-                <span className="text-sm text-[#f1f5f9] font-medium">
-                  {upgradePrice != null ? formatNumber(upgradePrice) : '---'} XPET
+                <span className="text-sm text-[#f1f5f9] font-medium inline-flex items-center gap-1">
+                  {upgradePrice != null ? formatNumber(upgradePrice) : '---'} <XpetCoin size={14} />
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-[#64748b]">Your Balance</span>
-                <span className={`text-sm font-medium ${canAfford ? 'text-[#c7f464]' : 'text-red-400'}`}>
-                  {formatNumber(balance)} XPET
+                <span className={`text-sm font-medium inline-flex items-center gap-1 ${canAfford ? 'text-[#c7f464]' : 'text-red-400'}`}>
+                  {formatNumber(balance)} <XpetCoin size={14} />
                 </span>
               </div>
             </div>

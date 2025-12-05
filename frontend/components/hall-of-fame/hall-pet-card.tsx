@@ -1,6 +1,7 @@
 'use client';
 
 import { PetImage } from '@/components/ui/pet-image';
+import { XpetCoin } from '@/components/ui/xpet-coin';
 import { formatNumber } from '@/lib/format';
 import type { HallOfFameEntry } from '@/types/api';
 
@@ -47,15 +48,15 @@ export function HallPetCard({ pet, rank }: HallPetCardProps) {
               Mythic
             </span>
           </div>
-          <p className="text-xs text-[#64748b] mt-1">
-            Invested: {formatNumber(pet.invested_total)} XPET
+          <p className="text-xs text-[#64748b] mt-1 inline-flex items-center gap-1">
+            Invested: {formatNumber(pet.invested_total)} <XpetCoin size={12} />
           </p>
         </div>
 
         {/* Earnings */}
         <div className="text-right">
-          <div className="text-lg font-bold text-[#c7f464]">
-            +{formatNumber(pet.total_farmed)}
+          <div className="text-lg font-bold text-[#c7f464] inline-flex items-center gap-1">
+            +{formatNumber(pet.total_farmed)} <XpetCoin size={16} />
           </div>
           <div className="text-xs text-[#64748b]">{roi}% ROI</div>
         </div>

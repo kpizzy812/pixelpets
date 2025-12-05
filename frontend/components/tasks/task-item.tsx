@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Icon, type IconName } from '@/components/ui/icon';
+import { XpetCoin } from '@/components/ui/xpet-coin';
 import { useHaptic } from '@/hooks/use-haptic';
 import type { Task } from '@/types/api';
 import Image from 'next/image';
@@ -53,7 +54,7 @@ export function TaskItem({ task, onGo, onCheck, isChecking }: TaskItemProps) {
         {/* Info */}
         <div className="flex-1">
           <div className="text-base font-medium text-[#f1f5f9]">{task.title}</div>
-          <div className="text-sm text-[#c7f464]">+{task.reward_xpet} XPET</div>
+          <div className="text-sm text-[#c7f464] inline-flex items-center gap-1">+{task.reward_xpet} <XpetCoin size={14} /></div>
         </div>
 
         {/* Action */}

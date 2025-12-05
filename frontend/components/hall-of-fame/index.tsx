@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { PageLayout } from '@/components/layout/page-layout';
 import { HallPetCard } from './hall-pet-card';
+import { XpetCoin } from '@/components/ui/xpet-coin';
 import { petsApi } from '@/lib/api';
 import { useBackButton } from '@/hooks/use-back-button';
 import { formatNumber } from '@/lib/format';
@@ -47,7 +48,7 @@ export function HallOfFameScreen() {
           </div>
           <div className="flex justify-between items-center pt-3 border-t border-[#334155]/50">
             <span className="text-sm text-[#64748b]">Total Earned</span>
-            <span className="text-lg font-bold text-[#c7f464]">{formatNumber(totalEarned)} XPET</span>
+            <span className="text-lg font-bold text-[#c7f464] inline-flex items-center gap-1">{formatNumber(totalEarned)} <XpetCoin size={18} /></span>
           </div>
         </div>
 

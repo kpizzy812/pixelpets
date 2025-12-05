@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PetImage } from '@/components/ui/pet-image';
+import { XpetCoin } from '@/components/ui/xpet-coin';
 import { useHaptic } from '@/hooks/use-haptic';
 import { formatNumber } from '@/lib/format';
 import type { PetType } from '@/types/api';
@@ -55,7 +56,7 @@ export function BuyModal({ petType, balance, onConfirm, onClose, isLoading }: Bu
         <div className="space-y-3 mb-6">
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">Price</span>
-            <span className="text-[#f1f5f9] font-medium">{petType.base_price} XPET</span>
+            <span className="text-[#f1f5f9] font-medium inline-flex items-center gap-1">{petType.base_price} <XpetCoin size={14} /></span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">Daily Rate</span>
@@ -70,17 +71,17 @@ export function BuyModal({ petType, balance, onConfirm, onClose, isLoading }: Bu
           <div className="h-px bg-[#1e293b]" />
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">Max Profit</span>
-            <span className="text-[#00f5d4] font-medium">+{formatNumber(netProfit)} XPET</span>
+            <span className="text-[#00f5d4] font-medium inline-flex items-center gap-1">+{formatNumber(netProfit)} <XpetCoin size={14} /></span>
           </div>
           <div className="h-px bg-[#1e293b]" />
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">Your Balance</span>
-            <span className="text-[#f1f5f9] font-medium">{formatNumber(balance)} XPET</span>
+            <span className="text-[#f1f5f9] font-medium inline-flex items-center gap-1">{formatNumber(balance)} <XpetCoin size={14} /></span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">After Purchase</span>
             <span className={`font-medium ${canAfford ? 'text-[#c7f464]' : 'text-red-400'}`}>
-              {formatNumber(newBalance)} XPET
+              {formatNumber(newBalance)} <XpetCoin size={14} />
             </span>
           </div>
         </div>
