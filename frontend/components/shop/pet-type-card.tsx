@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { formatNumber } from '@/lib/format';
 import type { PetType } from '@/types/api';
 
 interface PetTypeCardProps {
@@ -62,7 +63,7 @@ export function PetTypeCard({ petType, onBuy, disabled }: PetTypeCardProps) {
           <div className="flex items-center gap-4 text-sm">
             <span className="text-[#c7f464]">+{petType.daily_rate}%/day</span>
             <span className="text-[#64748b]">
-              {(petType.roi_cap_multiplier * 100).toFixed(0)}% ROI
+              {formatNumber(petType.roi_cap_multiplier * 100, 0)}% ROI
             </span>
           </div>
         </div>

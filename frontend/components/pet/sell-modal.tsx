@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGameStore } from '@/store/game-store';
 import { showSuccess, showError } from '@/lib/toast';
+import { formatNumber } from '@/lib/format';
 import type { Pet } from '@/types/pet';
 
 interface SellModalProps {
@@ -32,7 +33,7 @@ export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
 
     try {
       const refund = await sellPet(Number(pet.id));
-      showSuccess(`${pet.emoji} ${pet.name} sold! +${refund.toFixed(2)} XPET refunded`);
+      showSuccess(`${pet.emoji} ${pet.name} sold! +${formatNumber(refund)} XPET refunded`);
       onClose();
     } catch (err) {
       showError(err instanceof Error ? err.message : 'Failed to sell pet');
@@ -80,20 +81,20 @@ export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
         <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-6 space-y-3">
           <div className="flex justify-between items-center">
             <span className="text-sm text-[#64748b]">Total Invested</span>
-            <span className="text-sm text-[#f1f5f9]">{pet.invested.toFixed(2)} XPET</span>
+            <span className="text-sm text-[#f1f5f9]">{formatNumber(pet.invested)} XPET</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-[#64748b]">Sell Rate</span>
-            <span className="text-sm text-[#fbbf24]">{(SELL_RATE * 100).toFixed(0)}%</span>
+            <span className="text-sm text-[#fbbf24]">{formatNumber(SELL_RATE * 100, 0)}%</span>
           </div>
           <div className="h-px bg-[#334155]" />
           <div className="flex justify-between items-center">
             <span className="text-sm text-[#64748b]">You Receive</span>
-            <span className="text-sm text-[#c7f464] font-medium">{refundAmount.toFixed(2)} XPET</span>
+            <span className="text-sm text-[#c7f464] font-medium">{formatNumber(refundAmount)} XPET</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-[#64748b]">Loss</span>
-            <span className="text-sm text-red-400">-{lossAmount.toFixed(2)} XPET</span>
+            <span className="text-sm text-red-400">-{formatNumber(lossAmount)} XPET</span>
           </div>
         </div>
 

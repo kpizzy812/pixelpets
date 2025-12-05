@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useGameStore, useBalance } from '@/store/game-store';
 import { showSuccess, showError } from '@/lib/toast';
 import { useHaptic } from '@/hooks/use-haptic';
+import { formatNumber } from '@/lib/format';
 import type { Pet } from '@/types/pet';
 
 interface UpgradeModalProps {
@@ -132,13 +133,13 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-[#64748b]">Upgrade Cost</span>
                 <span className="text-sm text-[#f1f5f9] font-medium">
-                  {upgradePrice?.toFixed(2) ?? '---'} XPET
+                  {upgradePrice != null ? formatNumber(upgradePrice) : '---'} XPET
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-[#64748b]">Your Balance</span>
                 <span className={`text-sm font-medium ${canAfford ? 'text-[#c7f464]' : 'text-red-400'}`}>
-                  {(balance ?? 0).toFixed(2)} XPET
+                  {formatNumber(balance)} XPET
                 </span>
               </div>
             </div>
@@ -155,7 +156,7 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
                 ? 'Upgrading...'
                 : !canAfford
                 ? 'Insufficient Balance'
-                : `Upgrade for ${upgradePrice?.toFixed(2)} XPET`}
+                : `Upgrade for ${upgradePrice != null ? formatNumber(upgradePrice) : '---'} XPET`}
             </Button>
           </>
         )}

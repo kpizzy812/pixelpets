@@ -7,6 +7,7 @@ import { useBalance, useGameStore } from '@/store/game-store';
 import { walletApi } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { Icon, type IconName } from '@/components/ui/icon';
+import { formatNumber } from '@/lib/format';
 import type { NetworkType, DepositRequestResponse } from '@/types/api';
 
 type WalletTab = 'deposit' | 'withdraw';
@@ -87,7 +88,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
     try {
       const result = await walletApi.createWithdraw(selectedNetwork, address, amountNum);
       updateBalance(result.new_balance);
-      showSuccess(`Withdrawal submitted! Fee: ${(result.fee ?? 0).toFixed(2)} XPET`);
+      showSuccess(`Withdrawal submitted! Fee: ${formatNumber(result.fee)} XPET`);
       resetForm();
       onClose();
     } catch (err) {
@@ -210,7 +211,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
         <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-4 text-center">
           <span className="text-sm text-[#64748b]">Available Balance</span>
           <div className="text-2xl font-bold text-[#c7f464] mt-1">
-            {(balance ?? 0).toFixed(2)} XPET
+            {formatNumber(balance)} XPET
           </div>
         </div>
 
@@ -307,16 +308,16 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
             <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-[#64748b]">Amount</span>
-                <span className="text-[#f1f5f9]">{withdrawAmount.toFixed(2)} XPET</span>
+                <span className="text-[#f1f5f9]">{formatNumber(withdrawAmount)} XPET</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-[#64748b]">Fee ($1 + 2%)</span>
-                <span className="text-red-400">-{fee.toFixed(2)} XPET</span>
+                <span className="text-red-400">-{formatNumber(fee)} XPET</span>
               </div>
               <div className="h-px bg-[#334155]" />
               <div className="flex justify-between text-sm">
                 <span className="text-[#64748b]">You Receive</span>
-                <span className="text-[#c7f464] font-medium">{netAmount.toFixed(2)} XPET</span>
+                <span className="text-[#c7f464] font-medium">{formatNumber(netAmount)} XPET</span>
               </div>
             </div>
           </>

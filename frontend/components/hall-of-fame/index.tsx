@@ -5,6 +5,7 @@ import { PageLayout } from '@/components/layout/page-layout';
 import { HallPetCard } from './hall-pet-card';
 import { petsApi } from '@/lib/api';
 import { useBackButton } from '@/hooks/use-back-button';
+import { formatNumber } from '@/lib/format';
 import type { UserPet } from '@/types/api';
 
 export function HallOfFameScreen() {
@@ -46,7 +47,7 @@ export function HallOfFameScreen() {
           </div>
           <div className="flex justify-between items-center pt-3 border-t border-[#334155]/50">
             <span className="text-sm text-[#64748b]">Total Earned</span>
-            <span className="text-lg font-bold text-[#c7f464]">{totalEarned.toFixed(2)} XPET</span>
+            <span className="text-lg font-bold text-[#c7f464]">{formatNumber(totalEarned)} XPET</span>
           </div>
         </div>
 

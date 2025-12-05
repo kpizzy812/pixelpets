@@ -8,6 +8,7 @@ import { PetCarousel } from './pet-carousel';
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { UpgradeModal, SellModal } from '@/components/pet';
 import { showSuccess, showError, showPetAction } from '@/lib/toast';
+import { formatNumber } from '@/lib/format';
 
 export function HomeScreen() {
   const router = useRouter();
@@ -47,9 +48,9 @@ export function HomeScreen() {
       try {
         const result = await claimReward(Number(slot.pet.id));
         if (result.evolved) {
-          showSuccess(`${slot.pet.name} evolved! +${result.profit.toFixed(2)} XPET earned`);
+          showSuccess(`${slot.pet.name} evolved! +${formatNumber(result.profit)} XPET earned`);
         } else {
-          showSuccess(`+${result.profit.toFixed(2)} XPET claimed!`);
+          showSuccess(`+${formatNumber(result.profit)} XPET claimed!`);
         }
       } catch (err) {
         showError(err instanceof Error ? err.message : 'Failed to claim reward');

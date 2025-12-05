@@ -7,6 +7,7 @@ import { TaskItemSkeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/error-state';
 import { useGameStore, useBalance } from '@/store/game-store';
 import { showReward, showError } from '@/lib/toast';
+import { formatNumber } from '@/lib/format';
 import type { Task } from '@/types/api';
 
 export function TasksScreen() {
@@ -52,7 +53,7 @@ export function TasksScreen() {
         <div className="p-3 rounded-xl bg-[#0d1220]/80 border border-[#1e293b]/50 flex justify-between items-center">
           <span className="text-sm text-[#94a3b8]">Your Balance</span>
           <span className="text-sm font-medium text-[#c7f464]">
-            {(balance ?? 0).toFixed(2)} XPET
+            {formatNumber(balance)} XPET
           </span>
         </div>
 

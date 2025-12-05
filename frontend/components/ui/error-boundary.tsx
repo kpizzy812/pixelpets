@@ -26,12 +26,6 @@ export class ErrorBoundary extends Component<Props, State> {
     // Log error but don't crash
     console.error('[ErrorBoundary] Caught error:', error.message);
     console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
-
-    // Check if it's the toFixed theme error - if so, recover
-    if (error.message?.includes('toFixed')) {
-      console.warn('[ErrorBoundary] Recovering from toFixed error (likely Android theme issue)');
-      this.setState({ hasError: false, error: null });
-    }
   }
 
   render() {

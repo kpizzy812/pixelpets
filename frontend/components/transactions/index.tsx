@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { walletApi } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Icon } from '@/components/ui/icon';
+import { formatNumber } from '@/lib/format';
 import type { Transaction, TxType } from '@/types/api';
 
 const TX_TYPE_CONFIG: Record<TxType, { label: string; color: string; icon: string }> = {
@@ -84,7 +85,7 @@ function TransactionItem({ transaction }: TransactionItemProps) {
 
       <div className="text-right">
         <p className={`font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-          {isPositive ? '+' : '-'}{Math.abs(transaction.amount_xpet).toFixed(2)}
+          {isPositive ? '+' : '-'}{formatNumber(Math.abs(transaction.amount_xpet))}
         </p>
         <p className="text-xs text-[#64748b]">XPET</p>
       </div>

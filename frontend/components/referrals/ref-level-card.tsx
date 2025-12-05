@@ -1,6 +1,7 @@
 'use client';
 
 import { Icon } from '@/components/ui/icon';
+import { formatNumber } from '@/lib/format';
 
 interface RefLevelCardProps {
   level: number;
@@ -69,7 +70,7 @@ export function RefLevelCard({
           </div>
           {unlocked && earned > 0 && (
             <div className="text-xs text-[#94a3b8]">
-              +${earned.toFixed(2)}
+              +${formatNumber(earned)}
             </div>
           )}
         </div>

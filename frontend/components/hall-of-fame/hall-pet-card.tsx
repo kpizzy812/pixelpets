@@ -1,5 +1,6 @@
 'use client';
 
+import { formatNumber } from '@/lib/format';
 import type { UserPet } from '@/types/api';
 
 interface HallPetCardProps {
@@ -15,7 +16,7 @@ const RANK_BADGES: Record<number, { emoji: string; color: string }> = {
 
 export function HallPetCard({ pet, rank }: HallPetCardProps) {
   const badge = RANK_BADGES[rank];
-  const roi = ((pet.profit_claimed / pet.invested_total) * 100).toFixed(0);
+  const roi = formatNumber((pet.profit_claimed / pet.invested_total) * 100, 0);
   const evolvedDate = pet.training_ends_at
     ? new Date(pet.training_ends_at).toLocaleDateString()
     : 'Unknown';
@@ -46,14 +47,14 @@ export function HallPetCard({ pet, rank }: HallPetCardProps) {
             </span>
           </div>
           <p className="text-xs text-[#64748b] mt-1">
-            Invested: {pet.invested_total.toFixed(2)} XPET
+            Invested: {formatNumber(pet.invested_total)} XPET
           </p>
         </div>
 
         {/* Earnings */}
         <div className="text-right">
           <div className="text-lg font-bold text-[#c7f464]">
-            +{pet.profit_claimed.toFixed(2)}
+            +{formatNumber(pet.profit_claimed)}
           </div>
           <div className="text-xs text-[#64748b]">{roi}% ROI</div>
         </div>

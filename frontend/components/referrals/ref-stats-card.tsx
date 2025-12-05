@@ -1,5 +1,7 @@
 'use client';
 
+import { formatNumber } from '@/lib/format';
+
 interface RefStatsCardProps {
   totalReferrals: number;
   activeReferrals: number;
@@ -24,7 +26,7 @@ export function RefStatsCard({
         </div>
         <div>
           <div className="text-2xl font-bold text-[#c7f464]">
-            ${totalEarned.toFixed(2)}
+            ${formatNumber(totalEarned)}
           </div>
           <div className="text-xs text-[#64748b] mt-1">Earned</div>
         </div>

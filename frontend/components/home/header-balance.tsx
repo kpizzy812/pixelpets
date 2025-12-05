@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { WalletModal } from '@/components/wallet';
+import { formatNumber } from '@/lib/format';
 
 interface HeaderBalanceProps {
   balance: number;
@@ -22,7 +23,7 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
               Available
             </span>
             <span className="text-2xl font-bold text-[#f1f5f9]">
-              ${(balance ?? 0).toFixed(2)}
+              ${formatNumber(balance)}
             </span>
           </div>
 

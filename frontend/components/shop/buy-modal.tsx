@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useHaptic } from '@/hooks/use-haptic';
+import { formatNumber } from '@/lib/format';
 import type { PetType } from '@/types/api';
 
 interface BuyModalProps {
@@ -62,23 +63,23 @@ export function BuyModal({ petType, balance, onConfirm, onClose, isLoading }: Bu
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">ROI Cap</span>
             <span className="text-[#f1f5f9] font-medium">
-              {(petType.roi_cap_multiplier * 100).toFixed(0)}%
+              {formatNumber(petType.roi_cap_multiplier * 100, 0)}%
             </span>
           </div>
           <div className="h-px bg-[#1e293b]" />
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">Max Profit</span>
-            <span className="text-[#00f5d4] font-medium">+{netProfit.toFixed(2)} XPET</span>
+            <span className="text-[#00f5d4] font-medium">+{formatNumber(netProfit)} XPET</span>
           </div>
           <div className="h-px bg-[#1e293b]" />
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">Your Balance</span>
-            <span className="text-[#f1f5f9] font-medium">{(balance ?? 0).toFixed(2)} XPET</span>
+            <span className="text-[#f1f5f9] font-medium">{formatNumber(balance)} XPET</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">After Purchase</span>
             <span className={`font-medium ${canAfford ? 'text-[#c7f464]' : 'text-red-400'}`}>
-              {(newBalance ?? 0).toFixed(2)} XPET
+              {formatNumber(newBalance)} XPET
             </span>
           </div>
         </div>
