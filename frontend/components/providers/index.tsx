@@ -47,6 +47,8 @@ interface ProvidersProps {
 function AppContent({ children }: { children: ReactNode }) {
   const { isLoading: authLoading, isAuthenticated, user } = useAuth();
   const { fetchPets, fetchPetCatalog, setUser } = useGameStore();
+  const isWalletOpen = useGameStore((state) => state.isWalletOpen);
+  const closeWallet = useGameStore((state) => state.closeWallet);
   const [isAppReady, setIsAppReady] = useState(false);
   const [showLoader, setShowLoader] = useState(true);
 
@@ -95,9 +97,6 @@ function AppContent({ children }: { children: ReactNode }) {
   if (showLoader) {
     return <AppLoader onComplete={handleLoaderComplete} />;
   }
-
-  const isWalletOpen = useGameStore((state) => state.isWalletOpen);
-  const closeWallet = useGameStore((state) => state.closeWallet);
 
   return (
     <>
