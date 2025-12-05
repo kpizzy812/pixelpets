@@ -136,6 +136,15 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "pt": "Tarefa já concluída",
         "it": "Attività già completata"
     },
+    "error.task_not_subscribed": {
+        "en": "You must subscribe to the channel/chat first",
+        "ru": "Сначала подпишитесь на канал/чат",
+        "de": "Sie müssen zuerst dem Kanal/Chat beitreten",
+        "es": "Primero debes suscribirte al canal/chat",
+        "fr": "Vous devez d'abord vous abonner au canal/chat",
+        "pt": "Você deve se inscrever no canal/chat primeiro",
+        "it": "Devi prima iscriverti al canale/chat"
+    },
     "error.withdrawal_not_found": {
         "en": "Withdrawal request not found",
         "ru": "Запрос на вывод не найден",

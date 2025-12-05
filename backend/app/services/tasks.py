@@ -97,11 +97,10 @@ async def check_task(
     if existing and existing.status == TaskStatus.COMPLETED:
         raise ValueError(t("error.task_already_completed"))
 
-    # Optional: verify task completion (e.g., Telegram channel subscription)
-    # For now, we trust the client
-    # verified = await verify_task_completion(user, task)
-    # if not verified:
-    #     raise ValueError("Task verification failed")
+    # Verify task completion (e.g., Telegram channel/chat subscription)
+    verified = await verify_task_completion(user, task)
+    if not verified:
+        raise ValueError(t("error.task_not_subscribed"))
 
     # Create or update user task
     now = datetime.now(timezone.utc)
@@ -176,6 +175,11 @@ async def verify_task_completion(user: User, task: Task) -> bool:
         if task.verification_data and task.verification_data.get("channel_id"):
             channel = task.verification_data["channel_id"].lstrip("@")
             return await verify_telegram_subscription(user.telegram_id, channel)
+
+    if task.task_type == TaskType.TELEGRAM_CHAT:
+        if task.verification_data and task.verification_data.get("chat_id"):
+            chat = task.verification_data["chat_id"].lstrip("@")
+            return await verify_telegram_subscription(user.telegram_id, chat)
 
     # For other task types, trust the client
     return True
