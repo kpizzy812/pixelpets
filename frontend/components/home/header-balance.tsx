@@ -16,7 +16,7 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
 
   return (
     <>
-      <div className="mx-4 mt-4 p-4 rounded-3xl bg-[#0d1220]/80 border border-[#1e293b]/50 backdrop-blur-sm">
+      <div className="mx-4 mt-2 p-4 rounded-3xl bg-[#0d1220]/80 border border-[#1e293b]/50 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           {/* Balance Section */}
           <div className="flex flex-col">

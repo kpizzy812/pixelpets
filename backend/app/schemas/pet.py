@@ -82,6 +82,11 @@ class StartTrainingResponse(BaseModel):
 
 class ClaimResponse(BaseModel):
     profit_claimed: Decimal
+    base_profit: Optional[Decimal] = None
+    snack_bonus: Optional[Decimal] = None
+    snack_used: Optional[str] = None
+    roi_boost_percent: Optional[Decimal] = None
+    auto_claim_commission: Optional[Decimal] = None
     new_balance: Decimal
     pet_status: PetStatus
     total_profit_claimed: Decimal

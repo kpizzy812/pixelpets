@@ -23,6 +23,14 @@ import type {
   NetworkType,
   TxType,
   PetStatus,
+  SnackType,
+  SnackPricesResponse,
+  BuySnackResponse,
+  RoiBoostPricesResponse,
+  BuyRoiBoostResponse,
+  AutoClaimStatusResponse,
+  BuyAutoClaimResponse,
+  BoostStatsResponse,
 } from '@/types/api';
 
 // Auth
@@ -106,4 +114,31 @@ export const spinApi = {
 
   spin: (isFree: boolean) =>
     api.post<SpinResultResponse>('/spin/spin', { is_free: isFree }),
+};
+
+// Boosts
+export const boostsApi = {
+  // Snacks
+  snackPrices: (petId: number) =>
+    api.get<SnackPricesResponse>(`/boosts/snacks/prices/${petId}`),
+
+  buySnack: (petId: number, snackType: SnackType) =>
+    api.post<BuySnackResponse>('/boosts/snacks/buy', { pet_id: petId, snack_type: snackType }),
+
+  // ROI Boosts
+  roiPrices: (petId: number) =>
+    api.get<RoiBoostPricesResponse>(`/boosts/roi/prices/${petId}`),
+
+  buyRoiBoost: (petId: number, boostPercent: number) =>
+    api.post<BuyRoiBoostResponse>('/boosts/roi/buy', { pet_id: petId, boost_percent: boostPercent }),
+
+  // Auto-Claim
+  autoClaimStatus: () =>
+    api.get<AutoClaimStatusResponse>('/boosts/auto-claim/status'),
+
+  buyAutoClaim: (months: number) =>
+    api.post<BuyAutoClaimResponse>('/boosts/auto-claim/buy', { months }),
+
+  // Stats
+  stats: () => api.get<BoostStatsResponse>('/boosts/stats'),
 };

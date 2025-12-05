@@ -9,6 +9,8 @@ from app.models.enums import (
     TaskStatus,
     AdminRole,
     SpinRewardType,
+    SnackType,
+    BoostType,
 )
 from app.models.user import User
 from app.models.pet import PetType, UserPet
@@ -19,6 +21,7 @@ from app.models.admin import Admin
 from app.models.config import SystemConfig
 from app.models.admin_log import AdminActionLog
 from app.models.spin import SpinReward, UserSpin
+from app.models.boost import PetSnack, PetRoiBoost, AutoClaimSubscription, BoostTransaction
 
 __all__ = [
     # Enums
@@ -32,6 +35,8 @@ __all__ = [
     "TaskStatus",
     "AdminRole",
     "SpinRewardType",
+    "SnackType",
+    "BoostType",
     # Models
     "User",
     "PetType",
@@ -48,4 +53,8 @@ __all__ = [
     "AdminActionLog",
     "SpinReward",
     "UserSpin",
+    "PetSnack",
+    "PetRoiBoost",
+    "AutoClaimSubscription",
+    "BoostTransaction",
 ]

@@ -446,6 +446,62 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "it": "Utente non trovato"
     },
 
+    # === Boost errors ===
+    "error.pet_cannot_boost": {
+        "en": "Cannot boost this pet",
+        "ru": "Невозможно применить буст к этому питомцу",
+        "de": "Kann dieses Haustier nicht boosten",
+        "es": "No se puede potenciar esta mascota",
+        "fr": "Impossible de booster cet animal",
+        "pt": "Não é possível potencializar este pet",
+        "it": "Impossibile potenziare questo pet"
+    },
+    "error.snack_already_active": {
+        "en": "Pet already has an active snack",
+        "ru": "У питомца уже есть активный снэк",
+        "de": "Haustier hat bereits einen aktiven Snack",
+        "es": "La mascota ya tiene un snack activo",
+        "fr": "L'animal a déjà un snack actif",
+        "pt": "O pet já tem um snack ativo",
+        "it": "Il pet ha già uno snack attivo"
+    },
+    "error.invalid_boost_percent": {
+        "en": "Invalid boost percentage",
+        "ru": "Неверный процент буста",
+        "de": "Ungültiger Boost-Prozentsatz",
+        "es": "Porcentaje de mejora inválido",
+        "fr": "Pourcentage de boost invalide",
+        "pt": "Porcentagem de boost inválida",
+        "it": "Percentuale di boost non valida"
+    },
+    "error.roi_boost_max_exceeded": {
+        "en": "Maximum ROI boost (50%) exceeded",
+        "ru": "Превышен максимальный ROI буст (50%)",
+        "de": "Maximaler ROI-Boost (50%) überschritten",
+        "es": "Máximo de mejora ROI (50%) excedido",
+        "fr": "Boost ROI maximum (50%) dépassé",
+        "pt": "Boost de ROI máximo (50%) excedido",
+        "it": "Boost ROI massimo (50%) superato"
+    },
+    "error.auto_claim_already_active": {
+        "en": "Auto-claim subscription is already active",
+        "ru": "Подписка на автоклейм уже активна",
+        "de": "Auto-Claim-Abo ist bereits aktiv",
+        "es": "La suscripción de auto-claim ya está activa",
+        "fr": "L'abonnement auto-claim est déjà actif",
+        "pt": "A assinatura de auto-claim já está ativa",
+        "it": "L'abbonamento auto-claim è già attivo"
+    },
+    "error.invalid_subscription_period": {
+        "en": "Invalid subscription period",
+        "ru": "Неверный период подписки",
+        "de": "Ungültiger Abonnementzeitraum",
+        "es": "Período de suscripción inválido",
+        "fr": "Période d'abonnement invalide",
+        "pt": "Período de assinatura inválido",
+        "it": "Periodo di abbonamento non valido"
+    },
+
     # === Request status errors ===
     "error.already_status": {
         "en": "Already {status}",

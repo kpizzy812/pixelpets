@@ -11,9 +11,10 @@ interface PetCarouselProps {
   onShop: () => void;
   onUpgrade?: (index: number) => void;
   onSell?: (index: number) => void;
+  onBoosts?: (index: number) => void;
 }
 
-export function PetCarousel({ slots, onTrain, onClaim, onShop, onUpgrade, onSell }: PetCarouselProps) {
+export function PetCarousel({ slots, onTrain, onClaim, onShop, onUpgrade, onSell, onBoosts }: PetCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +49,7 @@ export function PetCarousel({ slots, onTrain, onClaim, onShop, onUpgrade, onSell
       {/* Carousel */}
       <div
         ref={scrollRef}
-        className="flex-1 flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-[7.5%] py-4"
+        className="flex-1 flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-[7.5%] py-2"
         style={{ scrollPaddingLeft: '7.5%', scrollPaddingRight: '7.5%' }}
       >
         {slots.map((slot) => (
@@ -64,6 +65,7 @@ export function PetCarousel({ slots, onTrain, onClaim, onShop, onUpgrade, onSell
                 onShop={onShop}
                 onUpgrade={onUpgrade ? () => onUpgrade(slot.index) : undefined}
                 onSell={onSell ? () => onSell(slot.index) : undefined}
+                onBoosts={onBoosts ? () => onBoosts(slot.index) : undefined}
               />
             </div>
           </div>

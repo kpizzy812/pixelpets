@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api.routes import auth, pets, wallet, referrals, tasks, spin, telegram_webhook
+from app.api.routes import auth, pets, wallet, referrals, tasks, spin, telegram_webhook, boosts
 from app.api.routes.admin import router as admin_router
 
 app = FastAPI(
@@ -27,6 +27,7 @@ app.include_router(wallet.router)
 app.include_router(referrals.router)
 app.include_router(tasks.router)
 app.include_router(spin.router)
+app.include_router(boosts.router)
 
 # Admin router
 app.include_router(admin_router)

@@ -205,6 +205,7 @@ async def pet_types(db_session: AsyncSession) -> list[PetType]:
         PetType(
             name="Bubble Slime",
             emoji="🫧",
+            image_key="bubble",
             base_price=Decimal("5"),
             daily_rate=Decimal("0.01"),
             roi_cap_multiplier=Decimal("1.5"),
@@ -214,6 +215,7 @@ async def pet_types(db_session: AsyncSession) -> list[PetType]:
         PetType(
             name="Pixel Fox",
             emoji="🦊",
+            image_key="fox",
             base_price=Decimal("50"),
             daily_rate=Decimal("0.012"),
             roi_cap_multiplier=Decimal("1.6"),
@@ -223,6 +225,7 @@ async def pet_types(db_session: AsyncSession) -> list[PetType]:
         PetType(
             name="Glitch Cat",
             emoji="🐱",
+            image_key="cat",
             base_price=Decimal("100"),
             daily_rate=Decimal("0.015"),
             roi_cap_multiplier=Decimal("1.7"),
@@ -232,6 +235,7 @@ async def pet_types(db_session: AsyncSession) -> list[PetType]:
         PetType(
             name="Inactive Pet",
             emoji="❌",
+            image_key="inactive",
             base_price=Decimal("10"),
             daily_rate=Decimal("0.01"),
             roi_cap_multiplier=Decimal("1.5"),

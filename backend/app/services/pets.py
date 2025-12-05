@@ -294,11 +294,21 @@ async def claim_profit(
     db: AsyncSession,
     user: User,
     pet_id: int,
+    is_auto_claim: bool = False,
 ) -> dict:
     """
     Claim daily profit from a pet.
+    Applies snack bonus if active, and considers ROI boosts.
     Returns claim details or raises ValueError.
     """
+    from app.services.boosts import (
+        get_active_snack,
+        use_snack,
+        get_pet_total_roi_boost,
+        get_active_auto_claim,
+        record_auto_claim_commission,
+    )
+
     result = await db.execute(
         select(UserPet)
         .options(selectinload(UserPet.pet_type))
@@ -315,14 +325,51 @@ async def claim_profit(
     if pet.status != PetStatus.READY_TO_CLAIM:
         raise ValueError(t("error.training_not_complete"))
 
-    # Calculate profit
+    # Calculate base daily profit
     daily_profit_raw = calculate_daily_profit(pet.invested_total, pet.pet_type.daily_rate)
-    max_profit = calculate_max_profit(pet.invested_total, pet.pet_type.roi_cap_multiplier)
+
+    # Check for active snack bonus
+    snack = await get_active_snack(db, pet_id)
+    snack_bonus = Decimal("0")
+    snack_used = None
+    if snack:
+        snack_bonus = daily_profit_raw * snack.bonus_percent
+        snack_used = snack.snack_type.value
+        await use_snack(db, snack)
+
+    # Total daily profit with snack
+    daily_profit_with_snack = daily_profit_raw + snack_bonus
+
+    # Get ROI boost and calculate boosted max profit
+    roi_boost = await get_pet_total_roi_boost(db, pet_id)
+    boosted_roi_cap = pet.pet_type.roi_cap_multiplier + roi_boost
+    max_profit = pet.invested_total * boosted_roi_cap
+
+    # Calculate claimable profit
     remaining_profit = max_profit - pet.profit_claimed
-    profit_for_claim = min(daily_profit_raw, remaining_profit)
+    profit_for_claim = min(daily_profit_with_snack, remaining_profit)
+
+    # Handle auto-claim commission (3% fee)
+    auto_claim_commission = Decimal("0")
+    if is_auto_claim:
+        subscription = await get_active_auto_claim(db, user.id)
+        if subscription:
+            auto_claim_commission = await record_auto_claim_commission(
+                db, subscription, profit_for_claim
+            )
+            profit_for_claim -= auto_claim_commission
+
+            # Record commission transaction
+            tx_commission = Transaction(
+                user_id=user.id,
+                type=TxType.AUTO_CLAIM_COMMISSION,
+                amount_xpet=-auto_claim_commission,
+                meta={"pet_id": pet_id, "subscription_id": subscription.id},
+            )
+            db.add(tx_commission)
 
     # Update pet
-    pet.profit_claimed += profit_for_claim
+    pet.profit_claimed += profit_for_claim + auto_claim_commission  # Total claimed includes commission
     pet.training_started_at = None
     pet.training_ends_at = None
     pet.updated_at = datetime.utcnow()
@@ -335,7 +382,7 @@ async def claim_profit(
     else:
         pet.status = PetStatus.OWNED_IDLE
 
-    # Credit user balance
+    # Credit user balance (after commission deduction)
     user.balance_xpet += profit_for_claim
 
     # Record transaction
@@ -343,7 +390,15 @@ async def claim_profit(
         user_id=user.id,
         type=TxType.CLAIM,
         amount_xpet=profit_for_claim,
-        meta={"pet_id": pet_id, "pet_name": pet.pet_type.name},
+        meta={
+            "pet_id": pet_id,
+            "pet_name": pet.pet_type.name,
+            "snack_bonus": str(snack_bonus) if snack_bonus else None,
+            "snack_type": snack_used,
+            "roi_boost": str(roi_boost) if roi_boost else None,
+            "auto_claim": is_auto_claim,
+            "commission": str(auto_claim_commission) if auto_claim_commission else None,
+        },
     )
     db.add(tx)
 
@@ -355,6 +410,11 @@ async def claim_profit(
 
     result_data = {
         "profit_claimed": profit_for_claim,
+        "base_profit": daily_profit_raw,
+        "snack_bonus": snack_bonus,
+        "snack_used": snack_used,
+        "roi_boost_percent": roi_boost * 100 if roi_boost else Decimal("0"),
+        "auto_claim_commission": auto_claim_commission,
         "new_balance": user.balance_xpet,
         "pet_status": pet.status,
         "total_profit_claimed": pet.profit_claimed,

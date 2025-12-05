@@ -207,3 +207,78 @@ export interface SpinResultResponse {
   was_free_spin: boolean;
   winning_index: number;
 }
+
+// Boosts
+export type SnackType = 'cookie' | 'steak' | 'cake';
+export type BoostType = 'roi_boost' | 'snack' | 'auto_claim';
+
+export interface SnackPriceInfo {
+  cost: number;
+  bonus_percent: number;
+  bonus_amount: number;
+  net_benefit: number;
+}
+
+export interface SnackPricesResponse {
+  pet_id: number;
+  daily_profit: number;
+  active_snack: SnackType | null;
+  prices: Record<SnackType, SnackPriceInfo>;
+}
+
+export interface BuySnackResponse {
+  snack_id: number;
+  snack_type: SnackType;
+  bonus_percent: number;
+  cost: number;
+  new_balance: number;
+}
+
+export interface RoiBoostPriceInfo {
+  cost: number;
+  boost_percent: number;
+  extra_profit: number;
+  net_benefit: number;
+  can_buy: boolean;
+}
+
+export interface RoiBoostPricesResponse {
+  pet_id: number;
+  current_boost: number;
+  max_boost: number;
+  options: Record<string, RoiBoostPriceInfo>;
+}
+
+export interface BuyRoiBoostResponse {
+  boost_id: number;
+  boost_percent: number;
+  extra_profit: number;
+  cost: number;
+  new_balance: number;
+  total_boost: number;
+}
+
+export interface AutoClaimStatusResponse {
+  is_active: boolean;
+  expires_at: string | null;
+  days_remaining: number | null;
+  total_claims: number | null;
+  total_commission: number | null;
+  commission_percent: number;
+  monthly_cost: number | null;
+}
+
+export interface BuyAutoClaimResponse {
+  subscription_id: number;
+  expires_at: string;
+  cost: number;
+  new_balance: number;
+  commission_percent: number;
+}
+
+export interface BoostStatsResponse {
+  total_spent: number;
+  snacks_purchased: number;
+  roi_boosts_purchased: number;
+  auto_claim_subscriptions: number;
+}

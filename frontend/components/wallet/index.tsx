@@ -122,7 +122,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   // Show deposit address after successful request
   if (depositResult) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-x-0 top-[calc(var(--tg-safe-area-inset-top,0px)+var(--tg-content-safe-area-inset-top,0px))] bottom-0 z-50 flex items-center justify-center p-4">
         <div
           className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={handleClose}
@@ -191,7 +191,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-x-0 top-[var(--tg-viewport-stable-height-offset,0px)] bottom-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"

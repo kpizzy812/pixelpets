@@ -6,7 +6,7 @@ import { useGameStore, useBalance, usePetSlots } from '@/store/game-store';
 import { HeaderBalance } from './header-balance';
 import { PetCarousel } from './pet-carousel';
 import { BottomNav } from '@/components/layout/bottom-nav';
-import { UpgradeModal, SellModal } from '@/components/pet';
+import { UpgradeModal, SellModal, BoostModal } from '@/components/pet';
 import { showSuccess, showError, showPetAction } from '@/lib/toast';
 import { formatNumber } from '@/lib/format';
 
@@ -19,9 +19,11 @@ export function HomeScreen() {
   // Modal states
   const [upgradeSlotIndex, setUpgradeSlotIndex] = useState<number | null>(null);
   const [sellSlotIndex, setSellSlotIndex] = useState<number | null>(null);
+  const [boostSlotIndex, setBoostSlotIndex] = useState<number | null>(null);
 
   const upgradePet = upgradeSlotIndex !== null ? petSlots[upgradeSlotIndex]?.pet : null;
   const sellPet = sellSlotIndex !== null ? petSlots[sellSlotIndex]?.pet : null;
+  const boostPet = boostSlotIndex !== null ? petSlots[boostSlotIndex]?.pet : null;
 
   // Fetch pets on mount if we have a user
   useEffect(() => {
@@ -70,6 +72,10 @@ export function HomeScreen() {
     setSellSlotIndex(slotIndex);
   };
 
+  const handleBoosts = (slotIndex: number) => {
+    setBoostSlotIndex(slotIndex);
+  };
+
   // Get upgrade price from original API data (we need to track this)
   const getUpgradePrice = (slotIndex: number): number | null => {
     // For now return estimated upgrade price based on level
@@ -98,6 +104,7 @@ export function HomeScreen() {
           onShop={handleShop}
           onUpgrade={handleUpgrade}
           onSell={handleSell}
+          onBoosts={handleBoosts}
         />
 
         {/* Bottom Navigation */}
@@ -116,6 +123,12 @@ export function HomeScreen() {
         isOpen={sellSlotIndex !== null}
         onClose={() => setSellSlotIndex(null)}
         pet={sellPet}
+      />
+
+      <BoostModal
+        isOpen={boostSlotIndex !== null}
+        onClose={() => setBoostSlotIndex(null)}
+        pet={boostPet}
       />
     </div>
   );

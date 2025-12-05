@@ -28,6 +28,8 @@ class TxType(str, enum.Enum):
     WITHDRAW_REFUND = "withdraw_refund"
     SPIN_COST = "spin_cost"
     SPIN_WIN = "spin_win"
+    BOOST_PURCHASE = "boost_purchase"
+    AUTO_CLAIM_COMMISSION = "auto_claim_commission"
 
 
 class TxStatus(str, enum.Enum):
@@ -74,3 +76,15 @@ class SpinRewardType(str, enum.Enum):
     XPET = "xpet"  # Fixed XPET amount
     NOTHING = "nothing"  # No reward (try again)
     BONUS_PERCENT = "bonus_percent"  # % bonus to next claim
+
+
+class SnackType(str, enum.Enum):
+    COOKIE = "cookie"  # +10% bonus
+    STEAK = "steak"  # +25% bonus
+    CAKE = "cake"  # +50% bonus
+
+
+class BoostType(str, enum.Enum):
+    ROI_BOOST = "roi_boost"  # Permanent ROI cap increase
+    SNACK = "snack"  # One-time claim bonus
+    AUTO_CLAIM = "auto_claim"  # Auto-claim subscription

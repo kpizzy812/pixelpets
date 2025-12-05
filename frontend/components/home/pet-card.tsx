@@ -16,9 +16,10 @@ interface PetCardProps {
   onShop: () => void;
   onUpgrade?: () => void;
   onSell?: () => void;
+  onBoosts?: () => void;
 }
 
-export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: PetCardProps) {
+export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onBoosts }: PetCardProps) {
   const { tap } = useHaptic();
   const { pet } = slot;
   const countdown = useCountdown(pet?.trainingEndsAt);
@@ -67,18 +68,6 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
   const isEvolved = pet.status === 'EVOLVED';
   const isIdle = pet.status === 'OWNED_IDLE';
 
-  const getRarityColor = () => {
-    switch (pet.rarity) {
-      case 'Common': return 'text-[#94a3b8]';
-      case 'Uncommon': return 'text-[#c7f464]';
-      case 'Rare': return 'text-[#00f5d4]';
-      case 'Epic': return 'text-[#a855f7]';
-      case 'Legendary': return 'text-[#fbbf24]';
-      case 'Mythic': return 'text-[#ff6b9d]';
-      default: return 'text-[#94a3b8]';
-    }
-  };
-
   const getGradient = () => {
     switch (pet.rarity) {
       case 'Uncommon': return 'from-[#c7f464]/20 to-[#0d1220]';
@@ -107,15 +96,21 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
             </button>
           )}
         </div>
-        <div className="px-3 py-1.5 rounded-xl bg-[#1e293b]/60 border border-[#334155]/30">
-          <span className={`text-xs font-medium ${getRarityColor()}`}>{pet.rarity}</span>
-        </div>
+        {onBoosts && (
+          <button
+            onClick={() => { tap(); onBoosts(); }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#c7f464]/20 to-[#00f5d4]/20 border border-[#c7f464]/40 hover:border-[#c7f464]/60 transition-colors"
+          >
+            <span className="text-sm">🚀</span>
+            <span className="text-xs font-medium text-[#c7f464]">Boosts</span>
+          </button>
+        )}
       </div>
 
       {/* Pet Image Area */}
       <div className="flex-1 flex items-center justify-center">
-        <div className={`w-52 h-52 rounded-3xl bg-gradient-to-br ${getGradient()} border border-[#334155]/30 overflow-hidden shadow-lg`}>
-          <PetImage imageKey={pet.imageKey} level={pet.level} alt={pet.name} size={208} className="w-full h-full object-cover" />
+        <div className={`w-64 h-64 rounded-3xl bg-gradient-to-br ${getGradient()} border border-[#334155]/30 overflow-hidden shadow-lg`}>
+          <PetImage imageKey={pet.imageKey} level={pet.level} alt={pet.name} size={256} className="w-full h-full object-cover" />
         </div>
       </div>
 
