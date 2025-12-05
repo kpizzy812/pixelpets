@@ -24,6 +24,9 @@ import {
   Inbox,
   AlertTriangle,
   X,
+  Trophy,
+  Wallet,
+  Settings,
   type LucideIcon,
   type LucideProps,
 } from 'lucide-react';
@@ -72,6 +75,11 @@ const icons = {
 
   // Actions
   close: X,
+
+  // Header
+  trophy: Trophy,
+  wallet: Wallet,
+  settings: Settings,
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -137,4 +145,7 @@ export {
   Inbox,
   AlertTriangle,
   X,
+  Trophy,
+  Wallet,
+  Settings,
 };

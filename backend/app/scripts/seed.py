@@ -21,6 +21,7 @@ PET_TYPES_DATA = [
     {
         "name": "Bubble Slime",
         "emoji": "🫧",
+        "image_key": "bubble",
         "base_price": Decimal("5"),
         "daily_rate": Decimal("0.01"),  # 1%
         "roi_cap_multiplier": Decimal("1.5"),  # 150%
@@ -29,6 +30,7 @@ PET_TYPES_DATA = [
     {
         "name": "Pixel Fox",
         "emoji": "🦊",
+        "image_key": "fox",
         "base_price": Decimal("50"),
         "daily_rate": Decimal("0.012"),  # 1.2%
         "roi_cap_multiplier": Decimal("1.6"),  # 160%
@@ -37,6 +39,7 @@ PET_TYPES_DATA = [
     {
         "name": "Glitch Cat",
         "emoji": "🐱",
+        "image_key": "cat",
         "base_price": Decimal("100"),
         "daily_rate": Decimal("0.015"),  # 1.5%
         "roi_cap_multiplier": Decimal("1.7"),  # 170%
@@ -45,6 +48,7 @@ PET_TYPES_DATA = [
     {
         "name": "Robo-Bunny",
         "emoji": "🤖",
+        "image_key": "rabbit",
         "base_price": Decimal("150"),
         "daily_rate": Decimal("0.02"),  # 2%
         "roi_cap_multiplier": Decimal("1.8"),  # 180%
@@ -53,6 +57,7 @@ PET_TYPES_DATA = [
     {
         "name": "Ember Dragon",
         "emoji": "🐉",
+        "image_key": "dragon",
         "base_price": Decimal("300"),
         "daily_rate": Decimal("0.025"),  # 2.5%
         "roi_cap_multiplier": Decimal("2.0"),  # 200%

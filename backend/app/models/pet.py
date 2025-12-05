@@ -18,6 +18,7 @@ class PetType(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     emoji: Mapped[Optional[str]] = mapped_column(String(10))
+    image_key: Mapped[str] = mapped_column(String(50), nullable=False)
     base_price: Mapped[Decimal] = mapped_column(nullable=False)
     daily_rate: Mapped[Decimal] = mapped_column(nullable=False)  # e.g., 0.01 = 1%
     roi_cap_multiplier: Mapped[Decimal] = mapped_column(nullable=False)  # e.g., 1.5 = 150%

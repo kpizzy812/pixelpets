@@ -11,6 +11,7 @@ class PetTypeResponse(BaseModel):
     id: int
     name: str
     emoji: Optional[str]
+    image_key: str
     base_price: Decimal
     daily_rate: Decimal
     roi_cap_multiplier: Decimal

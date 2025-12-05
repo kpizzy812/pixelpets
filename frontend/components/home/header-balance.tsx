@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { WalletModal } from '@/components/wallet';
+import { Icon } from '@/components/ui/icon';
 import { formatNumber } from '@/lib/format';
 
 interface HeaderBalanceProps {
@@ -31,21 +32,21 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={() => router.push('/hall-of-fame')}
-              className="w-11 h-11 rounded-full bg-[#fbbf24]/20 border border-[#fbbf24]/30 flex items-center justify-center text-lg hover:bg-[#fbbf24]/30 transition-colors"
+              className="w-11 h-11 rounded-full bg-[#fbbf24]/20 border border-[#fbbf24]/30 flex items-center justify-center hover:bg-[#fbbf24]/30 transition-colors"
             >
-              <span role="img" aria-label="hall of fame">*</span>
+              <Icon name="trophy" size={20} className="text-[#fbbf24]" />
             </button>
             <button
               onClick={() => setIsWalletOpen(true)}
-              className="w-11 h-11 rounded-full bg-[#1e293b]/60 border border-[#334155]/50 flex items-center justify-center text-lg hover:bg-[#334155]/60 transition-colors"
+              className="w-11 h-11 rounded-full bg-[#1e293b]/60 border border-[#334155]/50 flex items-center justify-center hover:bg-[#334155]/60 transition-colors"
             >
-              <span role="img" aria-label="wallet">$</span>
+              <Icon name="wallet" size={20} className="text-[#94a3b8]" />
             </button>
             <button
               onClick={() => router.push('/settings')}
-              className="w-11 h-11 rounded-full bg-[#1e293b]/60 border border-[#334155]/50 flex items-center justify-center text-lg hover:bg-[#334155]/60 transition-colors"
+              className="w-11 h-11 rounded-full bg-[#1e293b]/60 border border-[#334155]/50 flex items-center justify-center hover:bg-[#334155]/60 transition-colors"
             >
-              <span role="img" aria-label="settings">@</span>
+              <Icon name="settings" size={20} className="text-[#94a3b8]" />
             </button>
           </div>
         </div>
