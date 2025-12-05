@@ -53,6 +53,7 @@ function AppContent({ children }: { children: ReactNode }) {
   useEffect(() => {
     const preloadData = async () => {
       if (isAuthenticated && user) {
+        // Always sync fresh user data to game store
         setUser(user);
         // Load essential data in parallel
         await Promise.all([
@@ -72,6 +73,13 @@ function AppContent({ children }: { children: ReactNode }) {
       }
     }
   }, [authLoading, isAuthenticated, user, fetchPets, fetchPetCatalog, setUser]);
+
+  // Keep game store user in sync when auth user changes (e.g., balance updated)
+  useEffect(() => {
+    if (user) {
+      setUser(user);
+    }
+  }, [user, setUser]);
 
   const handleLoaderComplete = useCallback(() => {
     setShowLoader(false);
