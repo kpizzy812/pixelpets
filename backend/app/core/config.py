@@ -21,6 +21,7 @@ class Settings(BaseSettings):
 
     # Telegram
     TELEGRAM_BOT_TOKEN: str
+    ADMIN_CHAT_ID: int  # Telegram group/chat ID for admin notifications
 
     # App
     DEBUG: bool = False

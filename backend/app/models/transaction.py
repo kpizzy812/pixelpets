@@ -44,7 +44,8 @@ class DepositRequest(Base):
     status: Mapped[RequestStatus] = mapped_column(default=RequestStatus.PENDING)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     confirmed_at: Mapped[Optional[datetime]] = mapped_column()
-    confirmed_by: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"))
+    confirmed_by: Mapped[Optional[int]] = mapped_column(ForeignKey("admins.id"))
+    notification_message_id: Mapped[Optional[int]] = mapped_column()  # Telegram message ID for editing
 
     # Relationships
     user: Mapped["User"] = relationship("User", foreign_keys=[user_id], backref="deposit_requests")
@@ -64,7 +65,8 @@ class WithdrawRequest(Base):
     status: Mapped[RequestStatus] = mapped_column(default=RequestStatus.PENDING)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     processed_at: Mapped[Optional[datetime]] = mapped_column()
-    processed_by: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"))
+    processed_by: Mapped[Optional[int]] = mapped_column(ForeignKey("admins.id"))
+    notification_message_id: Mapped[Optional[int]] = mapped_column()  # Telegram message ID for editing
 
     # Relationships
     user: Mapped["User"] = relationship("User", foreign_keys=[user_id], backref="withdraw_requests")

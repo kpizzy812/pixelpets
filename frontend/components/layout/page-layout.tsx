@@ -16,7 +16,7 @@ export function PageLayout({ children, title }: PageLayoutProps) {
       <div className="fixed inset-0 bg-gradient-to-b from-[#1a0a2e] via-[#0a0f1a] to-[#050712] pointer-events-none" />
 
       {/* Content */}
-      <div className="relative flex flex-col h-full z-10 tg-safe-top tg-safe-bottom">
+      <div className="relative flex flex-col h-full z-10 tg-safe-top">
         {/* Header */}
         {title && (
           <div className="mx-4 mt-4 p-4 rounded-3xl bg-[#0d1220]/80 border border-[#1e293b]/50 backdrop-blur-sm">
