@@ -11,11 +11,14 @@ import { useGameStore, useBalance } from '@/store/game-store';
 import { showSuccess, showError } from '@/lib/toast';
 import type { PetType } from '@/types/api';
 
+type ShopMode = 'buy' | 'sell';
+
 export function ShopScreen() {
   const router = useRouter();
   const balance = useBalance();
   const { petTypes, petSlots, slotsUsed, maxSlots, fetchPetCatalog, buyPet, isLoading } = useGameStore();
 
+  const [mode, setMode] = useState<ShopMode>('buy');
   const [selectedPet, setSelectedPet] = useState<PetType | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [isBuying, setIsBuying] = useState(false);
@@ -64,36 +67,60 @@ export function ShopScreen() {
   return (
     <PageLayout title="Pet Shop">
       <div className="p-4 space-y-4">
-        {/* Slots Info */}
-        <div className="p-3 rounded-xl bg-[#0d1220]/80 border border-[#1e293b]/50 flex justify-between items-center">
-          <span className="text-sm text-[#94a3b8]">Available Slots</span>
-          <span className="text-sm font-medium text-[#f1f5f9]">
-            {maxSlots - slotsUsed} / {maxSlots}
-          </span>
+        {/* Buy/Sell Toggle */}
+        <div className="flex rounded-xl bg-[#0d1220]/80 border border-[#1e293b]/50 p-1">
+          <button
+            onClick={() => setMode('buy')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+              mode === 'buy'
+                ? 'bg-[#c7f464] text-[#0d1220]'
+                : 'text-[#94a3b8] hover:text-[#f1f5f9]'
+            }`}
+          >
+            Buy
+          </button>
+          <button
+            onClick={() => setMode('sell')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+              mode === 'sell'
+                ? 'bg-[#c7f464] text-[#0d1220]'
+                : 'text-[#94a3b8] hover:text-[#f1f5f9]'
+            }`}
+          >
+            Sell
+          </button>
         </div>
 
-        {/* No Slots Warning */}
-        {!hasEmptySlots && (
-          <InlineError message="All pet slots are full. Sell or evolve a pet to buy a new one." />
-        )}
+        {mode === 'buy' ? (
+          <>
+            {/* No Slots Warning */}
+            {!hasEmptySlots && (
+              <InlineError message="All pet slots are full. Sell or evolve a pet to buy a new one." />
+            )}
 
-        {/* Pet Catalog - Grid 2x2 */}
-        {isLoading && petTypes.length === 0 ? (
-          <div className="grid grid-cols-2 gap-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <PetTypeCardSkeleton key={i} />
-            ))}
-          </div>
+            {/* Pet Catalog - Grid 2x2 */}
+            {isLoading && petTypes.length === 0 ? (
+              <div className="grid grid-cols-2 gap-3">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <PetTypeCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {petTypes.map((petType) => (
+                  <PetTypeCard
+                    key={petType.id}
+                    petType={petType}
+                    onBuy={() => handleBuy(petType)}
+                    disabled={!hasEmptySlots || balance < petType.base_price}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
-            {petTypes.map((petType) => (
-              <PetTypeCard
-                key={petType.id}
-                petType={petType}
-                onBuy={() => handleBuy(petType)}
-                disabled={!hasEmptySlots || balance < petType.base_price}
-              />
-            ))}
+          <div className="text-center py-12 text-[#64748b]">
+            <p className="text-sm">Go to your pet card and tap "Sell" to sell a pet</p>
           </div>
         )}
       </div>

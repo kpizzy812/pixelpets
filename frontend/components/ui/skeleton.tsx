@@ -66,21 +66,24 @@ export function TaskItemSkeleton() {
 // Pet Type Card Skeleton (Shop - Grid)
 export function PetTypeCardSkeleton() {
   return (
-    <div className="p-3 rounded-2xl bg-[#0d1220]/80 border border-[#1e293b]/50 flex flex-col">
-      {/* Pet Image */}
-      <Skeleton className="aspect-square rounded-xl mb-3" />
+    <div className="rounded-2xl bg-[#0d1220]/80 border border-[#1e293b]/50 flex flex-col overflow-hidden">
+      {/* Pet Image - Full width */}
+      <Skeleton className="aspect-square" />
 
-      {/* Name */}
-      <Skeleton className="w-2/3 h-4 mb-1" />
+      {/* Content */}
+      <div className="p-3">
+        {/* Name */}
+        <Skeleton className="w-2/3 h-4 mb-1" />
 
-      {/* Stats */}
-      <div className="flex justify-between mb-3">
-        <Skeleton className="w-12 h-3" />
-        <Skeleton className="w-16 h-3" />
+        {/* Stats */}
+        <div className="flex justify-between mb-3">
+          <Skeleton className="w-12 h-3" />
+          <Skeleton className="w-16 h-3" />
+        </div>
+
+        {/* Button */}
+        <Skeleton className="w-full h-8 rounded-xl" />
       </div>
-
-      {/* Button */}
-      <Skeleton className="w-full h-8 rounded-xl" />
     </div>
   );
 }
