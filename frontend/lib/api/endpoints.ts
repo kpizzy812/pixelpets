@@ -31,7 +31,7 @@ export const authApi = {
 
 // Pets
 export const petsApi = {
-  catalog: () => api.get<PetType[]>('/pets/catalog'),
+  catalog: () => api.get<{ pets: PetType[] }>('/pets/catalog').then(res => res.pets),
 
   my: () => api.get<MyPetsResponse>('/pets/my'),
 
