@@ -121,8 +121,8 @@ async def send_photo_with_buttons(
     photo_url: str,
     caption: str,
     keyboard: list,
-) -> bool:
-    """Send photo with inline keyboard to Telegram chat."""
+) -> Optional[int]:
+    """Send photo with inline keyboard to Telegram chat. Returns message_id on success."""
     url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendPhoto"
 
     payload = {
@@ -138,10 +138,55 @@ async def send_photo_with_buttons(
             response = await client.post(url, json=payload, timeout=10)
             if response.status_code != 200:
                 logger.error(f"Failed to send photo: {response.text}")
+                return None
+            data = response.json()
+            return data.get("result", {}).get("message_id")
+    except Exception as e:
+        logger.error(f"Error sending photo: {e}")
+        return None
+
+
+async def pin_message(chat_id: int, message_id: int) -> bool:
+    """Pin a message in chat (silently, without notification)."""
+    url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/pinChatMessage"
+
+    payload = {
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "disable_notification": True,
+    }
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=payload, timeout=10)
+            if response.status_code != 200:
+                logger.error(f"Failed to pin message: {response.text}")
                 return False
             return True
     except Exception as e:
-        logger.error(f"Error sending photo: {e}")
+        logger.error(f"Error pinning message: {e}")
+        return False
+
+
+async def set_message_reaction(chat_id: int, message_id: int, emoji: str = "🔥") -> bool:
+    """Set a reaction on a message."""
+    url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/setMessageReaction"
+
+    payload = {
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "reaction": [{"type": "emoji", "emoji": emoji}],
+    }
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=payload, timeout=10)
+            if response.status_code != 200:
+                logger.error(f"Failed to set reaction: {response.text}")
+                return False
+            return True
+    except Exception as e:
+        logger.error(f"Error setting reaction: {e}")
         return False
 
 
@@ -202,16 +247,20 @@ async def handle_start_command(message: dict) -> None:
     # Banner URL should be publicly accessible
     banner_url = f"{miniapp_url}/banner.png"
 
-    success = await send_photo_with_buttons(
+    message_id = await send_photo_with_buttons(
         chat_id=chat_id,
         photo_url=banner_url,
         caption=welcome_message,
         keyboard=keyboard,
     )
 
-    if not success:
+    if not message_id:
         # Fallback: send text message if photo fails
         await telegram_notify.send_message(chat_id, welcome_message, keyboard)
+    else:
+        # Pin the message and add fire reaction
+        await pin_message(chat_id, message_id)
+        await set_message_reaction(chat_id, message_id, "🔥")
 
     logger.info(
         f"Processed /start for user {from_user.get('id')} "
