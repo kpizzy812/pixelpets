@@ -6,10 +6,11 @@ import { HallPetCard } from './hall-pet-card';
 import { petsApi } from '@/lib/api';
 import { useBackButton } from '@/hooks/use-back-button';
 import { formatNumber } from '@/lib/format';
-import type { UserPet } from '@/types/api';
+import type { HallOfFameEntry } from '@/types/api';
 
 export function HallOfFameScreen() {
-  const [pets, setPets] = useState<UserPet[]>([]);
+  const [pets, setPets] = useState<HallOfFameEntry[]>([]);
+  const [totalEarned, setTotalEarned] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +21,8 @@ export function HallOfFameScreen() {
     const fetchHallOfFame = async () => {
       try {
         const data = await petsApi.hallOfFame();
-        setPets(data);
+        setPets(data.pets);
+        setTotalEarned(data.total_farmed_all_time);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load Hall of Fame');
       } finally {
@@ -30,8 +32,6 @@ export function HallOfFameScreen() {
 
     fetchHallOfFame();
   }, []);
-
-  const totalEarned = pets.reduce((sum, pet) => sum + pet.profit_claimed, 0);
 
   return (
     <PageLayout title="Hall of Fame">

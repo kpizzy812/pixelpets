@@ -2,10 +2,10 @@
 
 import { PetImage } from '@/components/ui/pet-image';
 import { formatNumber } from '@/lib/format';
-import type { UserPet } from '@/types/api';
+import type { HallOfFameEntry } from '@/types/api';
 
 interface HallPetCardProps {
-  pet: UserPet;
+  pet: HallOfFameEntry;
   rank: number;
 }
 
@@ -17,9 +17,9 @@ const RANK_BADGES: Record<number, { emoji: string; color: string }> = {
 
 export function HallPetCard({ pet, rank }: HallPetCardProps) {
   const badge = RANK_BADGES[rank];
-  const roi = formatNumber((pet.profit_claimed / pet.invested_total) * 100, 0);
-  const evolvedDate = pet.training_ends_at
-    ? new Date(pet.training_ends_at).toLocaleDateString()
+  const roi = formatNumber((pet.total_farmed / pet.invested_total) * 100, 0);
+  const evolvedDate = pet.evolved_at
+    ? new Date(pet.evolved_at).toLocaleDateString()
     : 'Unknown';
 
   return (
@@ -55,7 +55,7 @@ export function HallPetCard({ pet, rank }: HallPetCardProps) {
         {/* Earnings */}
         <div className="text-right">
           <div className="text-lg font-bold text-[#c7f464]">
-            +{formatNumber(pet.profit_claimed)}
+            +{formatNumber(pet.total_farmed)}
           </div>
           <div className="text-xs text-[#64748b]">{roi}% ROI</div>
         </div>

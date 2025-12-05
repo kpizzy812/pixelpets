@@ -73,6 +73,22 @@ export interface ClaimResponse {
   evolved: boolean;
 }
 
+export interface HallOfFameEntry {
+  id: number;
+  pet_type: PetType;
+  final_level: PetLevel;
+  invested_total: number;
+  total_farmed: number;
+  lifetime_days: number;
+  evolved_at: string;
+}
+
+export interface HallOfFameResponse {
+  pets: HallOfFameEntry[];
+  total_pets_evolved: number;
+  total_farmed_all_time: number;
+}
+
 // Wallet
 export interface WalletResponse {
   balance_xpet: number;

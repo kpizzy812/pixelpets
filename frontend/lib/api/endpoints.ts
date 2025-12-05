@@ -10,6 +10,7 @@ import type {
   MyPetsResponse,
   UserPet,
   ClaimResponse,
+  HallOfFameResponse,
   WalletResponse,
   DepositRequestResponse,
   WithdrawRequestResponse,
@@ -51,7 +52,7 @@ export const petsApi = {
     api.post<ClaimResponse>(`/pets/${petId}/claim`),
 
   hallOfFame: () =>
-    api.get<UserPet[]>('/pets/hall-of-fame'),
+    api.get<HallOfFameResponse>('/pets/hall-of-fame'),
 };
 
 // Wallet
