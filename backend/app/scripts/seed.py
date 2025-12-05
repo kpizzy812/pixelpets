@@ -49,19 +49,28 @@ PET_TYPES_DATA = [
         "name": "Robo-Bunny",
         "emoji": "🤖",
         "image_key": "rabbit",
-        "base_price": Decimal("150"),
+        "base_price": Decimal("250"),
         "daily_rate": Decimal("0.02"),  # 2%
         "roi_cap_multiplier": Decimal("1.8"),  # 180%
-        "level_prices": {"BABY": 150, "ADULT": 600, "MYTHIC": 1500},
+        "level_prices": {"BABY": 250, "ADULT": 1000, "MYTHIC": 2500},
+    },
+    {
+        "name": "Crystal Turtle",
+        "emoji": "🐢",
+        "image_key": "turtle",
+        "base_price": Decimal("500"),
+        "daily_rate": Decimal("0.022"),  # 2.2%
+        "roi_cap_multiplier": Decimal("1.9"),  # 190%
+        "level_prices": {"BABY": 500, "ADULT": 2000, "MYTHIC": 5000},
     },
     {
         "name": "Ember Dragon",
         "emoji": "🐉",
         "image_key": "dragon",
-        "base_price": Decimal("300"),
+        "base_price": Decimal("1000"),
         "daily_rate": Decimal("0.025"),  # 2.5%
         "roi_cap_multiplier": Decimal("2.0"),  # 200%
-        "level_prices": {"BABY": 300, "ADULT": 1200, "MYTHIC": 3000},
+        "level_prices": {"BABY": 1000, "ADULT": 4000, "MYTHIC": 10000},
     },
 ]
 
