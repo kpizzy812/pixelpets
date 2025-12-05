@@ -50,6 +50,9 @@ def pet_to_response(pet) -> UserPetResponse:
     if next_level and pet.status not in [PetStatus.EVOLVED, PetStatus.SOLD]:
         upgrade_cost = calculate_upgrade_cost(pet.pet_type.level_prices, next_level, pet.invested_total)
 
+    # Convert daily_rate from decimal (0.015) to percentage (1.5)
+    current_daily_rate = pet.pet_type.daily_rate * 100
+
     return UserPetResponse(
         id=pet.id,
         pet_type=PetTypeResponse.model_validate(pet.pet_type),
@@ -63,6 +66,7 @@ def pet_to_response(pet) -> UserPetResponse:
         training_ends_at=pet.training_ends_at,
         upgrade_cost=upgrade_cost,
         next_level=next_level,
+        current_daily_rate=current_daily_rate,
     )
 
 

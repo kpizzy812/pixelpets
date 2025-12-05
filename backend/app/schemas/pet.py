@@ -38,6 +38,7 @@ class UserPetResponse(BaseModel):
     training_ends_at: Optional[datetime]
     upgrade_cost: Optional[Decimal]
     next_level: Optional[PetLevel]
+    current_daily_rate: Decimal  # Daily rate as percentage (e.g., 1.5 for 1.5%)
 
     class Config:
         from_attributes = True
