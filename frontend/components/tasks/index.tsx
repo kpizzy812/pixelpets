@@ -54,7 +54,7 @@ export function TasksScreen() {
         <div className="p-3 rounded-xl bg-[#0d1220]/80 border border-[#1e293b]/50 flex justify-between items-center">
           <span className="text-sm text-[#94a3b8]">Your Balance</span>
           <span className="text-sm font-medium text-[#c7f464] inline-flex items-center gap-1">
-            {formatNumber(balance)} <XpetCoin size={14} />
+            {formatNumber(balance)} <XpetCoin size={18} />
           </span>
         </div>
 

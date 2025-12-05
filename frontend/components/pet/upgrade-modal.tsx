@@ -137,13 +137,13 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-[#64748b]">Upgrade Cost</span>
                 <span className="text-sm text-[#f1f5f9] font-medium inline-flex items-center gap-1">
-                  {upgradePrice != null ? formatNumber(upgradePrice) : '---'} <XpetCoin size={14} />
+                  {upgradePrice != null ? formatNumber(upgradePrice) : '---'} <XpetCoin size={18} />
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-[#64748b]">Your Balance</span>
                 <span className={`text-sm font-medium inline-flex items-center gap-1 ${canAfford ? 'text-[#c7f464]' : 'text-red-400'}`}>
-                  {formatNumber(balance)} <XpetCoin size={14} />
+                  {formatNumber(balance)} <XpetCoin size={18} />
                 </span>
               </div>
             </div>

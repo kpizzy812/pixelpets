@@ -85,7 +85,7 @@ export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
         <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-6 space-y-3">
           <div className="flex justify-between items-center">
             <span className="text-sm text-[#64748b]">Total Invested</span>
-            <span className="text-sm text-[#f1f5f9] inline-flex items-center gap-1">{formatNumber(pet.invested)} <XpetCoin size={14} /></span>
+            <span className="text-sm text-[#f1f5f9] inline-flex items-center gap-1">{formatNumber(pet.invested)} <XpetCoin size={18} /></span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-[#64748b]">Sell Rate</span>
@@ -94,11 +94,11 @@ export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
           <div className="h-px bg-[#334155]" />
           <div className="flex justify-between items-center">
             <span className="text-sm text-[#64748b]">You Receive</span>
-            <span className="text-sm text-[#c7f464] font-medium inline-flex items-center gap-1">{formatNumber(refundAmount)} <XpetCoin size={14} /></span>
+            <span className="text-sm text-[#c7f464] font-medium inline-flex items-center gap-1">{formatNumber(refundAmount)} <XpetCoin size={18} /></span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-[#64748b]">Loss</span>
-            <span className="text-sm text-red-400 inline-flex items-center gap-1">-{formatNumber(lossAmount)} <XpetCoin size={14} /></span>
+            <span className="text-sm text-red-400 inline-flex items-center gap-1">-{formatNumber(lossAmount)} <XpetCoin size={18} /></span>
           </div>
         </div>
 

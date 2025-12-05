@@ -54,7 +54,7 @@ export function TaskItem({ task, onGo, onCheck, isChecking }: TaskItemProps) {
         {/* Info */}
         <div className="flex-1">
           <div className="text-base font-medium text-[#f1f5f9]">{task.title}</div>
-          <div className="text-sm text-[#c7f464] inline-flex items-center gap-1">+{task.reward_xpet} <XpetCoin size={14} /></div>
+          <div className="text-sm text-[#c7f464] inline-flex items-center gap-1">+{task.reward_xpet} <XpetCoin size={18} /></div>
         </div>
 
         {/* Action */}

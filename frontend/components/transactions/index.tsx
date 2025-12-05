@@ -86,7 +86,7 @@ function TransactionItem({ transaction }: TransactionItemProps) {
 
       <div className="text-right">
         <p className={`font-bold inline-flex items-center gap-1 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-          {isPositive ? '+' : '-'}{formatNumber(Math.abs(transaction.amount_xpet))} <XpetCoin size={14} />
+          {isPositive ? '+' : '-'}{formatNumber(Math.abs(transaction.amount_xpet))} <XpetCoin size={18} />
         </p>
       </div>
     </div>
