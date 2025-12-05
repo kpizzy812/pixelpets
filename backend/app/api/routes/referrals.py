@@ -39,6 +39,7 @@ async def get_referrals(
 ):
     """Get referral statistics and levels info."""
     stats = await get_referral_stats(db, current_user)
+    ref_link = await generate_ref_link(db, current_user.ref_code)
 
     levels = [
         RefLevelInfo(**level_data)
@@ -47,6 +48,8 @@ async def get_referrals(
 
     return ReferralsResponse(
         ref_code=stats["ref_code"],
+        ref_link=ref_link,
+        share_text=get_share_text(),
         total_earned_xpet=stats["total_earned_xpet"],
         levels_unlocked=stats["levels_unlocked"],
         levels=levels,

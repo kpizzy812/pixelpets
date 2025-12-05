@@ -12,42 +12,54 @@ interface InviteCardProps {
 }
 
 export function InviteCard({
+  refLink,
   refCode,
   onCopy,
   onShare,
   copied,
 }: InviteCardProps) {
   return (
-    <div className="p-5 rounded-2xl bg-gradient-to-br from-[#00f5d4]/10 to-[#1e293b]/50 border border-[#00f5d4]/20">
-      <div className="text-center mb-4">
-        <Icon name="gift" size={36} className="text-[#00f5d4] mx-auto mb-2" />
-        <h2 className="text-lg font-bold text-[#f1f5f9]">Invite Friends</h2>
-        <p className="text-sm text-[#94a3b8] mt-1">
-          Earn up to 20% from their claims
-        </p>
-      </div>
-
-      {/* Ref Code Display */}
-      <div className="p-3 rounded-xl bg-[#0d1220]/80 border border-[#1e293b]/50 mb-4">
-        <div className="text-center">
-          <span className="text-xs text-[#64748b] uppercase tracking-wide">
-            Your Code
-          </span>
-          <div className="text-xl font-mono font-bold text-[#00f5d4] mt-1">
-            {refCode}
-          </div>
+    <div className="p-4 rounded-2xl bg-gradient-to-br from-[#00f5d4]/10 to-[#1e293b]/50 border border-[#00f5d4]/20">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 rounded-full bg-[#00f5d4]/20 flex items-center justify-center">
+          <Icon name="gift" size={20} className="text-[#00f5d4]" />
+        </div>
+        <div>
+          <h2 className="text-base font-bold text-[#f1f5f9]">Invite Friends</h2>
+          <p className="text-xs text-[#94a3b8]">Earn up to 20% from their claims</p>
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-3">
-        <Button variant="ghost" fullWidth onClick={onCopy}>
-          {copied ? 'Copied!' : 'Copy Link'}
-        </Button>
-        <Button variant="cyan" fullWidth onClick={onShare}>
-          Share
-        </Button>
+      {/* Ref Link Display */}
+      <div className="p-2.5 rounded-xl bg-[#0d1220]/80 border border-[#1e293b]/50 mb-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <span className="text-[10px] text-[#64748b] uppercase tracking-wide block mb-0.5">
+              Your referral link
+            </span>
+            <div className="text-xs font-mono text-[#00f5d4] truncate">
+              {refLink}
+            </div>
+          </div>
+          <button
+            onClick={onCopy}
+            className="flex-shrink-0 p-2 rounded-lg bg-[#1e293b]/60 hover:bg-[#1e293b] transition-colors"
+          >
+            <Icon
+              name={copied ? 'check' : 'copy'}
+              size={16}
+              className={copied ? 'text-[#c7f464]' : 'text-[#94a3b8]'}
+            />
+          </button>
+        </div>
       </div>
+
+      {/* Share Button */}
+      <Button variant="cyan" fullWidth onClick={onShare}>
+        <Icon name="share" size={16} className="mr-2" />
+        Share with Friends
+      </Button>
     </div>
   );
 }

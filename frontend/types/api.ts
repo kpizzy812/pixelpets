@@ -137,19 +137,22 @@ export interface TransactionsResponse {
 // Referrals
 export interface RefLevelStats {
   level: number;
-  percentage: number;
-  count: number;
-  earned: number;
+  percent: number;
   unlocked: boolean;
+  unlock_requirement?: number;
+  referrals_count: number;
+  earned_xpet: number;
+  progress?: string;
 }
 
 export interface ReferralsResponse {
   ref_code: string;
   ref_link: string;
-  total_referrals: number;
-  active_referrals: number;
-  total_earned: number;
+  share_text: string;
+  total_earned_xpet: number;
+  levels_unlocked: number;
   levels: RefLevelStats[];
+  active_referrals_count: number;
 }
 
 // Tasks

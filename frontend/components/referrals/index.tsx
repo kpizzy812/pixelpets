@@ -8,10 +8,12 @@ import { InviteCard } from './invite-card';
 import { RefCardSkeleton, StatsCardSkeleton, LevelCardSkeleton } from '@/components/ui/skeleton';
 import { ErrorState } from '@/components/ui/error-state';
 import { useGameStore } from '@/store/game-store';
+import { useTelegram } from '@/components/providers/telegram-provider';
 import { showSuccess, showError } from '@/lib/toast';
 
 export function ReferralsScreen() {
   const { referrals, referralsLoading, fetchReferrals } = useGameStore();
+  const { webApp, isTelegram } = useTelegram();
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -32,14 +34,23 @@ export function ReferralsScreen() {
 
   const handleShare = () => {
     if (!referrals) return;
-    const text = `Join Pixel Pets and earn XPET! ${referrals.ref_link}`;
 
-    if (navigator.share) {
-      navigator.share({ text, url: referrals.ref_link });
+    // Use Telegram native share if available
+    if (isTelegram && webApp) {
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referrals.ref_link)}&text=${encodeURIComponent(referrals.share_text)}`;
+      webApp.openTelegramLink(shareUrl);
+    } else if (navigator.share) {
+      navigator.share({
+        text: referrals.share_text,
+        url: referrals.ref_link
+      });
     } else {
       handleCopy();
     }
   };
+
+  // Calculate total referrals from all levels
+  const totalReferrals = referrals?.levels.reduce((sum, lvl) => sum + lvl.referrals_count, 0) ?? 0;
 
   return (
     <PageLayout title="Referrals">
@@ -67,9 +78,9 @@ export function ReferralsScreen() {
 
             {/* Stats Card */}
             <RefStatsCard
-              totalReferrals={referrals.total_referrals}
-              activeReferrals={referrals.active_referrals}
-              totalEarned={referrals.total_earned}
+              totalReferrals={totalReferrals}
+              activeReferrals={referrals.active_referrals_count}
+              totalEarned={referrals.total_earned_xpet}
             />
 
             {/* Referral Levels */}
@@ -81,10 +92,12 @@ export function ReferralsScreen() {
                 <RefLevelCard
                   key={level.level}
                   level={level.level}
-                  percentage={level.percentage}
-                  count={level.count}
-                  earned={level.earned}
+                  percentage={level.percent}
+                  count={level.referrals_count}
+                  earned={level.earned_xpet}
                   unlocked={level.unlocked}
+                  unlockRequirement={level.unlock_requirement}
+                  progress={level.progress}
                 />
               ))}
             </div>

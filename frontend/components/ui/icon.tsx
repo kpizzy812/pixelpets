@@ -28,6 +28,8 @@ import {
   Wallet,
   Settings,
   ArrowUp,
+  Share2,
+  Copy,
   type LucideIcon,
   type LucideProps,
 } from 'lucide-react';
@@ -77,6 +79,8 @@ const icons = {
   // Actions
   close: X,
   upgrade: ArrowUp,
+  share: Share2,
+  copy: Copy,
 
   // Header
   trophy: Trophy,
@@ -151,4 +155,6 @@ export {
   Wallet,
   Settings,
   ArrowUp,
+  Share2,
+  Copy,
 };

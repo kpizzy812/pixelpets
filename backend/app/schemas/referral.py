@@ -22,6 +22,8 @@ class RefLinkResponse(BaseModel):
 
 class ReferralsResponse(BaseModel):
     ref_code: str
+    ref_link: str
+    share_text: str
     total_earned_xpet: Decimal
     levels_unlocked: int
     levels: list[RefLevelInfo]
