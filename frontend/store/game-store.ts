@@ -13,6 +13,14 @@ function mapUserPetToPet(userPet: UserPet): Pet {
     return 'Common';
   };
 
+  // API returns Decimal fields as strings, convert to numbers
+  const investedTotal = typeof userPet.invested_total === 'string'
+    ? parseFloat(userPet.invested_total)
+    : userPet.invested_total;
+  const dailyRate = typeof userPet.current_daily_rate === 'string'
+    ? parseFloat(userPet.current_daily_rate)
+    : userPet.current_daily_rate;
+
   return {
     id: String(userPet.id),
     slotIndex: userPet.slot_index,
@@ -20,8 +28,8 @@ function mapUserPetToPet(userPet: UserPet): Pet {
     imageKey: userPet.pet_type.image_key,
     level: userPet.level,
     rarity: getRarity(userPet.pet_type.base_price),
-    invested: userPet.invested_total,
-    dailyRate: userPet.current_daily_rate,
+    invested: investedTotal,
+    dailyRate: dailyRate,
     status: userPet.status,
     trainingEndsAt: userPet.training_ends_at
       ? new Date(userPet.training_ends_at).getTime()
