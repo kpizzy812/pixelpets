@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { WalletModal } from '@/components/wallet';
 import { Icon } from '@/components/ui/icon';
 import { formatNumber } from '@/lib/format';
+import { useGameStore } from '@/store/game-store';
 
 interface HeaderBalanceProps {
   balance: number;
@@ -12,7 +12,9 @@ interface HeaderBalanceProps {
 
 export function HeaderBalance({ balance }: HeaderBalanceProps) {
   const router = useRouter();
-  const [isWalletOpen, setIsWalletOpen] = useState(false);
+  const isWalletOpen = useGameStore((state) => state.isWalletOpen);
+  const openWallet = useGameStore((state) => state.openWallet);
+  const closeWallet = useGameStore((state) => state.closeWallet);
 
   return (
     <>
@@ -37,7 +39,7 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
               <Icon name="trophy" size={20} className="text-[#fbbf24]" />
             </button>
             <button
-              onClick={() => setIsWalletOpen(true)}
+              onClick={openWallet}
               className="w-11 h-11 rounded-full bg-[#1e293b]/60 border border-[#334155]/50 flex items-center justify-center hover:bg-[#334155]/60 transition-colors"
             >
               <Icon name="wallet" size={20} className="text-[#94a3b8]" />
@@ -53,7 +55,7 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
       </div>
 
       {/* Wallet Modal */}
-      <WalletModal isOpen={isWalletOpen} onClose={() => setIsWalletOpen(false)} />
+      <WalletModal isOpen={isWalletOpen} onClose={closeWallet} />
     </>
   );
 }

@@ -12,6 +12,8 @@ import { InlineError } from '@/components/ui/error-state';
 import { PetImage } from '@/components/ui/pet-image';
 import { XpetCoin } from '@/components/ui/xpet-coin';
 import { useGameStore, useBalance } from '@/store/game-store';
+
+const openWallet = () => useGameStore.getState().openWallet();
 import { showSuccess, showError } from '@/lib/toast';
 import { formatNumber } from '@/lib/format';
 import type { PetType } from '@/types/api';
@@ -43,9 +45,9 @@ export function ShopScreen() {
       return;
     }
 
-    // If balance is insufficient, redirect to wallet for deposit
+    // If balance is insufficient, open wallet modal for deposit
     if (balance < petType.base_price) {
-      router.push('/wallet');
+      openWallet();
       return;
     }
 

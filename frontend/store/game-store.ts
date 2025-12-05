@@ -70,6 +70,9 @@ interface GameState {
   // Referrals
   referrals: ReferralsResponse | null;
   referralsLoading: boolean;
+
+  // UI State
+  isWalletOpen: boolean;
 }
 
 interface GameActions {
@@ -92,6 +95,10 @@ interface GameActions {
 
   // Referrals
   fetchReferrals: () => Promise<void>;
+
+  // UI
+  openWallet: () => void;
+  closeWallet: () => void;
 
   // Utils
   reset: () => void;
@@ -116,6 +123,7 @@ const initialState: GameState = {
   tasksLoading: false,
   referrals: null,
   referralsLoading: false,
+  isWalletOpen: false,
 };
 
 export const useGameStore = create<GameStore>()((set, get) => ({
@@ -318,6 +326,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       set({ referralsLoading: false });
     }
   },
+
+  // UI actions
+  openWallet: () => set({ isWalletOpen: true }),
+  closeWallet: () => set({ isWalletOpen: false }),
 
   // Utils
   reset: () => set(initialState),
