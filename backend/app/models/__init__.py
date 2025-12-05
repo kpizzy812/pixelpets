@@ -8,6 +8,7 @@ from app.models.enums import (
     TaskType,
     TaskStatus,
     AdminRole,
+    SpinRewardType,
 )
 from app.models.user import User
 from app.models.pet import PetType, UserPet
@@ -17,6 +18,7 @@ from app.models.referral import ReferralStats, ReferralReward
 from app.models.admin import Admin
 from app.models.config import SystemConfig
 from app.models.admin_log import AdminActionLog
+from app.models.spin import SpinReward, UserSpin
 
 __all__ = [
     # Enums
@@ -29,6 +31,7 @@ __all__ = [
     "TaskType",
     "TaskStatus",
     "AdminRole",
+    "SpinRewardType",
     # Models
     "User",
     "PetType",
@@ -43,4 +46,6 @@ __all__ = [
     "Admin",
     "SystemConfig",
     "AdminActionLog",
+    "SpinReward",
+    "UserSpin",
 ]

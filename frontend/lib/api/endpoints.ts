@@ -18,6 +18,8 @@ import type {
   ReferralsResponse,
   TasksResponse,
   TaskCheckResponse,
+  SpinWheelResponse,
+  SpinResultResponse,
   NetworkType,
   TxType,
   PetStatus,
@@ -96,4 +98,12 @@ export const tasksApi = {
 
   check: (taskId: number) =>
     api.post<TaskCheckResponse>('/tasks/check', { task_id: taskId }),
+};
+
+// Spin
+export const spinApi = {
+  wheel: () => api.get<SpinWheelResponse>('/spin/wheel'),
+
+  spin: (isFree: boolean) =>
+    api.post<SpinResultResponse>('/spin/spin', { is_free: isFree }),
 };

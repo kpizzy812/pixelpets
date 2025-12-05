@@ -20,6 +20,7 @@
   "nav": {
     "home": "Home",
     "shop": "Shop",
+    "spin": "Spin",
     "tasks": "Tasks",
     "refs": "Refs"
   },
@@ -30,8 +31,8 @@
     "evolved": "Evolved",
     "unknown": "Unknown",
     "startedTraining": "{name} started training!",
-    "evolutionMessage": "{name} evolved! +{profit} XPET earned",
-    "claimMessage": "+{profit} XPET claimed!"
+    "evolutionMessage": "{name} evolved! +{profit} USDT earned",
+    "claimMessage": "+{profit} USDT claimed!"
   },
   "shop": {
     "title": "Pet Shop",
@@ -66,7 +67,7 @@
     "loss": "Loss",
     "sellPet": "Sell Pet",
     "selling": "Selling...",
-    "soldMessage": "{name} sold! +{refund} XPET refunded",
+    "soldMessage": "{name} sold! +{refund} USDT refunded",
     "failedToSell": "Failed to sell pet"
   },
   "upgradeModal": {
@@ -95,7 +96,7 @@
     "available": "Available",
     "completed": "Completed",
     "noTasks": "No Tasks Available",
-    "noTasksMessage": "Check back later for new tasks to complete and earn XPET!",
+    "noTasksMessage": "Check back later for new tasks to complete and earn USDT!",
     "go": "Go",
     "check": "Check",
     "checking": "Checking...",
@@ -131,8 +132,8 @@
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "network": "Network",
-    "amount": "Amount (XPET)",
-    "amountPlaceholder": "Min: 5 XPET",
+    "amount": "Amount (USDT)",
+    "amountPlaceholder": "Min: 5 USDT",
     "walletAddress": "Wallet Address",
     "walletAddressPlaceholder": "Enter your wallet address",
     "fee": "Fee ($1 + 2%)",
@@ -142,12 +143,12 @@
     "processing": "Processing...",
     "depositInfo": "Deposits are processed manually within 24 hours.",
     "withdrawInfo": "Withdrawals are processed manually within 24-48 hours.",
-    "minDeposit": "Minimum deposit is 5 XPET",
-    "minWithdraw": "Minimum withdrawal is 5 XPET",
+    "minDeposit": "Minimum deposit is 5 USDT",
+    "minWithdraw": "Minimum withdrawal is 5 USDT",
     "enterAddress": "Please enter your wallet address",
     "insufficientBalance": "Insufficient balance",
     "depositCreated": "Deposit request created!",
-    "withdrawSubmitted": "Withdrawal submitted! Fee: {fee} XPET",
+    "withdrawSubmitted": "Withdrawal submitted! Fee: {fee} USDT",
     "failedDeposit": "Failed to create deposit",
     "failedWithdraw": "Failed to submit withdrawal",
     "depositSuccess": {
@@ -212,6 +213,20 @@
     "newsChannel": "News Channel",
     "telegramId": "Telegram ID",
     "refCode": "Ref Code"
+  },
+  "spin": {
+    "title": "Lucky Spin",
+    "yourBalance": "Your Balance",
+    "spinsToday": "Spins Today",
+    "wonToday": "Won Today",
+    "freeSpin": "Free Spin",
+    "freeSpinIn": "Free spin in",
+    "paidSpin": "Paid Spin",
+    "spinning": "Spinning...",
+    "tryAgain": "Try Again!",
+    "insufficientBalance": "Insufficient balance",
+    "spinFailed": "Spin failed. Please try again.",
+    "spinInfo": "Free spin available every 24 hours. Paid spins cost 1 USDT."
   },
   "errors": {
     "generic": "Something went wrong",

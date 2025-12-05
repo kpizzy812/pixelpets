@@ -6,7 +6,8 @@
 export type PetStatus = 'OWNED_IDLE' | 'TRAINING' | 'READY_TO_CLAIM' | 'EVOLVED' | 'SOLD';
 export type PetLevel = 'BABY' | 'ADULT' | 'MYTHIC';
 // Backend TxType values (lowercase)
-export type TxType = 'deposit' | 'withdraw' | 'claim' | 'ref_reward' | 'task_reward' | 'sell_refund' | 'admin_adjust' | 'pet_buy' | 'pet_upgrade' | 'withdraw_refund';
+export type TxType = 'deposit' | 'withdraw' | 'claim' | 'ref_reward' | 'task_reward' | 'sell_refund' | 'admin_adjust' | 'pet_buy' | 'pet_upgrade' | 'withdraw_refund' | 'spin_cost' | 'spin_win';
+export type SpinRewardType = 'xpet' | 'nothing' | 'bonus_percent';
 export type NetworkType = 'BEP-20' | 'Solana' | 'TON';
 export type RequestStatus = 'PENDING' | 'COMPLETED' | 'REJECTED' | 'EXPIRED';
 
@@ -177,4 +178,32 @@ export interface TaskCheckResponse {
   reward_xpet: number;
   new_balance: number;
   message: string;
+}
+
+// Spin
+export interface SpinReward {
+  id: number;
+  reward_type: SpinRewardType;
+  value: number;
+  label: string;
+  emoji: string;
+  color: string;
+  order: number;
+}
+
+export interface SpinWheelResponse {
+  rewards: SpinReward[];
+  can_free_spin: boolean;
+  next_free_spin_at: string | null;
+  paid_spin_cost: number;
+  spins_today: number;
+  winnings_today: number;
+}
+
+export interface SpinResultResponse {
+  reward: SpinReward;
+  amount_won: number;
+  new_balance: number;
+  was_free_spin: boolean;
+  winning_index: number;
 }

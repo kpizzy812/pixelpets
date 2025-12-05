@@ -26,6 +26,8 @@ class TxType(str, enum.Enum):
     PET_BUY = "pet_buy"
     PET_UPGRADE = "pet_upgrade"
     WITHDRAW_REFUND = "withdraw_refund"
+    SPIN_COST = "spin_cost"
+    SPIN_WIN = "spin_win"
 
 
 class TxStatus(str, enum.Enum):
@@ -66,3 +68,9 @@ class AdminRole(str, enum.Enum):
     SUPER_ADMIN = "super_admin"  # Full access
     ADMIN = "admin"  # Can manage users, deposits, withdrawals
     MODERATOR = "moderator"  # Can only view, limited actions
+
+
+class SpinRewardType(str, enum.Enum):
+    XPET = "xpet"  # Fixed XPET amount
+    NOTHING = "nothing"  # No reward (try again)
+    BONUS_PERCENT = "bonus_percent"  # % bonus to next claim

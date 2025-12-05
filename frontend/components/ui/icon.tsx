@@ -30,6 +30,7 @@ import {
   ArrowUp,
   Share2,
   Copy,
+  Dices,
   type LucideIcon,
   type LucideProps,
 } from 'lucide-react';
@@ -86,6 +87,9 @@ const icons = {
   trophy: Trophy,
   wallet: Wallet,
   settings: Settings,
+
+  // Spin
+  spin: Dices,
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -157,4 +161,5 @@ export {
   ArrowUp,
   Share2,
   Copy,
+  Dices,
 };

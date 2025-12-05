@@ -12,7 +12,8 @@ from app.models.pet import PetType
 from app.models.task import Task
 from app.models.admin import Admin
 from app.models.config import SystemConfig
-from app.models.enums import TaskType, AdminRole
+from app.models.spin import SpinReward
+from app.models.enums import TaskType, AdminRole, SpinRewardType
 from app.services.admin.auth import hash_password
 from app.services.admin.config import DEFAULT_CONFIG
 
@@ -103,6 +104,84 @@ TASKS_DATA = [
     },
 ]
 
+# Spin wheel rewards - 8 segments
+# Total probability must add up to ensure fair weighting
+# Profit margin ~30-40% (house edge)
+SPIN_REWARDS_DATA = [
+    {
+        "reward_type": SpinRewardType.XPET,
+        "value": Decimal("0.10"),
+        "label": "0.10",
+        "emoji": "🪙",
+        "color": "#FFD700",  # Gold
+        "probability": Decimal("25"),  # 25% chance
+        "order": 0,
+    },
+    {
+        "reward_type": SpinRewardType.NOTHING,
+        "value": Decimal("0"),
+        "label": "Try Again",
+        "emoji": "😢",
+        "color": "#808080",  # Gray
+        "probability": Decimal("20"),  # 20% chance
+        "order": 1,
+    },
+    {
+        "reward_type": SpinRewardType.XPET,
+        "value": Decimal("0.25"),
+        "label": "0.25",
+        "emoji": "💰",
+        "color": "#32CD32",  # Lime green
+        "probability": Decimal("18"),  # 18% chance
+        "order": 2,
+    },
+    {
+        "reward_type": SpinRewardType.NOTHING,
+        "value": Decimal("0"),
+        "label": "No Luck",
+        "emoji": "💨",
+        "color": "#696969",  # Dim gray
+        "probability": Decimal("15"),  # 15% chance
+        "order": 3,
+    },
+    {
+        "reward_type": SpinRewardType.XPET,
+        "value": Decimal("0.50"),
+        "label": "0.50",
+        "emoji": "💎",
+        "color": "#1E90FF",  # Dodger blue
+        "probability": Decimal("12"),  # 12% chance
+        "order": 4,
+    },
+    {
+        "reward_type": SpinRewardType.XPET,
+        "value": Decimal("0.05"),
+        "label": "0.05",
+        "emoji": "✨",
+        "color": "#FFA500",  # Orange
+        "probability": Decimal("5"),  # 5% chance
+        "order": 5,
+    },
+    {
+        "reward_type": SpinRewardType.XPET,
+        "value": Decimal("1.00"),
+        "label": "1.00",
+        "emoji": "🎉",
+        "color": "#9932CC",  # Dark orchid
+        "probability": Decimal("4"),  # 4% chance
+        "order": 6,
+    },
+    {
+        "reward_type": SpinRewardType.XPET,
+        "value": Decimal("5.00"),
+        "label": "5.00",
+        "emoji": "🔥",
+        "color": "#FF4500",  # Orange red (JACKPOT)
+        "probability": Decimal("1"),  # 1% chance
+        "order": 7,
+    },
+]
+
 
 async def seed_pet_types():
     """Seed pet types if not exist."""
@@ -184,6 +263,24 @@ async def seed_system_config():
         print(f"Created {len(DEFAULT_CONFIG)} system config entries")
 
 
+async def seed_spin_rewards():
+    """Seed spin wheel rewards if not exist."""
+    async with async_session() as db:
+        result = await db.execute(select(SpinReward))
+        existing = result.scalars().all()
+
+        if existing:
+            print(f"Spin rewards already exist ({len(existing)} found), skipping...")
+            return
+
+        for data in SPIN_REWARDS_DATA:
+            reward = SpinReward(**data)
+            db.add(reward)
+
+        await db.commit()
+        print(f"Created {len(SPIN_REWARDS_DATA)} spin rewards")
+
+
 async def main():
     print("Seeding database...")
     try:
@@ -191,6 +288,7 @@ async def main():
         await seed_tasks()
         await seed_super_admin()
         await seed_system_config()
+        await seed_spin_rewards()
         print("Done!")
     except Exception as e:
         print(f"Seed error (tables may not exist yet): {e}")
