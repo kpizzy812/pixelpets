@@ -209,13 +209,10 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
         </div>
 
         {/* Balance */}
-        <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-4 flex items-center justify-center gap-3">
-          <Image src="/USDT.png" alt="USDT" width={40} height={40} />
-          <div className="text-center">
-            <span className="text-sm text-[#64748b]">Available Balance</span>
-            <div className="text-2xl font-bold text-[#c7f464]">
-              ${formatNumber(balance)}
-            </div>
+        <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-4 text-center">
+          <span className="text-sm text-[#64748b]">Available Balance</span>
+          <div className="text-2xl font-bold text-[#c7f464] mt-1">
+            {formatNumber(balance)} XPET
           </div>
         </div>
 
