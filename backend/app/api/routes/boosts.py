@@ -2,14 +2,16 @@
 API routes for boost system: Snacks, ROI Boosts, Auto-Claim.
 """
 from decimal import Decimal
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import select
 
 from app.core.database import get_db
 from app.core.security import get_current_user
+from app.core.config import settings
 from app.models.user import User
 from app.models.pet import UserPet
 from app.schemas.boost import (
@@ -39,6 +41,7 @@ from app.services.boosts import (
     AUTO_CLAIM_MONTHLY_COST,
     AUTO_CLAIM_COMMISSION_PERCENT,
 )
+from app.services.auto_claim import run_auto_claim_job
 
 router = APIRouter(prefix="/boosts", tags=["boosts"])
 
@@ -201,3 +204,33 @@ async def get_boost_stats_endpoint(
     """Get user's boost statistics."""
     stats = await get_user_boost_stats(db, current_user.id)
     return BoostStatsResponse(**stats)
+
+
+# ============== CRON JOB ROUTE ==============
+
+@router.post("/auto-claim/run")
+async def run_auto_claim_cron(
+    x_cron_secret: Optional[str] = Header(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Run auto-claim job for all users with active subscriptions.
+
+    This endpoint should be called by a cron job (e.g., every 5 minutes).
+    Protected by X-Cron-Secret header.
+    """
+    # Verify cron secret
+    if not settings.CRON_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Cron secret not configured"
+        )
+
+    if x_cron_secret != settings.CRON_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid cron secret"
+        )
+
+    stats = await run_auto_claim_job(db)
+    return stats

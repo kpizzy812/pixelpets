@@ -18,9 +18,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Add new values to txtype enum for boost system
-    op.execute("ALTER TYPE txtype ADD VALUE IF NOT EXISTS 'boost_purchase'")
-    op.execute("ALTER TYPE txtype ADD VALUE IF NOT EXISTS 'auto_claim_commission'")
+    # Add new values to txtype enum for boost system (UPPERCASE to match SQLAlchemy enum.name)
+    op.execute("ALTER TYPE txtype ADD VALUE IF NOT EXISTS 'BOOST_PURCHASE'")
+    op.execute("ALTER TYPE txtype ADD VALUE IF NOT EXISTS 'AUTO_CLAIM_COMMISSION'")
 
 
 def downgrade() -> None:

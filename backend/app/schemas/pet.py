@@ -39,6 +39,7 @@ class UserPetResponse(BaseModel):
     upgrade_cost: Optional[Decimal]
     next_level: Optional[PetLevel]
     current_daily_rate: Decimal  # Daily rate as percentage (e.g., 1.5 for 1.5%)
+    roi_boost_percent: Optional[Decimal] = None  # ROI boost as percentage (e.g., 10 for +10%)
 
     class Config:
         from_attributes = True

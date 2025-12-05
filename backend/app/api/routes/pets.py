@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -35,16 +37,21 @@ from app.services.pets import (
     calculate_upgrade_cost,
     MAX_SLOTS,
 )
+from app.services.boosts import get_pet_total_roi_boost
 
 router = APIRouter(prefix="/pets", tags=["pets"])
 
 
-def pet_to_response(pet) -> UserPetResponse:
+async def pet_to_response(pet, db: AsyncSession) -> UserPetResponse:
     """Convert UserPet model to response schema."""
     # Check training status
     pet = check_training_status(pet)
 
-    max_profit = calculate_max_profit(pet.invested_total, pet.pet_type.roi_cap_multiplier)
+    # Get ROI boost and calculate boosted max profit
+    roi_boost = await get_pet_total_roi_boost(db, pet.id)
+    boosted_roi_cap = pet.pet_type.roi_cap_multiplier + roi_boost
+    max_profit = calculate_max_profit(pet.invested_total, boosted_roi_cap)
+
     next_level = get_next_level(pet.level)
     upgrade_cost = None
     if next_level and pet.status not in [PetStatus.EVOLVED, PetStatus.SOLD]:
@@ -67,6 +74,7 @@ def pet_to_response(pet) -> UserPetResponse:
         upgrade_cost=upgrade_cost,
         next_level=next_level,
         current_daily_rate=current_daily_rate,
+        roi_boost_percent=roi_boost * Decimal("100") if roi_boost else None,
     )
 
 
@@ -88,7 +96,7 @@ async def get_my_pets(
     pets = await get_user_pets(db, current_user.id)
 
     return MyPetsResponse(
-        pets=[pet_to_response(pet) for pet in pets],
+        pets=[await pet_to_response(pet, db) for pet in pets],
         slots_used=len(pets),
         max_slots=MAX_SLOTS,
     )
@@ -104,7 +112,7 @@ async def buy_pet_endpoint(
     try:
         pet, new_balance = await buy_pet(db, current_user, request.pet_type_id)
         return BuyPetResponse(
-            pet=pet_to_response(pet),
+            pet=await pet_to_response(pet, db),
             new_balance=new_balance,
         )
     except ValueError as e:
@@ -121,7 +129,7 @@ async def upgrade_pet_endpoint(
     try:
         pet, new_balance = await upgrade_pet(db, current_user, request.pet_id)
         return UpgradePetResponse(
-            pet=pet_to_response(pet),
+            pet=await pet_to_response(pet, db),
             new_balance=new_balance,
         )
     except ValueError as e:

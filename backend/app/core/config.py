@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     # App
     DEBUG: bool = False
 
+    # Cron job secret (for auto-claim endpoint)
+    CRON_SECRET: str = ""
+
     class Config:
         env_file = ".env"
 
