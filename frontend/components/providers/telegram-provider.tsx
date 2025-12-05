@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState, createContext, useContext, type ReactNode } from 'react';
-import { isTelegramWebApp } from '@/lib/telegram';
 
-// Mock user for development
+// Mock user for development (only used outside Telegram)
 const MOCK_USER = {
   id: 123456789,
   firstName: 'Dev',
@@ -60,47 +59,67 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
 
   useEffect(() => {
     const initTelegram = async () => {
-      const isTg = isTelegramWebApp();
-      setIsTelegram(isTg);
-
-      if (!isTg) {
-        // Dev mode - use mock data
-        console.log('[TelegramProvider] Not in Telegram, using mock mode');
-        setUser(MOCK_USER);
-        setRawInitData('mock_init_data_for_development');
-        setIsReady(true);
-        return;
-      }
-
       try {
-        // Dynamically import SDK only when in Telegram
+        // Import bridge to check if we're in Telegram
+        const { isTMA, retrieveLaunchParams, retrieveRawInitData } = await import('@telegram-apps/bridge');
+
+        const isTg = isTMA();
+        setIsTelegram(isTg);
+
+        if (!isTg) {
+          // Dev mode - use mock data
+          console.log('[TelegramProvider] Not in Telegram, using mock mode');
+          setUser(MOCK_USER);
+          setRawInitData('mock_init_data_for_development');
+          setIsReady(true);
+          return;
+        }
+
+        // Get launch params (contains initData)
+        const launchParams = retrieveLaunchParams(true); // true = camelCase keys
+        console.log('[TelegramProvider] Launch params:', launchParams);
+
+        // Set raw init data for auth (use dedicated function)
+        const rawInitData = retrieveRawInitData();
+        if (rawInitData) {
+          setRawInitData(rawInitData);
+        }
+
+        // Set user from init data (tgWebAppData in v2)
+        const tgWebAppData = (launchParams as any).tgWebAppData;
+        if (tgWebAppData?.user) {
+          const tgUser = tgWebAppData.user;
+          setUser({
+            id: tgUser.id,
+            firstName: tgUser.first_name || tgUser.firstName,
+            lastName: tgUser.last_name || tgUser.lastName,
+            username: tgUser.username,
+            languageCode: tgUser.language_code || tgUser.languageCode,
+            isPremium: tgUser.is_premium || tgUser.isPremium,
+            allowsWriteToPm: tgUser.allows_write_to_pm || tgUser.allowsWriteToPm,
+          });
+        }
+
+        // Import SDK for UI features
         const {
           init,
           miniApp,
           viewport,
           themeParams,
-          initData,
           swipeBehavior,
         } = await import('@telegram-apps/sdk-react');
 
         // Initialize SDK
         init({ acceptCustomStyles: true });
 
-        // Mount components
-        if (miniApp.mount.isAvailable()) {
-          miniApp.mount();
-        }
-
-        // Mount and configure viewport
+        // Configure viewport
         if (viewport.mount.isAvailable()) {
           await viewport.mount();
 
-          // 1. Expand viewport first
           if (viewport.expand.isAvailable()) {
             viewport.expand();
           }
 
-          // 2. Request fullscreen mode
           if (viewport.requestFullscreen.isAvailable()) {
             try {
               await viewport.requestFullscreen();
@@ -110,13 +129,12 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
             }
           }
 
-          // 3. Bind CSS variables for viewport dimensions
           if (viewport.bindCssVars.isAvailable()) {
             viewport.bindCssVars();
           }
         }
 
-        // Mount and disable vertical swipe to close
+        // Disable vertical swipe to close
         if (swipeBehavior.mount.isAvailable()) {
           swipeBehavior.mount();
           if (swipeBehavior.disableVertical.isAvailable()) {
@@ -133,24 +151,6 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
           miniApp.bindCssVars();
         }
 
-        // Get init data
-        const data = initData.state();
-        if (data) {
-          const tgUser = data.user;
-          if (tgUser) {
-            setUser({
-              id: tgUser.id,
-              firstName: tgUser.first_name,
-              lastName: tgUser.last_name,
-              username: tgUser.username,
-              languageCode: tgUser.language_code,
-              isPremium: tgUser.is_premium,
-              allowsWriteToPm: tgUser.allows_write_to_pm,
-            });
-          }
-          setRawInitData(initData.raw() ?? null);
-        }
-
         // Get color scheme
         const scheme = miniApp.isDark?.() ? 'dark' : 'light';
         setColorScheme(scheme);
@@ -165,6 +165,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         console.error('[TelegramProvider] Init error:', error);
         // Fallback to mock mode on error
         setUser(MOCK_USER);
+        setRawInitData('mock_init_data_for_development');
         setIsReady(true);
       }
     };

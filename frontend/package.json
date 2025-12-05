@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@telegram-apps/bridge": "^2.11.0",
     "@telegram-apps/sdk-react": "^3.3.9",
     "clsx": "^2.1.1",
     "lucide-react": "^0.555.0",
