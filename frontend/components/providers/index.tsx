@@ -5,7 +5,6 @@ import { TelegramProvider } from './telegram-provider';
 import { AuthProvider, useAuth } from '@/hooks/use-auth';
 import { ToastProvider } from '@/components/ui/toast-provider';
 import { AppLoader } from '@/components/ui/app-loader';
-import { setupTelegramMock } from '@/lib/telegram-mock';
 import { useGameStore } from '@/store/game-store';
 
 interface ProvidersProps {
@@ -64,10 +63,7 @@ export function Providers({ children }: ProvidersProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Setup mock in dev mode (outside Telegram)
-    if (process.env.NODE_ENV === 'development') {
-      setupTelegramMock();
-    }
+    // TelegramProvider handles mock mode internally
     setIsMounted(true);
   }, []);
 

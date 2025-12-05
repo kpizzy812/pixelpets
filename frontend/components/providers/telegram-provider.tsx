@@ -1,26 +1,40 @@
 'use client';
 
-import { useEffect, useState, createContext, useContext, type ReactNode } from 'react';
+import { useEffect, useRef, useState, createContext, useContext, type ReactNode } from 'react';
+import { isTelegramMiniApp } from '@/lib/environment';
+import type { WebApp } from '@/types/telegram';
+
+/**
+ * TelegramProvider - Proper Telegram Mini App initialization
+ *
+ * Best Practices 2025:
+ * 1. Correct sequence: ready() → expand() → requestFullscreen()
+ * 2. Safe Areas support for iOS notch
+ * 3. Theme Parameters integration
+ * 4. Header and background colors setup
+ * 5. Disable vertical swipes
+ * 6. Closing confirmation
+ */
 
 // Mock user for development (only used outside Telegram)
 const MOCK_USER = {
   id: 123456789,
-  firstName: 'Dev',
-  lastName: 'User',
+  first_name: 'Dev',
+  last_name: 'User',
   username: 'devuser',
-  languageCode: 'en',
-  isPremium: false,
-  allowsWriteToPm: true,
+  language_code: 'en',
+  is_premium: false,
+  allows_write_to_pm: true,
 };
 
 interface TelegramUser {
   id: number;
-  firstName: string;
-  lastName?: string;
+  first_name: string;
+  last_name?: string;
   username?: string;
-  languageCode?: string;
-  isPremium?: boolean;
-  allowsWriteToPm?: boolean;
+  language_code?: string;
+  is_premium?: boolean;
+  allows_write_to_pm?: boolean;
 }
 
 interface TelegramContextValue {
@@ -30,6 +44,7 @@ interface TelegramContextValue {
   rawInitData: string | null;
   colorScheme: 'light' | 'dark';
   isFullscreen: boolean;
+  webApp: WebApp | null;
 }
 
 const TelegramContext = createContext<TelegramContextValue>({
@@ -39,6 +54,7 @@ const TelegramContext = createContext<TelegramContextValue>({
   rawInitData: null,
   colorScheme: 'dark',
   isFullscreen: false,
+  webApp: null,
 });
 
 export function useTelegram() {
@@ -47,134 +63,312 @@ export function useTelegram() {
 
 interface TelegramProviderProps {
   children: ReactNode;
+  enableFullscreen?: boolean;
 }
 
-export function TelegramProvider({ children }: TelegramProviderProps) {
+export function TelegramProvider({
+  children,
+  enableFullscreen = true
+}: TelegramProviderProps) {
   const [isReady, setIsReady] = useState(false);
   const [isTelegram, setIsTelegram] = useState(false);
   const [user, setUser] = useState<TelegramUser | null>(null);
   const [rawInitData, setRawInitData] = useState<string | null>(null);
   const [colorScheme, setColorScheme] = useState<'light' | 'dark'>('dark');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [webApp, setWebApp] = useState<WebApp | null>(null);
+
+  // CRITICAL: Flag to track fullscreen intent
+  const isFullscreenIntentionalRef = useRef(false);
+  // CRITICAL: Flag to prevent re-initialization
+  const isInitializedRef = useRef(false);
 
   useEffect(() => {
-    const initTelegram = async () => {
+    // Cleanup before re-initialization (Hot Reload)
+    if (isInitializedRef.current && window.Telegram?.WebApp) {
+      const WebApp = window.Telegram.WebApp;
+      console.log('[TelegramProvider] Cleanup before re-init');
+
+      if (WebApp.MainButton) {
+        WebApp.MainButton.hide();
+        WebApp.MainButton.offClick();
+      }
+      if (WebApp.SecondaryButton) {
+        WebApp.SecondaryButton.hide();
+        WebApp.SecondaryButton.offClick();
+      }
+      if (WebApp.BackButton) {
+        WebApp.BackButton.hide();
+        WebApp.BackButton.offClick();
+      }
+      if (WebApp.SettingsButton) {
+        WebApp.SettingsButton.hide();
+        WebApp.SettingsButton.offClick();
+      }
+      isInitializedRef.current = false;
+    }
+
+    const initTelegramApp = () => {
       try {
-        // Check if we're in Telegram by looking for WebApp object
-        const webApp = typeof window !== 'undefined'
-          ? (window as any).Telegram?.WebApp
-          : null;
+        // Check environment using URL params (more reliable than SDK)
+        const isMiniApp = isTelegramMiniApp();
 
-        const isTg = !!webApp;
-        setIsTelegram(isTg);
-        console.log('[TelegramProvider] isTelegram:', isTg);
-
-        if (!isTg) {
-          // Dev mode - use mock data
-          console.log('[TelegramProvider] Not in Telegram, using mock mode');
+        if (!isMiniApp) {
+          console.log('[TelegramProvider] Web browser detected (not Telegram)');
+          setIsTelegram(false);
           setUser(MOCK_USER);
           setRawInitData('mock_init_data_for_development');
           setIsReady(true);
+          isInitializedRef.current = true;
           return;
         }
 
-        // Get init data directly from WebApp object (most reliable way)
-        const initDataRaw = webApp.initData;
-        const initDataUnsafe = webApp.initDataUnsafe;
+        console.log('[TelegramProvider] Telegram Mini App environment detected');
+        setIsTelegram(true);
 
-        console.log('[TelegramProvider] initData:', initDataRaw);
-        console.log('[TelegramProvider] initDataUnsafe:', initDataUnsafe);
+        // After <Script strategy="beforeInteractive">, SDK is available SYNCHRONOUSLY
+        if (!window.Telegram?.WebApp) {
+          console.error('[TelegramProvider] Telegram SDK not loaded');
+          setUser(MOCK_USER);
+          setRawInitData('mock_init_data_for_development');
+          setIsReady(true);
+          isInitializedRef.current = true;
+          return;
+        }
+
+        console.log('[TelegramProvider] Telegram SDK available');
+        const WebApp = window.Telegram.WebApp;
+
+        // ═══════════════════════════════════════════════════════════
+        // STEP 1: Basic initialization and readiness
+        // ═══════════════════════════════════════════════════════════
+        WebApp.ready();
+        console.log('[TelegramProvider] WebApp.ready() called');
+
+        // ═══════════════════════════════════════════════════════════
+        // STEP 2: Get init data
+        // ═══════════════════════════════════════════════════════════
+        const initDataRaw = WebApp.initData;
+        const initDataUnsafe = WebApp.initDataUnsafe;
+
+        console.log('[TelegramProvider] initData:', initDataRaw ? 'present' : 'missing');
 
         if (initDataRaw) {
           setRawInitData(initDataRaw);
         }
 
-        // Set user from initDataUnsafe
         if (initDataUnsafe?.user) {
-          const tgUser = initDataUnsafe.user;
-          setUser({
-            id: tgUser.id,
-            firstName: tgUser.first_name,
-            lastName: tgUser.last_name,
-            username: tgUser.username,
-            languageCode: tgUser.language_code,
-            isPremium: tgUser.is_premium,
-            allowsWriteToPm: tgUser.allows_write_to_pm,
-          });
+          setUser(initDataUnsafe.user);
         }
 
-        // Get color scheme from WebApp
-        const scheme = webApp.colorScheme || 'dark';
+        // ═══════════════════════════════════════════════════════════
+        // STEP 3: Configure viewport
+        // Sequence: expand() → requestFullscreen()
+        // ═══════════════════════════════════════════════════════════
+        if (WebApp.expand) {
+          WebApp.expand();
+          console.log('[TelegramProvider] App expanded');
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // STEP 4: Fullscreen with proper event handling
+        // ═══════════════════════════════════════════════════════════
+        WebApp.onEvent('fullscreenChanged', (event: any) => {
+          const isFs = event?.isFullscreen ?? WebApp.isFullscreen;
+          console.log(`[TelegramProvider] Fullscreen changed: ${isFs}`);
+          setIsFullscreen(isFs);
+
+          if (!isFs && !isFullscreenIntentionalRef.current) {
+            console.log('[TelegramProvider] User exited fullscreen - respecting choice');
+          }
+          isFullscreenIntentionalRef.current = false;
+        });
+
+        WebApp.onEvent('fullscreenFailed', (event: any) => {
+          const error = event?.error ?? 'UNKNOWN';
+          console.warn(`[TelegramProvider] Fullscreen failed: ${error}`);
+          isFullscreenIntentionalRef.current = false;
+        });
+
+        // Request fullscreen if enabled
+        if (enableFullscreen && WebApp.requestFullscreen) {
+          try {
+            isFullscreenIntentionalRef.current = true;
+            WebApp.requestFullscreen();
+            console.log('[TelegramProvider] Fullscreen requested');
+          } catch (error) {
+            console.warn('[TelegramProvider] Fullscreen not available:', error);
+            isFullscreenIntentionalRef.current = false;
+          }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // STEP 5: Security and UX settings
+        // ═══════════════════════════════════════════════════════════
+
+        // Disable vertical swipes to close (Bot API 7.7+)
+        if (WebApp.disableVerticalSwipes) {
+          WebApp.disableVerticalSwipes();
+          console.log('[TelegramProvider] Vertical swipes disabled');
+        }
+
+        // Enable closing confirmation (with desktop fullscreen exception)
+        const isDesktop = ['tdesktop', 'macos', 'weba', 'webk', 'unigram'].includes(WebApp.platform);
+
+        if (WebApp.enableClosingConfirmation) {
+          if (!(isDesktop && enableFullscreen)) {
+            WebApp.enableClosingConfirmation();
+            console.log('[TelegramProvider] Closing confirmation enabled');
+          }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // STEP 6: Theme and colors
+        // ═══════════════════════════════════════════════════════════
+        const scheme = WebApp.colorScheme || 'dark';
         setColorScheme(scheme);
 
-        // Tell Telegram we're ready
-        webApp.ready();
-
-        // Expand to full height
-        webApp.expand();
-
-        // Try to use SDK for additional features
-        try {
-          const {
-            init,
-            viewport,
-            themeParams,
-            swipeBehavior,
-            miniApp,
-          } = await import('@telegram-apps/sdk-react');
-
-          init({ acceptCustomStyles: true });
-
-          // Configure viewport
-          if (viewport.mount.isAvailable()) {
-            await viewport.mount();
-
-            if (viewport.requestFullscreen.isAvailable()) {
-              try {
-                await viewport.requestFullscreen();
-                setIsFullscreen(true);
-              } catch (err) {
-                console.warn('[TelegramProvider] Fullscreen not available:', err);
-              }
-            }
-
-            if (viewport.bindCssVars.isAvailable()) {
-              viewport.bindCssVars();
-            }
-          }
-
-          // Disable vertical swipe to close
-          if (swipeBehavior.mount.isAvailable()) {
-            swipeBehavior.mount();
-            if (swipeBehavior.disableVertical.isAvailable()) {
-              swipeBehavior.disableVertical();
-            }
-          }
-
-          // Bind theme CSS variables
-          if (themeParams.bindCssVars.isAvailable()) {
-            themeParams.bindCssVars();
-          }
-
-          if (miniApp.bindCssVars.isAvailable()) {
-            miniApp.bindCssVars();
-          }
-        } catch (sdkError) {
-          console.warn('[TelegramProvider] SDK features error:', sdkError);
-          // SDK features are optional, continue without them
+        if (WebApp.setHeaderColor) {
+          WebApp.setHeaderColor('bg_color');
         }
 
+        if (WebApp.setBackgroundColor) {
+          WebApp.setBackgroundColor('bg_color');
+        }
+
+        if (WebApp.setBottomBarColor) {
+          WebApp.setBottomBarColor('bg_color');
+        }
+
+        // Apply theme params to CSS variables
+        const themeParams = WebApp.themeParams;
+        if (themeParams) {
+          const root = document.documentElement;
+
+          if (themeParams.bg_color) {
+            root.style.setProperty('--tg-theme-bg-color', themeParams.bg_color);
+          }
+          if (themeParams.text_color) {
+            root.style.setProperty('--tg-theme-text-color', themeParams.text_color);
+          }
+          if (themeParams.hint_color) {
+            root.style.setProperty('--tg-theme-hint-color', themeParams.hint_color);
+          }
+          if (themeParams.link_color) {
+            root.style.setProperty('--tg-theme-link-color', themeParams.link_color);
+          }
+          if (themeParams.button_color) {
+            root.style.setProperty('--tg-theme-button-color', themeParams.button_color);
+          }
+          if (themeParams.button_text_color) {
+            root.style.setProperty('--tg-theme-button-text-color', themeParams.button_text_color);
+          }
+          if (themeParams.secondary_bg_color) {
+            root.style.setProperty('--tg-theme-secondary-bg-color', themeParams.secondary_bg_color);
+          }
+          console.log('[TelegramProvider] Theme params applied to CSS');
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // STEP 7: Safe Area Insets for iOS notch
+        // ═══════════════════════════════════════════════════════════
+        const updateSafeAreaInsets = () => {
+          const root = document.documentElement;
+
+          if (WebApp.safeAreaInset) {
+            const { top, bottom, left, right } = WebApp.safeAreaInset;
+            root.style.setProperty('--tg-safe-area-inset-top', `${top}px`);
+            root.style.setProperty('--tg-safe-area-inset-bottom', `${bottom}px`);
+            root.style.setProperty('--tg-safe-area-inset-left', `${left}px`);
+            root.style.setProperty('--tg-safe-area-inset-right', `${right}px`);
+          }
+
+          if (WebApp.contentSafeAreaInset) {
+            const { top, bottom, left, right } = WebApp.contentSafeAreaInset;
+            root.style.setProperty('--tg-content-safe-area-inset-top', `${top}px`);
+            root.style.setProperty('--tg-content-safe-area-inset-bottom', `${bottom}px`);
+            root.style.setProperty('--tg-content-safe-area-inset-left', `${left}px`);
+            root.style.setProperty('--tg-content-safe-area-inset-right', `${right}px`);
+          }
+        };
+
+        updateSafeAreaInsets();
+
+        WebApp.onEvent('safeAreaChanged', updateSafeAreaInsets);
+        WebApp.onEvent('contentSafeAreaChanged', updateSafeAreaInsets);
+
+        // ═══════════════════════════════════════════════════════════
+        // STEP 8: Log app info
+        // ═══════════════════════════════════════════════════════════
+        console.log('[TelegramProvider] WebApp Info:', {
+          version: WebApp.version,
+          platform: WebApp.platform,
+          colorScheme: WebApp.colorScheme,
+          viewportHeight: WebApp.viewportHeight,
+          viewportStableHeight: WebApp.viewportStableHeight,
+          isExpanded: WebApp.isExpanded,
+          isFullscreen: WebApp.isFullscreen,
+        });
+
+        // ═══════════════════════════════════════════════════════════
+        // STEP 9: Block page scroll (prevent swipe-down close)
+        // ═══════════════════════════════════════════════════════════
+        document.body.classList.add('mobile-body');
+
+        // ═══════════════════════════════════════════════════════════
+        // STEP 10: Complete initialization
+        // ═══════════════════════════════════════════════════════════
+        setWebApp(WebApp);
         setIsReady(true);
+        isInitializedRef.current = true;
+
+        console.log('[TelegramProvider] Telegram Mini App fully initialized!');
+
       } catch (error) {
         console.error('[TelegramProvider] Init error:', error);
-        // Fallback to mock mode on error
         setUser(MOCK_USER);
         setRawInitData('mock_init_data_for_development');
         setIsReady(true);
       }
     };
 
-    initTelegram();
+    initTelegramApp();
+
+    // Cleanup on unmount
+    return () => {
+      console.log('[TelegramProvider] Cleanup on unmount');
+
+      if (isTelegram) {
+        document.body.classList.remove('mobile-body');
+      }
+
+      if (window.Telegram?.WebApp) {
+        const WebApp = window.Telegram.WebApp;
+
+        if (WebApp.MainButton) {
+          WebApp.MainButton.hide();
+          WebApp.MainButton.offClick();
+        }
+        if (WebApp.SecondaryButton) {
+          WebApp.SecondaryButton.hide();
+          WebApp.SecondaryButton.offClick();
+        }
+        if (WebApp.BackButton) {
+          WebApp.BackButton.hide();
+          WebApp.BackButton.offClick();
+        }
+        if (WebApp.SettingsButton) {
+          WebApp.SettingsButton.hide();
+          WebApp.SettingsButton.offClick();
+        }
+      }
+
+      setIsReady(false);
+      setWebApp(null);
+      isInitializedRef.current = false;
+    };
+    // Empty deps - run only once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -186,6 +380,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         rawInitData,
         colorScheme,
         isFullscreen,
+        webApp,
       }}
     >
       {children}

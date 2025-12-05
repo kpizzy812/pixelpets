@@ -75,3 +75,58 @@ body {
 .glow-amber {
   box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Telegram Mini App - Mobile body styles
+   Prevents swipe-down close and ensures proper viewport
+   ═══════════════════════════════════════════════════════════ */
+.mobile-body {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: pan-x pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Telegram Theme Variables (set by TelegramProvider)
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  /* Theme colors - defaults, overridden by Telegram */
+  --tg-theme-bg-color: var(--background);
+  --tg-theme-text-color: var(--foreground);
+  --tg-theme-hint-color: #64748b;
+  --tg-theme-link-color: #00f5d4;
+  --tg-theme-button-color: #c7f464;
+  --tg-theme-button-text-color: #050712;
+  --tg-theme-secondary-bg-color: #0d1220;
+
+  /* Safe area insets - set by TelegramProvider */
+  --tg-safe-area-inset-top: 0px;
+  --tg-safe-area-inset-bottom: 0px;
+  --tg-safe-area-inset-left: 0px;
+  --tg-safe-area-inset-right: 0px;
+  --tg-content-safe-area-inset-top: 0px;
+  --tg-content-safe-area-inset-bottom: 0px;
+  --tg-content-safe-area-inset-left: 0px;
+  --tg-content-safe-area-inset-right: 0px;
+}
+
+/* Safe area padding utilities */
+.safe-area-top {
+  padding-top: var(--tg-safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: var(--tg-safe-area-inset-bottom);
+}
+
+.content-safe-area-top {
+  padding-top: var(--tg-content-safe-area-inset-top);
+}
+
+.content-safe-area-bottom {
+  padding-bottom: var(--tg-content-safe-area-inset-bottom);
+}
