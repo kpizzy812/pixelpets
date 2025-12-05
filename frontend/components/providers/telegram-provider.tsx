@@ -60,11 +60,14 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
   useEffect(() => {
     const initTelegram = async () => {
       try {
-        // Import bridge to check if we're in Telegram
-        const { isTMA, retrieveLaunchParams, retrieveRawInitData } = await import('@telegram-apps/bridge');
+        // Check if we're in Telegram by looking for WebApp object
+        const webApp = typeof window !== 'undefined'
+          ? (window as any).Telegram?.WebApp
+          : null;
 
-        const isTg = isTMA();
+        const isTg = !!webApp;
         setIsTelegram(isTg);
+        console.log('[TelegramProvider] isTelegram:', isTg);
 
         if (!isTg) {
           // Dev mode - use mock data
@@ -75,89 +78,90 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
           return;
         }
 
-        // Get launch params (contains initData)
-        const launchParams = retrieveLaunchParams(true); // true = camelCase keys
-        console.log('[TelegramProvider] Launch params:', launchParams);
+        // Get init data directly from WebApp object (most reliable way)
+        const initDataRaw = webApp.initData;
+        const initDataUnsafe = webApp.initDataUnsafe;
 
-        // Set raw init data for auth (use dedicated function)
-        const rawInitData = retrieveRawInitData();
-        if (rawInitData) {
-          setRawInitData(rawInitData);
+        console.log('[TelegramProvider] initData:', initDataRaw);
+        console.log('[TelegramProvider] initDataUnsafe:', initDataUnsafe);
+
+        if (initDataRaw) {
+          setRawInitData(initDataRaw);
         }
 
-        // Set user from init data (tgWebAppData in v2)
-        const tgWebAppData = (launchParams as any).tgWebAppData;
-        if (tgWebAppData?.user) {
-          const tgUser = tgWebAppData.user;
+        // Set user from initDataUnsafe
+        if (initDataUnsafe?.user) {
+          const tgUser = initDataUnsafe.user;
           setUser({
             id: tgUser.id,
-            firstName: tgUser.first_name || tgUser.firstName,
-            lastName: tgUser.last_name || tgUser.lastName,
+            firstName: tgUser.first_name,
+            lastName: tgUser.last_name,
             username: tgUser.username,
-            languageCode: tgUser.language_code || tgUser.languageCode,
-            isPremium: tgUser.is_premium || tgUser.isPremium,
-            allowsWriteToPm: tgUser.allows_write_to_pm || tgUser.allowsWriteToPm,
+            languageCode: tgUser.language_code,
+            isPremium: tgUser.is_premium,
+            allowsWriteToPm: tgUser.allows_write_to_pm,
           });
         }
 
-        // Import SDK for UI features
-        const {
-          init,
-          miniApp,
-          viewport,
-          themeParams,
-          swipeBehavior,
-        } = await import('@telegram-apps/sdk-react');
+        // Get color scheme from WebApp
+        const scheme = webApp.colorScheme || 'dark';
+        setColorScheme(scheme);
 
-        // Initialize SDK
-        init({ acceptCustomStyles: true });
+        // Tell Telegram we're ready
+        webApp.ready();
 
-        // Configure viewport
-        if (viewport.mount.isAvailable()) {
-          await viewport.mount();
+        // Expand to full height
+        webApp.expand();
 
-          if (viewport.expand.isAvailable()) {
-            viewport.expand();
-          }
+        // Try to use SDK for additional features
+        try {
+          const {
+            init,
+            viewport,
+            themeParams,
+            swipeBehavior,
+            miniApp,
+          } = await import('@telegram-apps/sdk-react');
 
-          if (viewport.requestFullscreen.isAvailable()) {
-            try {
-              await viewport.requestFullscreen();
-              setIsFullscreen(true);
-            } catch (err) {
-              console.warn('[TelegramProvider] Fullscreen not available:', err);
+          init({ acceptCustomStyles: true });
+
+          // Configure viewport
+          if (viewport.mount.isAvailable()) {
+            await viewport.mount();
+
+            if (viewport.requestFullscreen.isAvailable()) {
+              try {
+                await viewport.requestFullscreen();
+                setIsFullscreen(true);
+              } catch (err) {
+                console.warn('[TelegramProvider] Fullscreen not available:', err);
+              }
+            }
+
+            if (viewport.bindCssVars.isAvailable()) {
+              viewport.bindCssVars();
             }
           }
 
-          if (viewport.bindCssVars.isAvailable()) {
-            viewport.bindCssVars();
+          // Disable vertical swipe to close
+          if (swipeBehavior.mount.isAvailable()) {
+            swipeBehavior.mount();
+            if (swipeBehavior.disableVertical.isAvailable()) {
+              swipeBehavior.disableVertical();
+            }
           }
-        }
 
-        // Disable vertical swipe to close
-        if (swipeBehavior.mount.isAvailable()) {
-          swipeBehavior.mount();
-          if (swipeBehavior.disableVertical.isAvailable()) {
-            swipeBehavior.disableVertical();
+          // Bind theme CSS variables
+          if (themeParams.bindCssVars.isAvailable()) {
+            themeParams.bindCssVars();
           }
-        }
 
-        // Bind theme CSS variables
-        if (themeParams.bindCssVars.isAvailable()) {
-          themeParams.bindCssVars();
-        }
-
-        if (miniApp.bindCssVars.isAvailable()) {
-          miniApp.bindCssVars();
-        }
-
-        // Get color scheme
-        const scheme = miniApp.isDark?.() ? 'dark' : 'light';
-        setColorScheme(scheme);
-
-        // Notify Telegram we're ready
-        if (miniApp.ready.isAvailable()) {
-          miniApp.ready();
+          if (miniApp.bindCssVars.isAvailable()) {
+            miniApp.bindCssVars();
+          }
+        } catch (sdkError) {
+          console.warn('[TelegramProvider] SDK features error:', sdkError);
+          // SDK features are optional, continue without them
         }
 
         setIsReady(true);
