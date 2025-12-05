@@ -14,7 +14,7 @@ interface SellModalProps {
   pet: Pet | null;
 }
 
-const SELL_RATE = 0.7; // 70% refund
+const SELL_RATE = 0.85; // 85% refund
 
 export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
   const { sellPet } = useGameStore();

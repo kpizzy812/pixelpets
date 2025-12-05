@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Icon, type IconName } from '@/components/ui/icon';
 import { useHaptic } from '@/hooks/use-haptic';
 
@@ -11,20 +12,21 @@ type NavItem = 'home' | 'shop' | 'tasks' | 'referrals';
 interface NavItemConfig {
   id: NavItem;
   icon: IconName;
-  label: string;
+  labelKey: 'home' | 'shop' | 'tasks' | 'refs';
   href: string;
 }
 
 const NAV_ITEMS: NavItemConfig[] = [
-  { id: 'home', icon: 'home', label: 'Home', href: '/' },
-  { id: 'shop', icon: 'shop', label: 'Shop', href: '/shop' },
-  { id: 'tasks', icon: 'tasks', label: 'Tasks', href: '/tasks' },
-  { id: 'referrals', icon: 'referrals', label: 'Refs', href: '/referrals' },
+  { id: 'home', icon: 'home', labelKey: 'home', href: '/' },
+  { id: 'shop', icon: 'shop', labelKey: 'shop', href: '/shop' },
+  { id: 'tasks', icon: 'tasks', labelKey: 'tasks', href: '/tasks' },
+  { id: 'referrals', icon: 'referrals', labelKey: 'refs', href: '/referrals' },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
   const { tap, selection } = useHaptic();
+  const t = useTranslations('nav');
 
   const getActiveItem = (): NavItem => {
     if (pathname === '/shop') return 'shop';
@@ -72,7 +74,7 @@ export function BottomNav() {
                   isActive ? 'text-[#050712]' : 'text-[#64748b]'
                 }`}
               >
-                {item.label}
+                {t(item.labelKey)}
               </span>
             </Link>
           );

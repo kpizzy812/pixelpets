@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/components/layout/page-layout';
 import { PetTypeCard } from './pet-type-card';
 import { BuyModal } from './buy-modal';
@@ -22,6 +23,7 @@ export function ShopScreen() {
   const router = useRouter();
   const balance = useBalance();
   const { petTypes, petSlots, slotsUsed, maxSlots, fetchPetCatalog, buyPet, isLoading } = useGameStore();
+  const t = useTranslations('shop');
 
   const [mode, setMode] = useState<ShopMode>('buy');
   const [selectedPet, setSelectedPet] = useState<PetType | null>(null);
@@ -37,12 +39,12 @@ export function ShopScreen() {
     // Find first empty slot
     const emptySlot = petSlots.find((s) => s.pet === null);
     if (!emptySlot) {
-      showError('No free slots available');
+      showError(t('noSlots'));
       return;
     }
 
     if (balance < petType.base_price) {
-      showError('Not enough XPET');
+      showError(t('notEnoughXpet'));
       return;
     }
 
@@ -57,12 +59,12 @@ export function ShopScreen() {
 
     try {
       await buyPet(selectedPet.id, selectedSlot);
-      showSuccess(`${selectedPet.name} purchased!`);
+      showSuccess(t('purchased', { name: selectedPet.name }));
       setSelectedPet(null);
       setSelectedSlot(null);
       router.push('/');
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to buy pet');
+      showError(err instanceof Error ? err.message : t('failedToBuy'));
     } finally {
       setIsBuying(false);
     }
@@ -71,7 +73,7 @@ export function ShopScreen() {
   const hasEmptySlots = slotsUsed < maxSlots;
 
   return (
-    <PageLayout title="Pet Shop">
+    <PageLayout title={t('title')}>
       <div className="p-4 space-y-4">
         {/* Buy/Sell Toggle */}
         <div className="flex rounded-xl bg-[#0d1220]/80 border border-[#1e293b]/50 p-1">
@@ -83,7 +85,7 @@ export function ShopScreen() {
                 : 'text-[#94a3b8] hover:text-[#f1f5f9]'
             }`}
           >
-            Buy
+            {t('buy')}
           </button>
           <button
             onClick={() => setMode('sell')}
@@ -93,7 +95,7 @@ export function ShopScreen() {
                 : 'text-[#94a3b8] hover:text-[#f1f5f9]'
             }`}
           >
-            Sell
+            {t('sell')}
           </button>
         </div>
 
@@ -101,7 +103,7 @@ export function ShopScreen() {
           <>
             {/* No Slots Warning */}
             {!hasEmptySlots && (
-              <InlineError message="All pet slots are full. Sell or evolve a pet to buy a new one." />
+              <InlineError message={t('noFreeSlots')} />
             )}
 
             {/* Pet Catalog - Grid 2x2 */}
@@ -132,7 +134,7 @@ export function ShopScreen() {
               if (ownedPets.length === 0) {
                 return (
                   <div className="text-center py-12 text-[#64748b]">
-                    <p className="text-sm">You don't have any pets to sell</p>
+                    <p className="text-sm">{t('noPetsToSell')}</p>
                   </div>
                 );
               }
@@ -161,7 +163,7 @@ export function ShopScreen() {
                               <span className="text-xs text-[#94a3b8]">{pet.rarity}</span>
                             </div>
                             <div className="flex items-center gap-1 mt-1">
-                              <span className="text-xs text-[#64748b]">Refund:</span>
+                              <span className="text-xs text-[#64748b]">{t('refund')}:</span>
                               <span className="text-xs text-[#c7f464] font-medium">{formatNumber(refundAmount)}</span>
                               <XpetCoin size={12} />
                             </div>
@@ -172,7 +174,7 @@ export function ShopScreen() {
                             onClick={() => setSellPet(pet)}
                             className="px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 text-sm font-medium hover:bg-red-500/30 transition-colors"
                           >
-                            Sell
+                            {t('sell')}
                           </button>
                         </div>
                       </div>

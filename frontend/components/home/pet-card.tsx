@@ -1,6 +1,7 @@
 'use client';
 
 import type { PetSlot } from '@/types/pet';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { PetImage } from '@/components/ui/pet-image';
@@ -21,6 +22,7 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
   const { tap } = useHaptic();
   const { pet } = slot;
   const countdown = useCountdown(pet?.trainingEndsAt);
+  const t = useTranslations('home');
 
   // Empty slot
   if (!pet) {
@@ -32,7 +34,7 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
             <span className="text-xs text-[#64748b]">? LVL</span>
           </div>
           <div className="px-3 py-1.5 rounded-xl bg-[#1e293b]/60 border border-[#334155]/30">
-            <span className="text-xs text-[#64748b]">Unknown</span>
+            <span className="text-xs text-[#64748b]">{t('unknown')}</span>
           </div>
         </div>
 
@@ -53,7 +55,7 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
 
         {/* CTA */}
         <Button variant="lime" fullWidth onClick={onShop}>
-          To Shop
+          {t('toShop')}
         </Button>
       </div>
     );
@@ -140,15 +142,15 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
         </div>
       ) : isReady ? (
         <Button variant="amber" fullWidth onClick={onClaim} haptic="heavy">
-          Claim Loot
+          {t('claimLoot')}
         </Button>
       ) : isEvolved ? (
         <Button variant="disabled" fullWidth disabled>
-          Evolved
+          {t('evolved')}
         </Button>
       ) : isIdle ? (
         <Button variant="cyan" fullWidth onClick={onTrain}>
-          Train 24h
+          {t('train24h')}
         </Button>
       ) : null}
     </div>

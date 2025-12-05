@@ -1,53 +1,41 @@
 'use client';
 
-import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/components/layout/page-layout';
 import { useGameStore } from '@/store/game-store';
 import { useBackButton } from '@/hooks/use-back-button';
 import { useHaptic } from '@/hooks/use-haptic';
-
-type Language = 'en' | 'ru' | 'de' | 'es' | 'fr' | 'pt' | 'it';
+import { useLocale } from '@/hooks/use-locale';
+import type { Locale } from '@/i18n/request';
 
 interface LanguageOption {
-  code: Language;
-  name: string;
+  code: Locale;
   nativeName: string;
 }
 
 const LANGUAGES: LanguageOption[] = [
-  { code: 'en', name: 'English', nativeName: 'English' },
-  { code: 'ru', name: 'Russian', nativeName: 'Русский' },
-  { code: 'de', name: 'German', nativeName: 'Deutsch' },
-  { code: 'es', name: 'Spanish', nativeName: 'Español' },
-  { code: 'fr', name: 'French', nativeName: 'Français' },
-  { code: 'pt', name: 'Portuguese', nativeName: 'Português' },
-  { code: 'it', name: 'Italian', nativeName: 'Italiano' },
+  { code: 'en', nativeName: 'English' },
+  { code: 'ru', nativeName: 'Русский' },
 ];
 
 export function SettingsScreen() {
   const { user } = useGameStore();
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>(
-    (user?.language_code as Language) || 'en'
-  );
-  const [isSaving, setIsSaving] = useState(false);
+  const { locale, setLocale } = useLocale();
   const { selection, success } = useHaptic();
+  const t = useTranslations('settings');
 
   // Enable Telegram back button for this page
   useBackButton();
 
-  const handleLanguageChange = async (lang: Language) => {
-    if (lang === selectedLanguage) return;
+  const handleLanguageChange = (lang: Locale) => {
+    if (lang === locale) return;
     selection();
-    setIsSaving(true);
-    setSelectedLanguage(lang);
-    // TODO: Save language preference to backend
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    setLocale(lang);
     success();
-    setIsSaving(false);
   };
 
   return (
-    <PageLayout title="Settings">
+    <PageLayout title={t('title')}>
       <div className="p-4 space-y-6">
         {/* User Info */}
         {user && (
@@ -69,11 +57,11 @@ export function SettingsScreen() {
             </div>
             <div className="mt-4 pt-4 border-t border-[#1e293b]/50">
               <div className="flex justify-between items-center text-sm">
-                <span className="text-[#64748b]">Telegram ID</span>
+                <span className="text-[#64748b]">{t('telegramId')}</span>
                 <span className="text-[#f1f5f9] font-mono">{user.telegram_id}</span>
               </div>
               <div className="flex justify-between items-center text-sm mt-2">
-                <span className="text-[#64748b]">Ref Code</span>
+                <span className="text-[#64748b]">{t('refCode')}</span>
                 <span className="text-[#00f5d4] font-mono">{user.ref_code}</span>
               </div>
             </div>
@@ -83,28 +71,26 @@ export function SettingsScreen() {
         {/* Language Selection */}
         <div>
           <h3 className="text-sm font-medium text-[#64748b] uppercase tracking-wide mb-3">
-            Language
+            {t('language')}
           </h3>
           <div className="space-y-2">
             {LANGUAGES.map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => handleLanguageChange(lang.code)}
-                disabled={isSaving}
                 className={`w-full p-4 rounded-xl flex items-center justify-between transition-all ${
-                  selectedLanguage === lang.code
+                  locale === lang.code
                     ? 'bg-[#00f5d4]/20 border border-[#00f5d4]/50'
                     : 'bg-[#1e293b]/40 border border-[#1e293b]/50 hover:bg-[#1e293b]/60'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">{lang.code === 'en' ? 'EN' : lang.code.toUpperCase()}</span>
+                  <span className="text-lg">{lang.code.toUpperCase()}</span>
                   <div className="text-left">
                     <p className="text-sm text-[#f1f5f9]">{lang.nativeName}</p>
-                    <p className="text-xs text-[#64748b]">{lang.name}</p>
                   </div>
                 </div>
-                {selectedLanguage === lang.code && (
+                {locale === lang.code && (
                   <span className="text-[#00f5d4]">OK</span>
                 )}
               </button>
@@ -115,15 +101,15 @@ export function SettingsScreen() {
         {/* App Info */}
         <div className="p-4 rounded-2xl bg-[#1e293b]/40 border border-[#1e293b]/50">
           <h3 className="text-sm font-medium text-[#64748b] uppercase tracking-wide mb-3">
-            About
+            {t('about')}
           </h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-[#64748b]">Version</span>
+              <span className="text-[#64748b]">{t('version')}</span>
               <span className="text-[#f1f5f9]">1.0.0</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#64748b]">Build</span>
+              <span className="text-[#64748b]">{t('build')}</span>
               <span className="text-[#f1f5f9]">2024.12</span>
             </div>
           </div>
@@ -139,7 +125,7 @@ export function SettingsScreen() {
           >
             <div className="flex items-center gap-3">
               <span className="text-xl">HELP</span>
-              <span className="text-sm text-[#f1f5f9]">Support</span>
+              <span className="text-sm text-[#f1f5f9]">{t('support')}</span>
             </div>
             <span className="text-[#64748b]">-&gt;</span>
           </a>
@@ -151,7 +137,7 @@ export function SettingsScreen() {
           >
             <div className="flex items-center gap-3">
               <span className="text-xl">NEWS</span>
-              <span className="text-sm text-[#f1f5f9]">News Channel</span>
+              <span className="text-sm text-[#f1f5f9]">{t('newsChannel')}</span>
             </div>
             <span className="text-[#64748b]">-&gt;</span>
           </a>

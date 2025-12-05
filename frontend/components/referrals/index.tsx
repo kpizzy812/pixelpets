@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/components/layout/page-layout';
 import { RefStatsCard } from './ref-stats-card';
 import { RefLevelCard } from './ref-level-card';
@@ -15,6 +16,7 @@ export function ReferralsScreen() {
   const { referrals, referralsLoading, fetchReferrals } = useGameStore();
   const { webApp, isTelegram } = useTelegram();
   const [copied, setCopied] = useState(false);
+  const t = useTranslations('referrals');
 
   useEffect(() => {
     fetchReferrals();
@@ -25,10 +27,10 @@ export function ReferralsScreen() {
     try {
       await navigator.clipboard.writeText(referrals.ref_link);
       setCopied(true);
-      showSuccess('Link copied!');
+      showSuccess(t('linkCopied'));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      showError('Failed to copy link');
+      showError(t('failedToCopy'));
     }
   };
 
@@ -53,7 +55,7 @@ export function ReferralsScreen() {
   const totalReferrals = referrals?.levels.reduce((sum, lvl) => sum + lvl.referrals_count, 0) ?? 0;
 
   return (
-    <PageLayout title="Referrals">
+    <PageLayout title={t('title')}>
       <div className="p-4 space-y-4">
         {referralsLoading && !referrals ? (
           <div className="space-y-4">
@@ -86,7 +88,7 @@ export function ReferralsScreen() {
             {/* Referral Levels */}
             <div className="space-y-3">
               <h2 className="text-sm font-medium text-[#64748b] uppercase tracking-wide">
-                Referral Levels
+                {t('levels')}
               </h2>
               {referrals.levels.map((level) => (
                 <RefLevelCard
@@ -105,8 +107,8 @@ export function ReferralsScreen() {
         ) : (
           <ErrorState
             icon="referrals"
-            title="Unable to Load Referrals"
-            message="Something went wrong. Please try again."
+            title={t('unableToLoad')}
+            message={t('tryAgain')}
             onRetry={fetchReferrals}
           />
         )}
