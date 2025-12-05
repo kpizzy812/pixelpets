@@ -188,11 +188,15 @@ async def seed_system_config():
 
 async def main():
     print("Seeding database...")
-    await seed_pet_types()
-    await seed_tasks()
-    await seed_super_admin()
-    await seed_system_config()
-    print("Done!")
+    try:
+        await seed_pet_types()
+        await seed_tasks()
+        await seed_super_admin()
+        await seed_system_config()
+        print("Done!")
+    except Exception as e:
+        print(f"Seed error (tables may not exist yet): {e}")
+        print("Skipping seed - will retry on next restart")
 
 
 if __name__ == "__main__":
