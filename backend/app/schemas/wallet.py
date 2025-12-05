@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.models.enums import NetworkType, TxType, RequestStatus
 
@@ -15,7 +15,7 @@ class WalletResponse(BaseModel):
 
 
 class DepositRequestCreate(BaseModel):
-    amount: Decimal
+    amount: Decimal = Field(..., gt=0)
     network: NetworkType
 
 
@@ -29,7 +29,7 @@ class DepositRequestResponse(BaseModel):
 
 
 class WithdrawRequestCreate(BaseModel):
-    amount: Decimal
+    amount: Decimal = Field(..., gt=0)
     network: NetworkType
     wallet_address: str
 
