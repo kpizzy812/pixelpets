@@ -225,10 +225,11 @@ async def handle_start_command(message: dict) -> None:
     channel = channel_cis if is_cis else channel_west
 
     # Build Mini App launch URL with ref code
-    start_param = f"ref_{ref_code}" if ref_code else ""
-    miniapp_launch_url = f"https://t.me/{bot_username}/app"
-    if start_param:
-        miniapp_launch_url += f"?startapp={start_param}"
+    # Format: t.me/BotUsername?startapp=ref_CODE
+    if ref_code:
+        miniapp_launch_url = f"https://t.me/{bot_username}?startapp=ref_{ref_code}"
+    else:
+        miniapp_launch_url = f"https://t.me/{bot_username}?startapp"
 
     # Get localized strings
     welcome_message = START_MESSAGES.get(lang, START_MESSAGES["en"])
