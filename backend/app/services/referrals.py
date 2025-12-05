@@ -300,9 +300,10 @@ async def get_level_referrals_count(db: AsyncSession, user_id: int, level: int) 
 
 
 async def generate_ref_link(db: AsyncSession, ref_code: str) -> str:
-    """Generate Telegram deep link for referral."""
+    """Generate Telegram deep link for referral that opens Mini App directly."""
     bot_username = await get_bot_username(db)
-    return f"https://t.me/{bot_username}?start={ref_code}"
+    # Use startapp= to open Mini App directly, with ref_ prefix for referral code
+    return f"https://t.me/{bot_username}?startapp=ref_{ref_code}"
 
 
 def get_share_text() -> str:

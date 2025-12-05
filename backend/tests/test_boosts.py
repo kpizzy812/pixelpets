@@ -3,7 +3,7 @@ Tests for boost system: Snacks, ROI Boosts, Auto-Claim.
 """
 import pytest
 from decimal import Decimal
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -469,7 +469,7 @@ class TestAutoClaimSubscription:
         assert new_balance == initial_balance - AUTO_CLAIM_MONTHLY_COST
 
         # Check expiry is ~30 days
-        days_until_expiry = (subscription.expires_at - datetime.utcnow()).days
+        days_until_expiry = (subscription.expires_at.replace(tzinfo=timezone.utc) - datetime.now(timezone.utc)).days
         assert 29 <= days_until_expiry <= 30
 
     @pytest.mark.asyncio
@@ -478,7 +478,7 @@ class TestAutoClaimSubscription:
         subscription, _ = await buy_auto_claim(db_session, rich_user, months=3)
 
         assert subscription.cost_xpet == AUTO_CLAIM_MONTHLY_COST * 3
-        days_until_expiry = (subscription.expires_at - datetime.utcnow()).days
+        days_until_expiry = (subscription.expires_at.replace(tzinfo=timezone.utc) - datetime.now(timezone.utc)).days
         assert 88 <= days_until_expiry <= 90
 
     @pytest.mark.asyncio

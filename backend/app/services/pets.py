@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Optional
 
@@ -13,7 +13,8 @@ from app.models.enums import PetStatus, PetLevel, TxType
 from app.i18n import get_text as t
 
 MAX_SLOTS = 3
-SELL_REFUND_PERCENT = Decimal("0.85")
+SELL_BASE_FEE = Decimal("0.15")  # 15% minimum fee when no profit claimed
+SELL_MAX_FEE = Decimal("1.0")    # 100% fee when at ROI cap (deposit burns)
 TRAINING_DURATION_HOURS = 24
 
 LEVEL_ORDER = [PetLevel.BABY, PetLevel.ADULT, PetLevel.MYTHIC]
@@ -44,6 +45,31 @@ def calculate_upgrade_cost(level_prices: dict, next_level: PetLevel, invested_to
     """Calculate cost to upgrade to next level."""
     next_level_price = Decimal(str(level_prices.get(next_level.value, 0)))
     return max(Decimal("0"), next_level_price - invested_total)
+
+
+def calculate_sell_fee(profit_claimed: Decimal, max_profit: Decimal) -> Decimal:
+    """
+    Calculate progressive sell fee based on profit progress.
+    Fee scales from 15% (no profit) to 100% (at ROI cap).
+
+    Formula: fee = 15% + (profit_ratio × 85%)
+    """
+    if max_profit <= 0:
+        return SELL_BASE_FEE
+
+    profit_ratio = min(profit_claimed / max_profit, Decimal("1.0"))
+    fee = SELL_BASE_FEE + (profit_ratio * (SELL_MAX_FEE - SELL_BASE_FEE))
+    return fee
+
+
+def calculate_sell_refund(invested_total: Decimal, profit_claimed: Decimal, max_profit: Decimal) -> tuple[Decimal, Decimal]:
+    """
+    Calculate refund amount when selling a pet.
+    Returns (refund_amount, fee_percent).
+    """
+    fee_percent = calculate_sell_fee(profit_claimed, max_profit)
+    refund_amount = invested_total * (Decimal("1.0") - fee_percent)
+    return max(Decimal("0"), refund_amount), fee_percent
 
 
 async def get_pet_catalog(db: AsyncSession) -> list[PetType]:
@@ -185,7 +211,7 @@ async def upgrade_pet(
     user.balance_xpet -= upgrade_cost
     pet.invested_total += upgrade_cost
     pet.level = next_level
-    pet.updated_at = datetime.utcnow()
+    pet.updated_at = datetime.now(timezone.utc)
 
     # Record transaction
     tx = Transaction(
@@ -206,14 +232,17 @@ async def sell_pet(
     db: AsyncSession,
     user: User,
     pet_id: int,
-) -> tuple[Decimal, Decimal]:
+) -> tuple[Decimal, Decimal, Decimal]:
     """
-    Sell a pet and get 85% refund.
-    Returns (refund_amount, new_balance) or raises ValueError.
+    Sell a pet with progressive fee based on profit claimed.
+    Fee scales from 15% (no profit) to 100% (at ROI cap).
+    Returns (refund_amount, fee_percent, new_balance) or raises ValueError.
     """
-    # Get pet
+    # Get pet with pet_type for ROI calculation
     result = await db.execute(
-        select(UserPet).where(UserPet.id == pet_id, UserPet.user_id == user.id)
+        select(UserPet)
+        .options(selectinload(UserPet.pet_type))
+        .where(UserPet.id == pet_id, UserPet.user_id == user.id)
     )
     pet = result.scalar_one_or_none()
 
@@ -226,12 +255,15 @@ async def sell_pet(
     if pet.status == PetStatus.EVOLVED:
         raise ValueError(t("error.pet_cannot_sell"))
 
-    # Calculate refund
-    refund_amount = pet.invested_total * SELL_REFUND_PERCENT
+    # Calculate max profit and progressive refund
+    max_profit = calculate_max_profit(pet.invested_total, pet.pet_type.roi_cap_multiplier)
+    refund_amount, fee_percent = calculate_sell_refund(
+        pet.invested_total, pet.profit_claimed, max_profit
+    )
 
     # Update pet status
     pet.status = PetStatus.SOLD
-    pet.updated_at = datetime.utcnow()
+    pet.updated_at = datetime.now(timezone.utc)
 
     # Credit balance
     user.balance_xpet += refund_amount
@@ -241,13 +273,19 @@ async def sell_pet(
         user_id=user.id,
         type=TxType.SELL_REFUND,
         amount_xpet=refund_amount,
-        meta={"pet_id": pet_id, "invested_total": str(pet.invested_total)},
+        meta={
+            "pet_id": pet_id,
+            "invested_total": str(pet.invested_total),
+            "profit_claimed": str(pet.profit_claimed),
+            "max_profit": str(max_profit),
+            "fee_percent": str(fee_percent * 100),
+        },
     )
     db.add(tx)
 
     await db.commit()
 
-    return refund_amount, user.balance_xpet
+    return refund_amount, fee_percent, user.balance_xpet
 
 
 async def start_training(
@@ -270,7 +308,7 @@ async def start_training(
     if pet.status != PetStatus.OWNED_IDLE:
         raise ValueError(t("error.pet_not_idle"))
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     pet.status = PetStatus.TRAINING
     pet.training_started_at = now
     pet.training_ends_at = now + timedelta(hours=TRAINING_DURATION_HOURS)
@@ -285,7 +323,7 @@ async def start_training(
 def check_training_status(pet: UserPet) -> UserPet:
     """Check if training is complete and update status if needed."""
     if pet.status == PetStatus.TRAINING:
-        if pet.training_ends_at and datetime.utcnow() >= pet.training_ends_at:
+        if pet.training_ends_at and datetime.now(timezone.utc) >= pet.training_ends_at:
             pet.status = PetStatus.READY_TO_CLAIM
     return pet
 
@@ -372,13 +410,13 @@ async def claim_profit(
     pet.profit_claimed += profit_for_claim + auto_claim_commission  # Total claimed includes commission
     pet.training_started_at = None
     pet.training_ends_at = None
-    pet.updated_at = datetime.utcnow()
+    pet.updated_at = datetime.now(timezone.utc)
 
     # Check if evolved (reached cap)
     evolved = pet.profit_claimed >= max_profit
     if evolved:
         pet.status = PetStatus.EVOLVED
-        pet.evolved_at = datetime.utcnow()
+        pet.evolved_at = datetime.now(timezone.utc)
     else:
         pet.status = PetStatus.OWNED_IDLE
 

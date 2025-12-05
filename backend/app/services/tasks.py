@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional
 
@@ -104,7 +104,7 @@ async def check_task(
     #     raise ValueError("Task verification failed")
 
     # Create or update user task
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     if existing:
         existing.status = TaskStatus.COMPLETED
         existing.completed_at = now

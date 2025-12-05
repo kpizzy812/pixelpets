@@ -1,6 +1,6 @@
 """Lucky Spin service - wheel of fortune mechanics."""
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Optional
 
@@ -55,7 +55,7 @@ async def can_free_spin(db: AsyncSession, user_id: int) -> tuple[bool, Optional[
         return True, None
 
     next_spin_time = last_spin.created_at + timedelta(hours=FREE_SPIN_COOLDOWN_HOURS)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     if now >= next_spin_time:
         return True, None
@@ -68,7 +68,7 @@ async def get_spin_status(db: AsyncSession, user_id: int) -> dict:
     can_spin, next_free_time = await can_free_spin(db, user_id)
 
     # Count total spins today
-    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
     result = await db.execute(
         select(func.count(UserSpin.id)).where(
             and_(
@@ -222,7 +222,7 @@ async def get_spin_stats(db: AsyncSession) -> dict:
     total_collected = collected_result.scalar() or Decimal("0")
 
     # Spins today
-    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
     today_result = await db.execute(
         select(func.count(UserSpin.id)).where(
             UserSpin.created_at >= today_start

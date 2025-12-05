@@ -6,7 +6,7 @@ import hashlib
 import hmac
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import AsyncGenerator
 from urllib.parse import urlencode
@@ -169,7 +169,7 @@ def generate_telegram_init_data(
 
     params = {
         "user": json.dumps(user_data),
-        "auth_date": str(int(datetime.utcnow().timestamp())),
+        "auth_date": str(int(datetime.now(timezone.utc).timestamp())),
         "query_id": "test_query_id",
     }
 
@@ -272,7 +272,7 @@ async def user_pet(db_session: AsyncSession, user: User, pet_types: list[PetType
 async def training_pet(db_session: AsyncSession, user: User, pet_types: list[PetType]) -> UserPet:
     """Create a pet in training state."""
     from datetime import timedelta
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     pet = UserPet(
         user_id=user.id,
         pet_type_id=pet_types[0].id,

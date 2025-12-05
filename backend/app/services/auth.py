@@ -3,7 +3,7 @@ import hashlib
 import hmac
 import secrets
 import string
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from urllib.parse import parse_qs
 
@@ -74,7 +74,7 @@ def validate_telegram_init_data(init_data: str) -> Optional[dict]:
 
 def create_access_token(user_id: int) -> str:
     """Create JWT access token."""
-    expire = datetime.utcnow() + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = {
         "sub": str(user_id),
         "exp": expire,
@@ -114,7 +114,7 @@ async def get_or_create_user(
         user.first_name = first_name
         user.last_name = last_name
         user.language_code = language_code
-        user.updated_at = datetime.utcnow()
+        user.updated_at = datetime.now(timezone.utc)
         await db.commit()
         return user
 

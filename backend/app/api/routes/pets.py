@@ -142,11 +142,12 @@ async def sell_pet_endpoint(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Sell a pet for 85% refund."""
+    """Sell a pet with progressive fee (15% to 100% based on profit claimed)."""
     try:
-        refund_amount, new_balance = await sell_pet(db, current_user, request.pet_id)
+        refund_amount, fee_percent, new_balance = await sell_pet(db, current_user, request.pet_id)
         return SellPetResponse(
             refund_amount=refund_amount,
+            fee_percent=fee_percent * 100,  # Convert to percentage
             new_balance=new_balance,
         )
     except ValueError as e:

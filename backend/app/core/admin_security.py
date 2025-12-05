@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import Depends, HTTPException, status, Request
@@ -19,7 +19,7 @@ ADMIN_TOKEN_EXPIRE_HOURS = 24
 
 def create_admin_access_token(admin_id: int) -> str:
     """Create JWT token for admin."""
-    expire = datetime.utcnow() + timedelta(hours=ADMIN_TOKEN_EXPIRE_HOURS)
+    expire = datetime.now(timezone.utc) + timedelta(hours=ADMIN_TOKEN_EXPIRE_HOURS)
     to_encode = {
         "sub": str(admin_id),
         "type": "admin",

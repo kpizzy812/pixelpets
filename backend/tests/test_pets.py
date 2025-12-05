@@ -3,7 +3,7 @@ Tests for pets service and routes.
 """
 import pytest
 from decimal import Decimal
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -14,6 +14,8 @@ from app.services.pets import (
     calculate_max_profit,
     calculate_daily_profit,
     calculate_upgrade_cost,
+    calculate_sell_fee,
+    calculate_sell_refund,
     get_pet_catalog,
     get_user_pets,
     get_free_slot,
@@ -25,7 +27,8 @@ from app.services.pets import (
     claim_profit,
     get_hall_of_fame,
     MAX_SLOTS,
-    SELL_REFUND_PERCENT,
+    SELL_BASE_FEE,
+    SELL_MAX_FEE,
     TRAINING_DURATION_HOURS,
 )
 
@@ -354,14 +357,16 @@ class TestSellPet:
     """Tests for selling pets."""
 
     @pytest.mark.asyncio
-    async def test_sell_pet_success(self, db_session, user, user_pet):
-        """Test successful pet sale."""
+    async def test_sell_pet_success_no_profit(self, db_session, user, user_pet):
+        """Test successful pet sale with no profit claimed (15% fee)."""
         initial_balance = user.balance_xpet
         invested = user_pet.invested_total
 
-        refund, new_balance = await sell_pet(db_session, user, user_pet.id)
+        refund, fee_percent, new_balance = await sell_pet(db_session, user, user_pet.id)
 
-        expected_refund = invested * SELL_REFUND_PERCENT
+        # With no profit claimed, fee should be base 15%
+        expected_refund = invested * (Decimal("1") - SELL_BASE_FEE)
+        assert fee_percent == SELL_BASE_FEE
         assert refund == expected_refund
         assert new_balance == initial_balance + expected_refund
 
@@ -370,8 +375,65 @@ class TestSellPet:
         assert user_pet.status == PetStatus.SOLD
 
     @pytest.mark.asyncio
+    async def test_sell_pet_progressive_fee(self, db_session, user, pet_types):
+        """Test progressive sell fee based on profit claimed."""
+        # Create pet with 50% profit claimed
+        pet_type = pet_types[0]
+        invested = Decimal("100")
+        max_profit = invested * pet_type.roi_cap_multiplier  # 150
+        profit_claimed = max_profit * Decimal("0.5")  # 75 (50% of max)
+
+        pet = UserPet(
+            user_id=user.id,
+            pet_type_id=pet_type.id,
+            invested_total=invested,
+            profit_claimed=profit_claimed,
+            level=PetLevel.BABY,
+            status=PetStatus.OWNED_IDLE,
+            slot_index=0,
+        )
+        db_session.add(pet)
+        await db_session.commit()
+        await db_session.refresh(pet)
+
+        refund, fee_percent, _ = await sell_pet(db_session, user, pet.id)
+
+        # At 50% profit: fee = 15% + (50% × 85%) = 57.5%
+        expected_fee = Decimal("0.15") + (Decimal("0.5") * Decimal("0.85"))
+        assert fee_percent == expected_fee
+        expected_refund = invested * (Decimal("1") - expected_fee)
+        assert refund == expected_refund
+
+    @pytest.mark.asyncio
+    async def test_sell_pet_at_roi_cap_zero_refund(self, db_session, user, pet_types):
+        """Test selling pet at ROI cap returns zero (100% fee)."""
+        # Create pet at 100% ROI cap
+        pet_type = pet_types[0]
+        invested = Decimal("100")
+        max_profit = invested * pet_type.roi_cap_multiplier  # 150
+
+        pet = UserPet(
+            user_id=user.id,
+            pet_type_id=pet_type.id,
+            invested_total=invested,
+            profit_claimed=max_profit,  # 100% of max profit
+            level=PetLevel.BABY,
+            status=PetStatus.OWNED_IDLE,
+            slot_index=0,
+        )
+        db_session.add(pet)
+        await db_session.commit()
+        await db_session.refresh(pet)
+
+        refund, fee_percent, _ = await sell_pet(db_session, user, pet.id)
+
+        # At 100% profit: fee = 100%, refund = 0
+        assert fee_percent == SELL_MAX_FEE
+        assert refund == Decimal("0")
+
+    @pytest.mark.asyncio
     async def test_sell_pet_creates_transaction(self, db_session, user, user_pet):
-        """Test sell creates transaction."""
+        """Test sell creates transaction with fee metadata."""
         await sell_pet(db_session, user, user_pet.id)
 
         result = await db_session.execute(
@@ -404,7 +466,7 @@ class TestSellPet:
         await db_session.commit()
         await db_session.refresh(pet)
 
-        with pytest.raises(ValueError, match="already sold"):
+        with pytest.raises(ValueError, match="Cannot sell"):
             await sell_pet(db_session, user, pet.id)
 
     @pytest.mark.asyncio
@@ -422,7 +484,7 @@ class TestSellPet:
         await db_session.commit()
         await db_session.refresh(pet)
 
-        with pytest.raises(ValueError, match="evolved"):
+        with pytest.raises(ValueError, match="Cannot sell"):
             await sell_pet(db_session, user, pet.id)
 
 
@@ -466,7 +528,7 @@ class TestTraining:
     @pytest.mark.asyncio
     async def test_check_training_status_not_complete(self, db_session, user, pet_types):
         """Test check_training_status keeps training if not done."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         pet = UserPet(
             user_id=user.id,
             pet_type_id=pet_types[0].id,
@@ -580,7 +642,7 @@ class TestHallOfFame:
             status=PetStatus.EVOLVED,
             slot_index=0,
             profit_claimed=Decimal("7.5"),
-            evolved_at=datetime.utcnow(),
+            evolved_at=datetime.now(timezone.utc),
         )
         db_session.add(pet)
         await db_session.commit()
@@ -681,7 +743,10 @@ class TestPetRoutes:
         assert response.status_code == 200
         data = response.json()
         assert "refund_amount" in data
+        assert "fee_percent" in data
         assert "new_balance" in data
+        # New pet with no profit = 15% fee
+        assert Decimal(data["fee_percent"]) == Decimal("15")
 
     @pytest.mark.asyncio
     async def test_start_training_route(self, client, user, auth_headers, user_pet):

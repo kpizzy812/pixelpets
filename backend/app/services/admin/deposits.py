@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional, Tuple, List
 
@@ -107,7 +107,7 @@ async def approve_deposit(
 
     # Update deposit status
     deposit.status = RequestStatus.APPROVED
-    deposit.confirmed_at = datetime.utcnow()
+    deposit.confirmed_at = datetime.now(timezone.utc)
     deposit.confirmed_by = admin_id
 
     # Credit user balance
@@ -170,7 +170,7 @@ async def reject_deposit(
         raise ValueError(t("error.already_status", status=status_label))
 
     deposit.status = RequestStatus.REJECTED
-    deposit.confirmed_at = datetime.utcnow()
+    deposit.confirmed_at = datetime.now(timezone.utc)
     deposit.confirmed_by = admin_id
 
     await db.commit()

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional, Tuple, List
 
@@ -105,7 +105,7 @@ async def complete_withdrawal(
         raise ValueError(t("error.already_status", status=status_label))
 
     withdrawal.status = RequestStatus.COMPLETED
-    withdrawal.processed_at = datetime.utcnow()
+    withdrawal.processed_at = datetime.now(timezone.utc)
     withdrawal.processed_by = admin_id
 
     # Transaction was already created when user submitted withdrawal
@@ -154,7 +154,7 @@ async def reject_withdrawal(
     user.balance_xpet += withdrawal.amount  # Refund the full amount that was deducted
 
     withdrawal.status = RequestStatus.REJECTED
-    withdrawal.processed_at = datetime.utcnow()
+    withdrawal.processed_at = datetime.now(timezone.utc)
     withdrawal.processed_by = admin_id
 
     # Create refund transaction

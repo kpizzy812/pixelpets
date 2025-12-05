@@ -35,8 +35,11 @@ import type {
 
 // Auth
 export const authApi = {
-  loginTelegram: (initData: string) =>
-    api.post<AuthResponse>('/auth/telegram', { init_data: initData }),
+  loginTelegram: (initData: string, refCode?: string | null) =>
+    api.post<AuthResponse>('/auth/telegram', {
+      init_data: initData,
+      ...(refCode && { ref_code: refCode }),
+    }),
 
   me: () => api.get<User>('/auth/me'),
 };

@@ -3,7 +3,7 @@ Tests for tasks service and routes.
 """
 import pytest
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 
@@ -46,7 +46,7 @@ class TestTasksService:
             user_id=user.id,
             task_id=tasks[0].id,
             status=TaskStatus.COMPLETED,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(timezone.utc),
         )
         db_session.add(user_task)
         await db_session.commit()
@@ -66,7 +66,7 @@ class TestTasksService:
             user_id=user.id,
             task_id=tasks[0].id,
             status=TaskStatus.COMPLETED,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(timezone.utc),
         )
         db_session.add(user_task)
         await db_session.commit()
@@ -294,7 +294,7 @@ class TestTaskRoutes:
             user_id=user.id,
             task_id=task.id,
             status=TaskStatus.COMPLETED,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(timezone.utc),
         )
         db_session.add(user_task)
         await db_session.commit()

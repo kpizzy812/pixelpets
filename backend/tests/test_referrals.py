@@ -27,11 +27,11 @@ class TestReferralHelpers:
 
     @pytest.mark.asyncio
     async def test_generate_ref_link(self, db_session):
-        """Test referral link generation."""
+        """Test referral link generation with startapp for Mini App."""
         ref_code = "ABC12345"
         bot_username = await get_bot_username(db_session)
         link = await generate_ref_link(db_session, ref_code)
-        assert link == f"https://t.me/{bot_username}?start={ref_code}"
+        assert link == f"https://t.me/{bot_username}?startapp=ref_{ref_code}"
 
     def test_get_share_text(self):
         """Test share text."""

@@ -71,6 +71,7 @@ class UpgradePetResponse(BaseModel):
 
 class SellPetResponse(BaseModel):
     refund_amount: Decimal
+    fee_percent: Decimal  # Fee as percentage (e.g., 15.0 for 15%)
     new_balance: Decimal
 
 

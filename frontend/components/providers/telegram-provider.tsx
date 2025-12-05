@@ -42,6 +42,7 @@ interface TelegramContextValue {
   isTelegram: boolean;
   user: TelegramUser | null;
   rawInitData: string | null;
+  startParam: string | null; // Referral code from startapp URL param
   colorScheme: 'light' | 'dark';
   isFullscreen: boolean;
   webApp: WebApp | null;
@@ -52,6 +53,7 @@ const TelegramContext = createContext<TelegramContextValue>({
   isTelegram: false,
   user: null,
   rawInitData: null,
+  startParam: null,
   colorScheme: 'dark',
   isFullscreen: false,
   webApp: null,
@@ -74,6 +76,7 @@ export function TelegramProvider({
   const [isTelegram, setIsTelegram] = useState(false);
   const [user, setUser] = useState<TelegramUser | null>(null);
   const [rawInitData, setRawInitData] = useState<string | null>(null);
+  const [startParam, setStartParam] = useState<string | null>(null);
   const [colorScheme, setColorScheme] = useState<'light' | 'dark'>('dark');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [webApp, setWebApp] = useState<WebApp | null>(null);
@@ -159,6 +162,15 @@ export function TelegramProvider({
 
         if (initDataUnsafe?.user) {
           setUser(initDataUnsafe.user);
+        }
+
+        // Extract start_param for referral code (from t.me/bot?startapp=ref_CODE)
+        if (initDataUnsafe?.start_param) {
+          const param = initDataUnsafe.start_param;
+          // Remove "ref_" prefix if present
+          const refCode = param.startsWith('ref_') ? param.slice(4) : param;
+          setStartParam(refCode);
+          console.log('[TelegramProvider] Referral code extracted:', refCode);
         }
 
         // ═══════════════════════════════════════════════════════════
@@ -378,6 +390,7 @@ export function TelegramProvider({
         isTelegram,
         user,
         rawInitData,
+        startParam,
         colorScheme,
         isFullscreen,
         webApp,

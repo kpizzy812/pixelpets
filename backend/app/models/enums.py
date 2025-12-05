@@ -16,27 +16,27 @@ class PetLevel(str, enum.Enum):
 
 
 class TxType(str, enum.Enum):
-    DEPOSIT = "deposit"
-    WITHDRAW = "withdraw"
-    CLAIM = "claim"
-    REF_REWARD = "ref_reward"
-    TASK_REWARD = "task_reward"
-    SELL_REFUND = "sell_refund"
-    ADMIN_ADJUST = "admin_adjust"
-    PET_BUY = "pet_buy"
-    PET_UPGRADE = "pet_upgrade"
-    WITHDRAW_REFUND = "withdraw_refund"
-    SPIN_COST = "spin_cost"
-    SPIN_WIN = "spin_win"
-    BOOST_PURCHASE = "boost_purchase"
-    AUTO_CLAIM_COMMISSION = "auto_claim_commission"
+    DEPOSIT = "DEPOSIT"
+    WITHDRAW = "WITHDRAW"
+    CLAIM = "CLAIM"
+    REF_REWARD = "REF_REWARD"
+    TASK_REWARD = "TASK_REWARD"
+    SELL_REFUND = "SELL_REFUND"
+    ADMIN_ADJUST = "ADMIN_ADJUST"
+    PET_BUY = "PET_BUY"
+    PET_UPGRADE = "PET_UPGRADE"
+    WITHDRAW_REFUND = "WITHDRAW_REFUND"
+    SPIN_COST = "SPIN_COST"
+    SPIN_WIN = "SPIN_WIN"
+    BOOST_PURCHASE = "BOOST_PURCHASE"
+    AUTO_CLAIM_COMMISSION = "AUTO_CLAIM_COMMISSION"
 
 
 class TxStatus(str, enum.Enum):
-    PENDING = "pending"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELLED = "cancelled"
+    PENDING = "PENDING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
 
 
 class NetworkType(str, enum.Enum):
@@ -46,24 +46,24 @@ class NetworkType(str, enum.Enum):
 
 
 class RequestStatus(str, enum.Enum):
-    PENDING = "pending"
-    APPROVED = "approved"
-    REJECTED = "rejected"
-    COMPLETED = "completed"
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    COMPLETED = "COMPLETED"
 
 
 class TaskType(str, enum.Enum):
-    TELEGRAM_CHANNEL = "telegram_channel"
-    TELEGRAM_CHAT = "telegram_chat"
-    TWITTER = "twitter"
-    DISCORD = "discord"
-    WEBSITE = "website"
-    OTHER = "other"
+    TELEGRAM_CHANNEL = "TELEGRAM_CHANNEL"
+    TELEGRAM_CHAT = "TELEGRAM_CHAT"
+    TWITTER = "TWITTER"
+    DISCORD = "DISCORD"
+    WEBSITE = "WEBSITE"
+    OTHER = "OTHER"
 
 
 class TaskStatus(str, enum.Enum):
-    PENDING = "pending"
-    COMPLETED = "completed"
+    PENDING = "PENDING"
+    COMPLETED = "COMPLETED"
 
 
 class AdminRole(str, enum.Enum):
@@ -73,18 +73,18 @@ class AdminRole(str, enum.Enum):
 
 
 class SpinRewardType(str, enum.Enum):
-    XPET = "xpet"  # Fixed XPET amount
-    NOTHING = "nothing"  # No reward (try again)
-    BONUS_PERCENT = "bonus_percent"  # % bonus to next claim
+    XPET = "XPET"  # Fixed XPET amount
+    NOTHING = "NOTHING"  # No reward (try again)
+    BONUS_PERCENT = "BONUS_PERCENT"  # % bonus to next claim
 
 
 class SnackType(str, enum.Enum):
-    COOKIE = "cookie"  # +10% bonus
-    STEAK = "steak"  # +25% bonus
-    CAKE = "cake"  # +50% bonus
+    COOKIE = "COOKIE"  # +10% bonus
+    STEAK = "STEAK"  # +25% bonus
+    CAKE = "CAKE"  # +50% bonus
 
 
 class BoostType(str, enum.Enum):
-    ROI_BOOST = "roi_boost"  # Permanent ROI cap increase
-    SNACK = "snack"  # One-time claim bonus
-    AUTO_CLAIM = "auto_claim"  # Auto-claim subscription
+    ROI_BOOST = "ROI_BOOST"  # Permanent ROI cap increase
+    SNACK = "SNACK"  # One-time claim bonus
+    AUTO_CLAIM = "AUTO_CLAIM"  # Auto-claim subscription

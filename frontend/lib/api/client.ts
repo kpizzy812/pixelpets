@@ -1,5 +1,5 @@
 /**
- * API Client - fetch wrapper with JWT auth
+ * API Client - fetch wrapper with JWT auth and automatic token refresh
  */
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -11,6 +11,7 @@ interface RequestOptions {
   body?: unknown;
   headers?: Record<string, string>;
   token?: string | null;
+  skipAuthRefresh?: boolean; // Prevent infinite refresh loop
 }
 
 export class ApiError extends Error {
@@ -26,6 +27,15 @@ export class ApiError extends Error {
 
 // Token storage (client-side only)
 let authToken: string | null = null;
+
+// Refresh token handler - will be set by AuthProvider
+let refreshTokenHandler: (() => Promise<boolean>) | null = null;
+let isRefreshing = false;
+let refreshPromise: Promise<boolean> | null = null;
+
+export function setRefreshTokenHandler(handler: (() => Promise<boolean>) | null) {
+  refreshTokenHandler = handler;
+}
 
 export function setAuthToken(token: string | null) {
   authToken = token;
@@ -46,11 +56,41 @@ export function getAuthToken(): string | null {
   return authToken;
 }
 
+// Attempt to refresh the token
+async function tryRefreshToken(): Promise<boolean> {
+  if (!refreshTokenHandler) {
+    console.warn('[API] No refresh token handler registered');
+    return false;
+  }
+
+  // If already refreshing, wait for that to complete
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise;
+  }
+
+  isRefreshing = true;
+  refreshPromise = refreshTokenHandler()
+    .then((success) => {
+      console.log('[API] Token refresh:', success ? 'success' : 'failed');
+      return success;
+    })
+    .catch((err) => {
+      console.error('[API] Token refresh error:', err);
+      return false;
+    })
+    .finally(() => {
+      isRefreshing = false;
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+}
+
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { method = 'GET', body, headers = {}, token } = options;
+  const { method = 'GET', body, headers = {}, token, skipAuthRefresh = false } = options;
 
   const requestHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -79,6 +119,22 @@ export async function apiRequest<T>(
   // Handle non-JSON responses
   const contentType = response.headers.get('content-type');
   const isJson = contentType?.includes('application/json');
+
+  // Handle 401 - try to refresh token
+  if (response.status === 401 && !skipAuthRefresh) {
+    console.log('[API] Got 401, attempting token refresh...');
+    const refreshed = await tryRefreshToken();
+
+    if (refreshed) {
+      // Retry the request with the new token
+      return apiRequest<T>(endpoint, { ...options, skipAuthRefresh: true });
+    }
+
+    // Refresh failed, clear token and throw
+    setAuthToken(null);
+    const errorData = isJson ? await response.json() : await response.text();
+    throw new ApiError(response.status, response.statusText, errorData);
+  }
 
   if (!response.ok) {
     const errorData = isJson ? await response.json() : await response.text();

@@ -6,7 +6,7 @@ Pricing model:
 - ROI Boost: Cost = 25% of extra profit (player gets 75% but over time, system gets 25% NOW)
 - Auto-Claim: $5/month + 3% commission from each auto-claim
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Optional
 
@@ -176,7 +176,7 @@ async def buy_snack(
 async def use_snack(db: AsyncSession, snack: PetSnack) -> None:
     """Mark snack as used (called during claim)."""
     snack.is_used = True
-    snack.used_at = datetime.utcnow()
+    snack.used_at = datetime.now(timezone.utc)
     await db.commit()
 
 
@@ -365,7 +365,7 @@ async def get_roi_boost_prices(db: AsyncSession, pet_id: int) -> dict:
 
 async def get_active_auto_claim(db: AsyncSession, user_id: int) -> Optional[AutoClaimSubscription]:
     """Get active auto-claim subscription for user."""
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     result = await db.execute(
         select(AutoClaimSubscription).where(
             and_(
@@ -408,7 +408,7 @@ async def buy_auto_claim(
     user.balance_xpet -= cost
 
     # Create subscription
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     subscription = AutoClaimSubscription(
         user_id=user.id,
         starts_at=now,
@@ -477,7 +477,7 @@ async def get_auto_claim_status(db: AsyncSession, user_id: int) -> dict:
     return {
         "is_active": True,
         "expires_at": subscription.expires_at.isoformat(),
-        "days_remaining": (subscription.expires_at - datetime.utcnow()).days,
+        "days_remaining": (subscription.expires_at.replace(tzinfo=timezone.utc) - datetime.now(timezone.utc)).days,
         "total_claims": subscription.total_claims,
         "total_commission": subscription.total_commission,
         "commission_percent": subscription.commission_percent * 100,
