@@ -105,7 +105,7 @@ class TestGetOrCreateUser:
     @pytest.mark.asyncio
     async def test_create_new_user(self, db_session):
         """Test creating a new user."""
-        user = await get_or_create_user(
+        user, is_new = await get_or_create_user(
             db=db_session,
             telegram_id=999888777,
             username="newuser",
@@ -115,6 +115,7 @@ class TestGetOrCreateUser:
         )
 
         assert user is not None
+        assert is_new is True
         assert user.telegram_id == 999888777
         assert user.username == "newuser"
         assert user.first_name == "New"
@@ -129,7 +130,7 @@ class TestGetOrCreateUser:
         """Test getting existing user updates their info."""
         original_ref_code = user.ref_code
 
-        updated_user = await get_or_create_user(
+        updated_user, is_new = await get_or_create_user(
             db=db_session,
             telegram_id=user.telegram_id,
             username="updated_username",
@@ -138,6 +139,7 @@ class TestGetOrCreateUser:
             language_code="de",
         )
 
+        assert is_new is False
         assert updated_user.id == user.id
         assert updated_user.username == "updated_username"
         assert updated_user.first_name == "Updated"
@@ -146,7 +148,7 @@ class TestGetOrCreateUser:
     @pytest.mark.asyncio
     async def test_create_user_with_referrer(self, db_session, user):
         """Test creating user with valid referral code."""
-        new_user = await get_or_create_user(
+        new_user, is_new = await get_or_create_user(
             db=db_session,
             telegram_id=888777666,
             username="referred",
@@ -156,12 +158,13 @@ class TestGetOrCreateUser:
             ref_code_from_link=user.ref_code,
         )
 
+        assert is_new is True
         assert new_user.referrer_id == user.id
 
     @pytest.mark.asyncio
     async def test_create_user_with_invalid_referrer(self, db_session):
         """Test creating user with invalid referral code."""
-        new_user = await get_or_create_user(
+        new_user, is_new = await get_or_create_user(
             db=db_session,
             telegram_id=777666555,
             username="noreferrer",
@@ -171,6 +174,7 @@ class TestGetOrCreateUser:
             ref_code_from_link="INVALID123",
         )
 
+        assert is_new is True
         assert new_user.referrer_id is None
 
 

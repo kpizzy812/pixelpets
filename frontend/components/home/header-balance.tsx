@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { WalletModal } from '@/components/wallet';
 import { Icon } from '@/components/ui/icon';
 import { formatNumber } from '@/lib/format';
 import { useGameStore } from '@/store/game-store';
@@ -12,9 +11,7 @@ interface HeaderBalanceProps {
 
 export function HeaderBalance({ balance }: HeaderBalanceProps) {
   const router = useRouter();
-  const isWalletOpen = useGameStore((state) => state.isWalletOpen);
   const openWallet = useGameStore((state) => state.openWallet);
-  const closeWallet = useGameStore((state) => state.closeWallet);
 
   return (
     <>
@@ -53,9 +50,6 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
           </div>
         </div>
       </div>
-
-      {/* Wallet Modal */}
-      <WalletModal isOpen={isWalletOpen} onClose={closeWallet} />
     </>
   );
 }

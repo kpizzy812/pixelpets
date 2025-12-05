@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from '@/hooks/use-auth';
 import { ToastProvider } from '@/components/ui/toast-provider';
 import { AppLoader } from '@/components/ui/app-loader';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { WalletModal } from '@/components/wallet';
 import { useGameStore } from '@/store/game-store';
 
 // Suppress known Android Telegram toFixed errors globally
@@ -95,7 +96,15 @@ function AppContent({ children }: { children: ReactNode }) {
     return <AppLoader onComplete={handleLoaderComplete} />;
   }
 
-  return <>{children}</>;
+  const isWalletOpen = useGameStore((state) => state.isWalletOpen);
+  const closeWallet = useGameStore((state) => state.closeWallet);
+
+  return (
+    <>
+      {children}
+      <WalletModal isOpen={isWalletOpen} onClose={closeWallet} />
+    </>
+  );
 }
 
 export function Providers({ children }: ProvidersProps) {

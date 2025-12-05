@@ -1,3 +1,4 @@
+import asyncio
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -22,6 +23,7 @@ from app.services.auth import (
     create_access_token,
     get_or_create_user,
 )
+from app.api.routes.telegram_webhook import send_welcome_to_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -42,7 +44,7 @@ async def telegram_auth(
         )
 
     # Get or create user
-    user = await get_or_create_user(
+    user, is_new_user = await get_or_create_user(
         db=db,
         telegram_id=user_data.get("id"),
         username=user_data.get("username"),
@@ -51,6 +53,16 @@ async def telegram_auth(
         language_code=user_data.get("language_code", "en"),
         ref_code_from_link=request.ref_code,
     )
+
+    # Send welcome message for new users (fire-and-forget)
+    if is_new_user:
+        asyncio.create_task(
+            send_welcome_to_user(
+                telegram_id=user_data.get("id"),
+                language_code=user_data.get("language_code"),
+                ref_code=user.ref_code,  # Use their own ref code for share button
+            )
+        )
 
     # Create access token
     access_token = create_access_token(user.id)
