@@ -29,11 +29,6 @@ const NEXT_LEVEL: Record<PetLevel, PetLevel | null> = {
   MYTHIC: null,
 };
 
-const LEVEL_BONUSES: Record<PetLevel, string> = {
-  BABY: '',
-  ADULT: '+0.2% daily rate',
-  MYTHIC: '+0.4% daily rate',
-};
 
 export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModalProps) {
   const balance = useBalance();
@@ -110,8 +105,8 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
               <div className="flex items-center justify-center gap-4">
                 {/* Current Pet */}
                 <div className="flex flex-col items-center">
-                  <div className="rounded-2xl overflow-hidden bg-[#0d1220]/60 p-2">
-                    <PetImage imageKey={pet.imageKey} level={pet.level} alt={pet.name} size={72} />
+                  <div className="rounded-2xl bg-[#0d1220]/60 p-2">
+                    <PetImage imageKey={pet.imageKey} level={pet.level} alt={pet.name} size={72} className="rounded-xl" />
                   </div>
                   <span className="mt-2 px-3 py-1 rounded-lg bg-[#334155]/60 text-[#94a3b8] text-xs font-medium">
                     {LEVEL_DISPLAY[pet.level]}
@@ -125,8 +120,8 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
 
                 {/* Next Level Pet */}
                 <div className="flex flex-col items-center">
-                  <div className="rounded-2xl overflow-hidden bg-[#c7f464]/10 p-2 ring-2 ring-[#c7f464]/30">
-                    <PetImage imageKey={pet.imageKey} level={nextLevel} alt={pet.name} size={72} />
+                  <div className="rounded-2xl bg-[#c7f464]/10 p-2 ring-2 ring-[#c7f464]/30">
+                    <PetImage imageKey={pet.imageKey} level={nextLevel} alt={pet.name} size={72} className="rounded-xl" />
                   </div>
                   <span className="mt-2 px-3 py-1 rounded-lg bg-[#c7f464]/20 text-[#c7f464] text-xs font-medium">
                     {LEVEL_DISPLAY[nextLevel]}
@@ -136,14 +131,6 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
 
               {/* Pet Name */}
               <h3 className="text-center text-lg font-bold text-[#f1f5f9] mt-4">{pet.name}</h3>
-            </div>
-
-            {/* Bonus Info */}
-            <div className="p-4 rounded-xl bg-[#c7f464]/10 border border-[#c7f464]/20 mb-5">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-[#94a3b8]">Upgrade Bonus</span>
-                <span className="text-sm text-[#c7f464] font-semibold">{LEVEL_BONUSES[nextLevel]}</span>
-              </div>
             </div>
 
             {/* Price Info */}
