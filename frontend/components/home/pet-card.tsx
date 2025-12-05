@@ -17,7 +17,7 @@ interface PetCardProps {
 }
 
 export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: PetCardProps) {
-  const { tap, warning } = useHaptic();
+  const { tap } = useHaptic();
   const { pet } = slot;
   const countdown = useCountdown(pet?.trainingEndsAt);
 
@@ -91,9 +91,19 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
     <div className="pet-card flex flex-col h-full">
       {/* Top Pills */}
       <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1e293b]/60 border border-[#334155]/30">
-          <span className="text-xs font-medium text-[#f1f5f9]">{pet.level} LVL</span>
-          <span className="text-[10px] text-[#c7f464]">▲</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1e293b]/60 border border-[#334155]/30">
+            <span className="text-xs font-medium text-[#f1f5f9]">{pet.level} LVL</span>
+          </div>
+          {onUpgrade && pet.level < 3 && (
+            <button
+              onClick={() => { tap(); onUpgrade(); }}
+              className="flex items-center gap-1 px-2 py-1.5 rounded-xl bg-[#c7f464]/20 border border-[#c7f464]/40 hover:bg-[#c7f464]/30 transition-colors"
+            >
+              <span className="text-[10px] text-[#c7f464]">▲</span>
+              <span className="text-[10px] font-medium text-[#c7f464]">UP</span>
+            </button>
+          )}
         </div>
         <div className="px-3 py-1.5 rounded-xl bg-[#1e293b]/60 border border-[#334155]/30">
           <span className={`text-xs font-medium ${getRarityColor()}`}>{pet.rarity}</span>
@@ -137,35 +147,9 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
           Evolved
         </Button>
       ) : isIdle ? (
-        <div className="space-y-2">
-          <Button variant="cyan" fullWidth onClick={onTrain}>
-            Train 24h
-          </Button>
-          <div className="flex gap-2">
-            {pet.level < 3 && onUpgrade && (
-              <button
-                onClick={() => {
-                  tap();
-                  onUpgrade();
-                }}
-                className="flex-1 py-2 rounded-xl bg-[#c7f464]/10 border border-[#c7f464]/30 text-xs font-medium text-[#c7f464] hover:bg-[#c7f464]/20 transition-colors"
-              >
-                Upgrade
-              </button>
-            )}
-            {onSell && (
-              <button
-                onClick={() => {
-                  warning();
-                  onSell();
-                }}
-                className="flex-1 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-medium text-red-400 hover:bg-red-500/20 transition-colors"
-              >
-                Sell
-              </button>
-            )}
-          </div>
-        </div>
+        <Button variant="cyan" fullWidth onClick={onTrain}>
+          Train 24h
+        </Button>
       ) : null}
     </div>
   );

@@ -5,11 +5,16 @@ import { useRouter } from 'next/navigation';
 import { PageLayout } from '@/components/layout/page-layout';
 import { PetTypeCard } from './pet-type-card';
 import { BuyModal } from './buy-modal';
+import { SellModal } from '@/components/pet/sell-modal';
 import { PetTypeCardSkeleton } from '@/components/ui/skeleton';
 import { InlineError } from '@/components/ui/error-state';
+import { PetImage } from '@/components/ui/pet-image';
+import { XpetCoin } from '@/components/ui/xpet-coin';
 import { useGameStore, useBalance } from '@/store/game-store';
 import { showSuccess, showError } from '@/lib/toast';
+import { formatNumber } from '@/lib/format';
 import type { PetType } from '@/types/api';
+import type { Pet } from '@/types/pet';
 
 type ShopMode = 'buy' | 'sell';
 
@@ -22,6 +27,7 @@ export function ShopScreen() {
   const [selectedPet, setSelectedPet] = useState<PetType | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [isBuying, setIsBuying] = useState(false);
+  const [sellPet, setSellPet] = useState<Pet | null>(null);
 
   useEffect(() => {
     fetchPetCatalog();
@@ -119,9 +125,63 @@ export function ShopScreen() {
             )}
           </>
         ) : (
-          <div className="text-center py-12 text-[#64748b]">
-            <p className="text-sm">Go to your pet card and tap "Sell" to sell a pet</p>
-          </div>
+          <>
+            {/* User's Pets for Sale */}
+            {(() => {
+              const ownedPets = petSlots.filter(slot => slot.pet !== null);
+              if (ownedPets.length === 0) {
+                return (
+                  <div className="text-center py-12 text-[#64748b]">
+                    <p className="text-sm">You don't have any pets to sell</p>
+                  </div>
+                );
+              }
+              return (
+                <div className="space-y-3">
+                  {ownedPets.map((slot) => {
+                    const pet = slot.pet!;
+                    const refundAmount = pet.invested * 0.7;
+                    return (
+                      <div
+                        key={slot.index}
+                        className="p-4 rounded-2xl bg-[#0d1220]/80 border border-[#1e293b]/50"
+                      >
+                        <div className="flex items-center gap-4">
+                          {/* Pet Image */}
+                          <div className="w-16 h-16 rounded-xl bg-[#1e293b]/40 overflow-hidden flex-shrink-0">
+                            <PetImage imageKey={pet.imageKey} alt={pet.name} size={64} className="w-full h-full object-cover" />
+                          </div>
+
+                          {/* Pet Info */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-base font-semibold text-[#f1f5f9] truncate">{pet.name}</h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs text-[#64748b]">Lvl {pet.level}</span>
+                              <span className="text-xs text-[#64748b]">•</span>
+                              <span className="text-xs text-[#94a3b8]">{pet.rarity}</span>
+                            </div>
+                            <div className="flex items-center gap-1 mt-1">
+                              <span className="text-xs text-[#64748b]">Refund:</span>
+                              <span className="text-xs text-[#c7f464] font-medium">{formatNumber(refundAmount)}</span>
+                              <XpetCoin size={12} />
+                            </div>
+                          </div>
+
+                          {/* Sell Button */}
+                          <button
+                            onClick={() => setSellPet(pet)}
+                            className="px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 text-sm font-medium hover:bg-red-500/30 transition-colors"
+                          >
+                            Sell
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </>
         )}
       </div>
 
@@ -137,6 +197,12 @@ export function ShopScreen() {
           isLoading={isBuying}
         />
       )}
+
+      <SellModal
+        isOpen={sellPet !== null}
+        onClose={() => setSellPet(null)}
+        pet={sellPet}
+      />
     </PageLayout>
   );
 }
