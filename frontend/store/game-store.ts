@@ -292,7 +292,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
             : null,
         }));
       }
-      return { success: result.success, reward: result.reward };
+      return { success: result.success, reward: result.reward_xpet };
     } catch (err) {
       console.error('Failed to check task:', err);
       throw err;

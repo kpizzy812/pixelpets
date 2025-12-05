@@ -1,6 +1,5 @@
 import toast from 'react-hot-toast';
 import { createElement } from 'react';
-import { Coins } from 'lucide-react';
 
 export const showSuccess = (message: string) => {
   toast.success(message);
@@ -20,7 +19,11 @@ export const dismissToast = (toastId: string) => {
 
 export const showReward = (amount: number) => {
   toast.success(`+${amount} XPET`, {
-    icon: createElement(Coins, { size: 20, className: 'text-[#c7f464]' }),
+    icon: createElement('img', {
+      src: '/XPET.png',
+      alt: 'XPET',
+      style: { width: 20, height: 20, objectFit: 'contain' },
+    }),
     duration: 3000,
   });
 };

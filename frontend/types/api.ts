@@ -174,6 +174,7 @@ export interface TasksResponse {
 
 export interface TaskCheckResponse {
   success: boolean;
-  reward: number;
+  reward_xpet: number;
   new_balance: number;
+  message: string;
 }
