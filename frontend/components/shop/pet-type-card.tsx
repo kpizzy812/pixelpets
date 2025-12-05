@@ -12,7 +12,8 @@ interface PetTypeCardProps {
 
 export function PetTypeCard({ petType, onBuy, disabled }: PetTypeCardProps) {
   // daily_rate comes as decimal (0.01 = 1%), convert to percentage
-  const dailyPercent = petType.daily_rate * 100;
+  // Round to avoid floating point issues (e.g., 0.022 * 100 = 2.1999999...)
+  const dailyPercent = Math.round(petType.daily_rate * 1000) / 10;
 
   return (
     <div className="rounded-2xl bg-[#0d1220]/90 border border-[#1e293b]/50 flex flex-col overflow-hidden">
