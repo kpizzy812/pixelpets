@@ -70,7 +70,9 @@ export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
         {/* Pet Info */}
         <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-6 text-center">
           <div className="flex justify-center mb-3">
-            <PetImage imageKey={pet.imageKey} level={pet.level} alt={pet.name} size={80} />
+            <div className="rounded-2xl overflow-hidden">
+              <PetImage imageKey={pet.imageKey} level={pet.level} alt={pet.name} size={80} />
+            </div>
           </div>
           <h3 className="text-lg font-bold text-[#f1f5f9]">{pet.name}</h3>
           <p className="text-sm text-[#64748b] mt-1">{pet.level}</p>

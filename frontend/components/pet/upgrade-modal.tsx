@@ -41,7 +41,6 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
   const [isProcessing, setIsProcessing] = useState(false);
   const { impact, success, error: hapticError, tap } = useHaptic();
 
-  // Haptic on modal open
   useEffect(() => {
     if (isOpen) {
       impact('light');
@@ -89,64 +88,73 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
       <div className="relative w-full max-w-sm rounded-3xl bg-[#0d1220] border border-[#1e293b]/50 p-6 shadow-2xl">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-[#f1f5f9]">Upgrade Pet</h2>
+          <h2 className="text-xl font-bold text-[#c7f464]">Upgrade Pet</h2>
           <button
             onClick={handleClose}
             disabled={isProcessing}
             className="w-8 h-8 rounded-full bg-[#1e293b]/60 flex items-center justify-center text-[#64748b] hover:text-[#f1f5f9] transition-colors"
           >
-            X
+            ✕
           </button>
-        </div>
-
-        {/* Pet Info */}
-        <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-6 text-center">
-          <div className="flex justify-center mb-3">
-            <PetImage imageKey={pet.imageKey} level={pet.level} alt={pet.name} size={80} />
-          </div>
-          <h3 className="text-lg font-bold text-[#f1f5f9]">{pet.name}</h3>
-          <div className="flex justify-center items-center gap-2 mt-2">
-            <span className="px-3 py-1 rounded-lg bg-[#00f5d4]/20 text-[#00f5d4] text-sm">
-              {LEVEL_DISPLAY[pet.level]}
-            </span>
-          </div>
         </div>
 
         {isMaxLevel ? (
           <div className="p-4 rounded-xl bg-[#fbbf24]/10 border border-[#fbbf24]/30 mb-6 text-center">
-            <span className="text-2xl mb-2 block">*</span>
+            <span className="text-2xl mb-2 block">⭐</span>
             <p className="text-sm text-[#fbbf24]">This pet is already at maximum level!</p>
           </div>
         ) : nextLevel ? (
           <>
-            {/* Upgrade Preview */}
-            <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-6">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-sm text-[#64748b]">Current Level</span>
-                <span className="text-sm text-[#f1f5f9]">{LEVEL_DISPLAY[pet.level]}</span>
+            {/* Evolution Preview */}
+            <div className="p-5 rounded-2xl bg-[#1e293b]/40 mb-5">
+              <div className="flex items-center justify-center gap-4">
+                {/* Current Pet */}
+                <div className="flex flex-col items-center">
+                  <div className="rounded-2xl overflow-hidden bg-[#0d1220]/60 p-2">
+                    <PetImage imageKey={pet.imageKey} level={pet.level} alt={pet.name} size={72} />
+                  </div>
+                  <span className="mt-2 px-3 py-1 rounded-lg bg-[#334155]/60 text-[#94a3b8] text-xs font-medium">
+                    {LEVEL_DISPLAY[pet.level]}
+                  </span>
+                </div>
+
+                {/* Arrow */}
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-2xl text-[#c7f464]">→</span>
+                </div>
+
+                {/* Next Level Pet */}
+                <div className="flex flex-col items-center">
+                  <div className="rounded-2xl overflow-hidden bg-[#c7f464]/10 p-2 ring-2 ring-[#c7f464]/30">
+                    <PetImage imageKey={pet.imageKey} level={nextLevel} alt={pet.name} size={72} />
+                  </div>
+                  <span className="mt-2 px-3 py-1 rounded-lg bg-[#c7f464]/20 text-[#c7f464] text-xs font-medium">
+                    {LEVEL_DISPLAY[nextLevel]}
+                  </span>
+                </div>
               </div>
-              <div className="flex justify-center mb-3">
-                <span className="text-[#c7f464] text-xl">-&gt;</span>
-              </div>
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-sm text-[#64748b]">New Level</span>
-                <span className="text-sm text-[#c7f464] font-medium">{LEVEL_DISPLAY[nextLevel]}</span>
-              </div>
-              <div className="h-px bg-[#334155] my-3" />
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-[#64748b]">Bonus</span>
-                <span className="text-sm text-[#c7f464]">{LEVEL_BONUSES[nextLevel]}</span>
+
+              {/* Pet Name */}
+              <h3 className="text-center text-lg font-bold text-[#f1f5f9] mt-4">{pet.name}</h3>
+            </div>
+
+            {/* Bonus Info */}
+            <div className="p-4 rounded-xl bg-[#c7f464]/10 border border-[#c7f464]/20 mb-5">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-[#94a3b8]">Upgrade Bonus</span>
+                <span className="text-sm text-[#c7f464] font-semibold">{LEVEL_BONUSES[nextLevel]}</span>
               </div>
             </div>
 
             {/* Price Info */}
-            <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-6">
-              <div className="flex justify-between items-center mb-2">
+            <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-6 space-y-3">
+              <div className="flex justify-between items-center">
                 <span className="text-sm text-[#64748b]">Upgrade Cost</span>
                 <span className="text-sm text-[#f1f5f9] font-medium inline-flex items-center gap-1">
                   {upgradePrice != null ? formatNumber(upgradePrice) : '---'} <XpetCoin size={18} />
                 </span>
               </div>
+              <div className="h-px bg-[#334155]" />
               <div className="flex justify-between items-center">
                 <span className="text-sm text-[#64748b]">Your Balance</span>
                 <span className={`text-sm font-medium inline-flex items-center gap-1 ${canAfford ? 'text-[#c7f464]' : 'text-red-400'}`}>
