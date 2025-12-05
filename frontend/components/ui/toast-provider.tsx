@@ -6,6 +6,9 @@ export function ToastProvider() {
   return (
     <Toaster
       position="top-center"
+      containerStyle={{
+        top: 'calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px) + 8px)',
+      }}
       toastOptions={{
         duration: 3000,
         style: {
