@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { PetImage } from '@/components/ui/pet-image';
 import { Icon } from '@/components/ui/icon';
 import type { PetType } from '@/types/api';
 
@@ -17,9 +16,13 @@ export function PetTypeCard({ petType, onBuy, disabled }: PetTypeCardProps) {
 
   return (
     <div className="rounded-2xl bg-[#0d1220]/90 border border-[#1e293b]/50 flex flex-col overflow-hidden">
-      {/* Pet Image - Full width */}
-      <div className="aspect-square bg-[#1e293b]/40 flex items-center justify-center">
-        <PetImage imageKey={petType.image_key} alt={petType.name} size={120} />
+      {/* Pet Image - Full width, clipped with rounded corners */}
+      <div className="aspect-square overflow-hidden rounded-t-2xl">
+        <img
+          src={`/pets/${petType.image_key}.png`}
+          alt={petType.name}
+          className="w-full h-full object-cover"
+        />
       </div>
 
       {/* Content */}
