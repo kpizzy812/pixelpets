@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api.routes import auth, pets, wallet, referrals, tasks
+from app.api.routes import auth, pets, wallet, referrals, tasks, telegram_webhook
 from app.api.routes.admin import router as admin_router
 
 app = FastAPI(
@@ -29,6 +29,9 @@ app.include_router(tasks.router)
 
 # Admin router
 app.include_router(admin_router)
+
+# Telegram webhook
+app.include_router(telegram_webhook.router)
 
 
 @app.get("/health")

@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,6 +21,9 @@ from app.services.admin import (
     reject_deposit,
     log_admin_action,
 )
+from app.services import telegram_notify
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/deposits", tags=["admin-deposits"])
 
@@ -90,6 +95,22 @@ async def process_deposit(
         },
         ip_address=get_client_ip(http_request),
     )
+
+    # Update Telegram notification message if exists
+    if deposit.notification_message_id:
+        try:
+            await telegram_notify.update_deposit_message(
+                message_id=deposit.notification_message_id,
+                request_id=deposit_id,
+                user_telegram_id=deposit.user.telegram_id,
+                username=deposit.user.username,
+                amount=deposit.amount,
+                network=deposit.network,
+                status=deposit.status,
+                admin_username=admin.username,
+            )
+        except Exception as e:
+            logger.error(f"Failed to update deposit notification: {e}")
 
     return {
         "status": "success",

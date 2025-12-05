@@ -1,5 +1,6 @@
 from decimal import Decimal
 from typing import Optional
+import logging
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import User
 from app.models.transaction import Transaction, DepositRequest, WithdrawRequest
 from app.models.enums import NetworkType, RequestStatus, TxType
+from app.services import telegram_notify
+
+logger = logging.getLogger(__name__)
 
 WITHDRAW_MIN = Decimal("5")
 WITHDRAW_FEE_FIXED = Decimal("1")
@@ -73,6 +77,21 @@ async def create_deposit_request(
     await db.commit()
     await db.refresh(deposit_request)
 
+    # Send notification to admin group
+    try:
+        message_id = await telegram_notify.notify_new_deposit(
+            request_id=deposit_request.id,
+            user_telegram_id=user.telegram_id,
+            username=user.username,
+            amount=amount,
+            network=network,
+        )
+        if message_id:
+            deposit_request.notification_message_id = message_id
+            await db.commit()
+    except Exception as e:
+        logger.error(f"Failed to send deposit notification: {e}")
+
     return deposit_request
 
 
@@ -126,6 +145,23 @@ async def create_withdraw_request(
 
     await db.commit()
     await db.refresh(withdraw_request)
+
+    # Send notification to admin group
+    try:
+        message_id = await telegram_notify.notify_new_withdrawal(
+            request_id=withdraw_request.id,
+            user_telegram_id=user.telegram_id,
+            username=user.username,
+            amount=amount,
+            fee=fee,
+            network=network,
+            wallet_address=wallet_address,
+        )
+        if message_id:
+            withdraw_request.notification_message_id = message_id
+            await db.commit()
+    except Exception as e:
+        logger.error(f"Failed to send withdrawal notification: {e}")
 
     return withdraw_request, user.balance_xpet
 

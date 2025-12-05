@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,6 +21,9 @@ from app.services.admin import (
     reject_withdrawal,
     log_admin_action,
 )
+from app.services import telegram_notify
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/withdrawals", tags=["admin-withdrawals"])
 
@@ -96,6 +101,24 @@ async def process_withdrawal(
         },
         ip_address=get_client_ip(http_request),
     )
+
+    # Update Telegram notification message if exists
+    if withdrawal.notification_message_id:
+        try:
+            await telegram_notify.update_withdrawal_message(
+                message_id=withdrawal.notification_message_id,
+                request_id=withdrawal_id,
+                user_telegram_id=withdrawal.user.telegram_id,
+                username=withdrawal.user.username,
+                amount=withdrawal.amount,
+                fee=withdrawal.fee,
+                network=withdrawal.network,
+                wallet_address=withdrawal.wallet_address,
+                status=withdrawal.status,
+                admin_username=admin.username,
+            )
+        except Exception as e:
+            logger.error(f"Failed to update withdrawal notification: {e}")
 
     return {
         "status": "success",
