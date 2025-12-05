@@ -109,7 +109,12 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
 
       {/* Bottom Info */}
       <div className="flex justify-between items-center mb-4">
-        <span className="text-lg font-medium text-[#f1f5f9]">{pet.name}</span>
+        <div className="flex flex-col">
+          <span className="text-lg font-medium text-[#f1f5f9]">{pet.name}</span>
+          <span className="text-xs text-[#94a3b8]">
+            +${(pet.invested * pet.dailyRate / 100).toFixed(2)}/day
+          </span>
+        </div>
         <div className="px-3 py-1.5 rounded-xl bg-[#c7f464]/10 border border-[#c7f464]/20">
           <span className="text-xs font-semibold text-[#c7f464]">+{pet.dailyRate}%</span>
         </div>
