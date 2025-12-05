@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { User, PetType, UserPet, MyPetsResponse, Task, ReferralsResponse } from '@/types/api';
 import type { PetSlot, Pet } from '@/types/pet';
-import { authApi, petsApi, tasksApi, referralsApi } from '@/lib/api';
+import { petsApi, tasksApi, referralsApi } from '@/lib/api';
 
 // Convert API UserPet to frontend Pet format
 function mapUserPetToPet(userPet: UserPet): Pet {
@@ -152,9 +152,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   buyPet: async (petTypeId, slotIndex) => {
     set({ isLoading: true, error: null });
     try {
-      const newPet = await petsApi.buy(petTypeId, slotIndex);
-      // Refresh user balance
-      const userData = await authApi.me();
+      const { pet: newPet, new_balance } = await petsApi.buy(petTypeId, slotIndex);
       set((state) => ({
         petSlots: state.petSlots.map((slot) =>
           slot.index === slotIndex
@@ -162,7 +160,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
             : slot
         ),
         slotsUsed: state.slotsUsed + 1,
-        user: userData,
+        user: state.user ? { ...state.user, balance_xpet: new_balance } : null,
         isLoading: false,
       }));
     } catch (err) {
@@ -228,15 +226,14 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   upgradePet: async (petId) => {
     try {
-      const updatedPet = await petsApi.upgrade(petId);
-      const userData = await authApi.me();
+      const { pet: updatedPet, new_balance } = await petsApi.upgrade(petId);
       set((state) => ({
         petSlots: state.petSlots.map((slot) =>
           slot.pet && Number(slot.pet.id) === petId
             ? { ...slot, pet: mapUserPetToPet(updatedPet) }
             : slot
         ),
-        user: userData,
+        user: state.user ? { ...state.user, balance_xpet: new_balance } : null,
       }));
     } catch (err) {
       set({ error: err instanceof Error ? err.message : 'Failed to upgrade pet' });
@@ -256,7 +253,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
           ? { ...state.user, balance_xpet: result.new_balance }
           : null,
       }));
-      return result.refund;
+      return result.refund_amount;
     } catch (err) {
       set({ error: err instanceof Error ? err.message : 'Failed to sell pet' });
       throw err;

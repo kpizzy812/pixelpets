@@ -37,19 +37,19 @@ export const petsApi = {
   my: () => api.get<MyPetsResponse>('/pets/my'),
 
   buy: (petTypeId: number, slotIndex: number) =>
-    api.post<UserPet>('/pets/buy', { pet_type_id: petTypeId, slot_index: slotIndex }),
+    api.post<{ pet: UserPet; new_balance: number }>('/pets/buy', { pet_type_id: petTypeId, slot_index: slotIndex }),
 
   upgrade: (petId: number) =>
-    api.post<UserPet>(`/pets/${petId}/upgrade`),
+    api.post<{ pet: UserPet; new_balance: number }>('/pets/upgrade', { pet_id: petId }),
 
   sell: (petId: number) =>
-    api.post<{ refund: number; new_balance: number }>(`/pets/${petId}/sell`),
+    api.post<{ refund_amount: number; new_balance: number }>('/pets/sell', { pet_id: petId }),
 
   startTraining: (petId: number) =>
-    api.post<UserPet>(`/pets/${petId}/start-training`),
+    api.post<{ pet_id: number; status: string; training_started_at: string; training_ends_at: string }>('/pets/start-training', { pet_id: petId }),
 
   claim: (petId: number) =>
-    api.post<ClaimResponse>(`/pets/${petId}/claim`),
+    api.post<ClaimResponse>('/pets/claim', { pet_id: petId }),
 
   hallOfFame: () =>
     api.get<HallOfFameResponse>('/pets/hall-of-fame'),
