@@ -7,7 +7,7 @@ interface XpetCoinProps {
   className?: string;
 }
 
-export function XpetCoin({ size = 16, className = '' }: XpetCoinProps) {
+export function XpetCoin({ size = 20, className = '' }: XpetCoinProps) {
   return (
     <Image
       src="/XPET.png"
@@ -29,7 +29,7 @@ interface XpetAmountProps {
 
 export function XpetAmount({
   amount,
-  size = 16,
+  size = 20,
   className = '',
   showPlus = false,
   showMinus = false,

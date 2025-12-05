@@ -49,14 +49,14 @@ export function HallPetCard({ pet, rank }: HallPetCardProps) {
             </span>
           </div>
           <p className="text-xs text-[#64748b] mt-1 inline-flex items-center gap-1">
-            Invested: {formatNumber(pet.invested_total)} <XpetCoin size={12} />
+            Invested: {formatNumber(pet.invested_total)} <XpetCoin size={16} />
           </p>
         </div>
 
         {/* Earnings */}
         <div className="text-right">
           <div className="text-lg font-bold text-[#c7f464] inline-flex items-center gap-1">
-            +{formatNumber(pet.total_farmed)} <XpetCoin size={16} />
+            +{formatNumber(pet.total_farmed)} <XpetCoin size={20} />
           </div>
           <div className="text-xs text-[#64748b]">{roi}% ROI</div>
         </div>

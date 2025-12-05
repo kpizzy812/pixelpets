@@ -48,7 +48,7 @@ export function HallOfFameScreen() {
           </div>
           <div className="flex justify-between items-center pt-3 border-t border-[#334155]/50">
             <span className="text-sm text-[#64748b]">Total Earned</span>
-            <span className="text-lg font-bold text-[#c7f464] inline-flex items-center gap-1">{formatNumber(totalEarned)} <XpetCoin size={18} /></span>
+            <span className="text-lg font-bold text-[#c7f464] inline-flex items-center gap-1">{formatNumber(totalEarned)} <XpetCoin size={22} /></span>
           </div>
         </div>
 

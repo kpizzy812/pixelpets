@@ -310,16 +310,16 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
             <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-[#64748b]">Amount</span>
-                <span className="text-[#f1f5f9] inline-flex items-center gap-1">{formatNumber(withdrawAmount)} <XpetCoin size={14} /></span>
+                <span className="text-[#f1f5f9] inline-flex items-center gap-1">{formatNumber(withdrawAmount)} <XpetCoin size={18} /></span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-[#64748b]">Fee ($1 + 2%)</span>
-                <span className="text-red-400 inline-flex items-center gap-1">-{formatNumber(fee)} <XpetCoin size={14} /></span>
+                <span className="text-red-400 inline-flex items-center gap-1">-{formatNumber(fee)} <XpetCoin size={18} /></span>
               </div>
               <div className="h-px bg-[#334155]" />
               <div className="flex justify-between text-sm">
                 <span className="text-[#64748b]">You Receive</span>
-                <span className="text-[#c7f464] font-medium inline-flex items-center gap-1">{formatNumber(netAmount)} <XpetCoin size={14} /></span>
+                <span className="text-[#c7f464] font-medium">${formatNumber(netAmount)} USDT</span>
               </div>
             </div>
           </>

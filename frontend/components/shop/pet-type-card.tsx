@@ -44,7 +44,7 @@ export function PetTypeCard({ petType, onBuy, disabled }: PetTypeCardProps) {
           disabled={disabled}
           className="w-full text-xs py-2 flex items-center justify-center gap-1"
         >
-          <XpetCoin size={14} />
+          <XpetCoin size={18} />
           <span>{petType.base_price}</span>
         </Button>
       </div>

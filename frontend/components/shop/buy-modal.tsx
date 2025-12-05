@@ -56,7 +56,7 @@ export function BuyModal({ petType, balance, onConfirm, onClose, isLoading }: Bu
         <div className="space-y-3 mb-6">
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">Price</span>
-            <span className="text-[#f1f5f9] font-medium inline-flex items-center gap-1">{petType.base_price} <XpetCoin size={14} /></span>
+            <span className="text-[#f1f5f9] font-medium inline-flex items-center gap-1">{petType.base_price} <XpetCoin size={18} /></span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">Daily Rate</span>
@@ -71,17 +71,17 @@ export function BuyModal({ petType, balance, onConfirm, onClose, isLoading }: Bu
           <div className="h-px bg-[#1e293b]" />
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">Max Profit</span>
-            <span className="text-[#00f5d4] font-medium inline-flex items-center gap-1">+{formatNumber(netProfit)} <XpetCoin size={14} /></span>
+            <span className="text-[#00f5d4] font-medium inline-flex items-center gap-1">+{formatNumber(netProfit)} <XpetCoin size={18} /></span>
           </div>
           <div className="h-px bg-[#1e293b]" />
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">Your Balance</span>
-            <span className="text-[#f1f5f9] font-medium inline-flex items-center gap-1">{formatNumber(balance)} <XpetCoin size={14} /></span>
+            <span className="text-[#f1f5f9] font-medium inline-flex items-center gap-1">{formatNumber(balance)} <XpetCoin size={18} /></span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">After Purchase</span>
             <span className={`font-medium ${canAfford ? 'text-[#c7f464]' : 'text-red-400'}`}>
-              {formatNumber(newBalance)} <XpetCoin size={14} />
+              {formatNumber(newBalance)} <XpetCoin size={18} />
             </span>
           </div>
         </div>
