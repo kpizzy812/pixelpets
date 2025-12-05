@@ -138,7 +138,7 @@ export function TransactionsScreen() {
   };
 
   const handleBack = () => {
-    router.back();
+    router.push('/');
   };
 
   return (
