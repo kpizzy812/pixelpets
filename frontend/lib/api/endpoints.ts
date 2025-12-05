@@ -95,5 +95,5 @@ export const tasksApi = {
   list: () => api.get<TasksResponse>('/tasks'),
 
   check: (taskId: number) =>
-    api.post<TaskCheckResponse>(`/tasks/${taskId}/check`),
+    api.post<TaskCheckResponse>('/tasks/check', { task_id: taskId }),
 };
