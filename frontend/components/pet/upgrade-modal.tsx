@@ -133,15 +133,38 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
               <h3 className="text-center text-lg font-bold text-[#f1f5f9] mt-4">{pet.name}</h3>
             </div>
 
+            {/* Upgrade Benefits */}
+            <div className="p-4 rounded-xl bg-[#c7f464]/10 border border-[#c7f464]/20 mb-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[#c7f464]">↑</span>
+                <span className="text-sm text-[#c7f464] font-medium">Upgrade Benefits</span>
+              </div>
+              <p className="text-xs text-[#94a3b8] leading-relaxed">
+                Increases your pet&apos;s investment value, resulting in higher daily earnings from training sessions.
+              </p>
+            </div>
+
             {/* Price Info */}
             <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-6 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-[#64748b]">Current Investment</span>
+                <span className="text-sm text-[#94a3b8] inline-flex items-center gap-1">
+                  {formatNumber(pet.invested)} <XpetCoin size={18} />
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-[#64748b]">After Upgrade</span>
+                <span className="text-sm text-[#c7f464] font-medium inline-flex items-center gap-1">
+                  {upgradePrice != null ? formatNumber(pet.invested + upgradePrice) : '---'} <XpetCoin size={18} />
+                </span>
+              </div>
+              <div className="h-px bg-[#334155]" />
               <div className="flex justify-between items-center">
                 <span className="text-sm text-[#64748b]">Upgrade Cost</span>
                 <span className="text-sm text-[#f1f5f9] font-medium inline-flex items-center gap-1">
                   {upgradePrice != null ? formatNumber(upgradePrice) : '---'} <XpetCoin size={18} />
                 </span>
               </div>
-              <div className="h-px bg-[#334155]" />
               <div className="flex justify-between items-center">
                 <span className="text-sm text-[#64748b]">Your Balance</span>
                 <span className={`text-sm font-medium inline-flex items-center gap-1 ${canAfford ? 'text-[#c7f464]' : 'text-red-400'}`}>
