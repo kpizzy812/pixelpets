@@ -313,7 +313,12 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
 // Selectors
 export const useBalance = () =>
-  useGameStore((state) => state.user?.balance_xpet ?? 0);
+  useGameStore((state) => {
+    const balance = state.user?.balance_xpet;
+    if (balance === undefined || balance === null) return 0;
+    // API returns Decimal as string, convert to number for comparisons
+    return typeof balance === 'string' ? parseFloat(balance) : balance;
+  });
 
 export const usePetSlots = () => useGameStore((state) => state.petSlots);
 
