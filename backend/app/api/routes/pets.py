@@ -82,11 +82,11 @@ async def get_my_pets(
 ):
     """Get current user's pets."""
     pets = await get_user_pets(db, current_user.id)
-    free_slots = MAX_SLOTS - len(pets)
 
     return MyPetsResponse(
         pets=[pet_to_response(pet) for pet in pets],
-        free_slots=free_slots,
+        slots_used=len(pets),
+        max_slots=MAX_SLOTS,
     )
 
 

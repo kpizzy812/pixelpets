@@ -44,7 +44,8 @@ class UserPetResponse(BaseModel):
 
 class MyPetsResponse(BaseModel):
     pets: list[UserPetResponse]
-    free_slots: int
+    slots_used: int
+    max_slots: int
 
 
 class BuyPetRequest(BaseModel):
