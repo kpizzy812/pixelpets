@@ -1,96 +1,53 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 
 type ImpactStyle = 'light' | 'medium' | 'heavy' | 'rigid' | 'soft';
 type NotificationType = 'success' | 'error' | 'warning';
 
-interface HapticFeedbackAPI {
-  impactOccurred: (style: ImpactStyle) => void;
-  notificationOccurred: (type: NotificationType) => void;
-  selectionChanged: () => void;
-}
-
-// Cached SDK imports
-let hapticFeedbackModule: HapticFeedbackAPI | null = null;
-let isLoadingModule = false;
-let loadPromise: Promise<void> | null = null;
-
-async function loadHapticModule(): Promise<HapticFeedbackAPI | null> {
-  if (hapticFeedbackModule) return hapticFeedbackModule;
-  if (isLoadingModule && loadPromise) {
-    await loadPromise;
-    return hapticFeedbackModule;
+function getWebApp() {
+  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+    return window.Telegram.WebApp;
   }
-
-  isLoadingModule = true;
-  loadPromise = (async () => {
-    try {
-      const sdk = await import('@telegram-apps/sdk-react');
-      const { hapticFeedback } = sdk;
-
-      hapticFeedbackModule = {
-        impactOccurred: (style: ImpactStyle) => {
-          if (hapticFeedback.impactOccurred.isAvailable()) {
-            hapticFeedback.impactOccurred(style);
-          }
-        },
-        notificationOccurred: (type: NotificationType) => {
-          if (hapticFeedback.notificationOccurred.isAvailable()) {
-            hapticFeedback.notificationOccurred(type);
-          }
-        },
-        selectionChanged: () => {
-          if (hapticFeedback.selectionChanged.isAvailable()) {
-            hapticFeedback.selectionChanged();
-          }
-        },
-      };
-    } catch (error) {
-      console.warn('[Haptic] Failed to load SDK:', error);
-      hapticFeedbackModule = null;
-    }
-  })();
-
-  await loadPromise;
-  isLoadingModule = false;
-  return hapticFeedbackModule;
+  return null;
 }
 
 export function useHaptic() {
-  const moduleRef = useRef<HapticFeedbackAPI | null>(null);
-
-  // Initialize module on first use
-  const ensureModule = useCallback(async () => {
-    if (!moduleRef.current) {
-      moduleRef.current = await loadHapticModule();
+  // Impact feedback - for button presses, collisions
+  const impact = useCallback((style: ImpactStyle = 'medium') => {
+    try {
+      const webApp = getWebApp();
+      if (webApp?.HapticFeedback?.impactOccurred) {
+        webApp.HapticFeedback.impactOccurred(style);
+      }
+    } catch (e) {
+      // Silently ignore haptic errors
     }
-    return moduleRef.current;
   }, []);
 
-  // Impact feedback - for button presses, collisions
-  const impact = useCallback(
-    async (style: ImpactStyle = 'medium') => {
-      const module = await ensureModule();
-      module?.impactOccurred(style);
-    },
-    [ensureModule]
-  );
-
   // Notification feedback - for success/error/warning states
-  const notification = useCallback(
-    async (type: NotificationType) => {
-      const module = await ensureModule();
-      module?.notificationOccurred(type);
-    },
-    [ensureModule]
-  );
+  const notification = useCallback((type: NotificationType) => {
+    try {
+      const webApp = getWebApp();
+      if (webApp?.HapticFeedback?.notificationOccurred) {
+        webApp.HapticFeedback.notificationOccurred(type);
+      }
+    } catch (e) {
+      // Silently ignore haptic errors
+    }
+  }, []);
 
   // Selection feedback - for scrolling, selection changes
-  const selection = useCallback(async () => {
-    const module = await ensureModule();
-    module?.selectionChanged();
-  }, [ensureModule]);
+  const selection = useCallback(() => {
+    try {
+      const webApp = getWebApp();
+      if (webApp?.HapticFeedback?.selectionChanged) {
+        webApp.HapticFeedback.selectionChanged();
+      }
+    } catch (e) {
+      // Silently ignore haptic errors
+    }
+  }, []);
 
   // Convenient presets
   const tap = useCallback(() => impact('light'), [impact]);
@@ -116,52 +73,54 @@ export function useHaptic() {
 }
 
 // Singleton for non-hook usage
-let globalHaptic: ReturnType<typeof useHaptic> | null = null;
-
 export function getHaptic() {
-  if (!globalHaptic) {
-    const ensureModule = async () => {
-      return await loadHapticModule();
-    };
+  const webApp = getWebApp();
 
-    globalHaptic = {
-      impact: async (style: ImpactStyle = 'medium') => {
-        const module = await ensureModule();
-        module?.impactOccurred(style);
-      },
-      notification: async (type: NotificationType) => {
-        const module = await ensureModule();
-        module?.notificationOccurred(type);
-      },
-      selection: async () => {
-        const module = await ensureModule();
-        module?.selectionChanged();
-      },
-      tap: async () => {
-        const module = await ensureModule();
-        module?.impactOccurred('light');
-      },
-      press: async () => {
-        const module = await ensureModule();
-        module?.impactOccurred('medium');
-      },
-      heavyPress: async () => {
-        const module = await ensureModule();
-        module?.impactOccurred('heavy');
-      },
-      success: async () => {
-        const module = await ensureModule();
-        module?.notificationOccurred('success');
-      },
-      error: async () => {
-        const module = await ensureModule();
-        module?.notificationOccurred('error');
-      },
-      warning: async () => {
-        const module = await ensureModule();
-        module?.notificationOccurred('warning');
-      },
-    };
-  }
-  return globalHaptic;
+  return {
+    impact: (style: ImpactStyle = 'medium') => {
+      try {
+        webApp?.HapticFeedback?.impactOccurred?.(style);
+      } catch (e) {}
+    },
+    notification: (type: NotificationType) => {
+      try {
+        webApp?.HapticFeedback?.notificationOccurred?.(type);
+      } catch (e) {}
+    },
+    selection: () => {
+      try {
+        webApp?.HapticFeedback?.selectionChanged?.();
+      } catch (e) {}
+    },
+    tap: () => {
+      try {
+        webApp?.HapticFeedback?.impactOccurred?.('light');
+      } catch (e) {}
+    },
+    press: () => {
+      try {
+        webApp?.HapticFeedback?.impactOccurred?.('medium');
+      } catch (e) {}
+    },
+    heavyPress: () => {
+      try {
+        webApp?.HapticFeedback?.impactOccurred?.('heavy');
+      } catch (e) {}
+    },
+    success: () => {
+      try {
+        webApp?.HapticFeedback?.notificationOccurred?.('success');
+      } catch (e) {}
+    },
+    error: () => {
+      try {
+        webApp?.HapticFeedback?.notificationOccurred?.('error');
+      } catch (e) {}
+    },
+    warning: () => {
+      try {
+        webApp?.HapticFeedback?.notificationOccurred?.('warning');
+      } catch (e) {}
+    },
+  };
 }

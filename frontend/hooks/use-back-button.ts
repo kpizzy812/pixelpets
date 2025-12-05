@@ -13,63 +13,11 @@ interface UseBackButtonOptions {
   fallbackPath?: string;
 }
 
-// Track SDK back button state
-let backButtonModule: {
-  show: () => void;
-  hide: () => void;
-  onClick: (handler: () => void) => () => void;
-  isSupported: () => boolean;
-} | null = null;
-
-let isModuleLoading = false;
-let moduleLoadPromise: Promise<void> | null = null;
-
-async function loadBackButtonModule() {
-  if (backButtonModule) return backButtonModule;
-  if (isModuleLoading && moduleLoadPromise) {
-    await moduleLoadPromise;
-    return backButtonModule;
+function getWebApp() {
+  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+    return window.Telegram.WebApp;
   }
-
-  isModuleLoading = true;
-  moduleLoadPromise = (async () => {
-    try {
-      const sdk = await import('@telegram-apps/sdk-react');
-      const { backButton } = sdk;
-
-      // Mount back button if available
-      if (backButton.mount.isAvailable()) {
-        backButton.mount();
-      }
-
-      backButtonModule = {
-        show: () => {
-          if (backButton.show.isAvailable()) {
-            backButton.show();
-          }
-        },
-        hide: () => {
-          if (backButton.hide.isAvailable()) {
-            backButton.hide();
-          }
-        },
-        onClick: (handler: () => void) => {
-          if (backButton.onClick.isAvailable()) {
-            return backButton.onClick(handler);
-          }
-          return () => {};
-        },
-        isSupported: () => backButton.isSupported(),
-      };
-    } catch (error) {
-      console.warn('[BackButton] Failed to load SDK:', error);
-      backButtonModule = null;
-    }
-  })();
-
-  await moduleLoadPromise;
-  isModuleLoading = false;
-  return backButtonModule;
+  return null;
 }
 
 // Pages that should NOT show back button (main navigation pages)
@@ -79,7 +27,7 @@ export function useBackButton(options: UseBackButtonOptions = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const { onBack, show, fallbackPath = '/' } = options;
-  const cleanupRef = useRef<(() => void) | null>(null);
+  const callbackRef = useRef<(() => void) | null>(null);
 
   // Determine if we should show based on pathname
   const shouldShow = show !== undefined ? show : !MAIN_PAGES.includes(pathname);
@@ -102,33 +50,22 @@ export function useBackButton(options: UseBackButtonOptions = {}) {
   }, [onBack, router, fallbackPath]);
 
   useEffect(() => {
-    let isMounted = true;
+    const webApp = getWebApp();
+    if (!webApp?.BackButton) return;
 
-    const setup = async () => {
-      const module = await loadBackButtonModule();
-      if (!module || !isMounted) return;
+    // Store the callback for cleanup
+    callbackRef.current = handleBack;
 
-      // Clean up previous handler
-      if (cleanupRef.current) {
-        cleanupRef.current();
-        cleanupRef.current = null;
-      }
-
-      if (shouldShow) {
-        module.show();
-        cleanupRef.current = module.onClick(handleBack);
-      } else {
-        module.hide();
-      }
-    };
-
-    setup();
+    if (shouldShow) {
+      webApp.BackButton.show();
+      webApp.BackButton.onClick(handleBack);
+    } else {
+      webApp.BackButton.hide();
+    }
 
     return () => {
-      isMounted = false;
-      if (cleanupRef.current) {
-        cleanupRef.current();
-        cleanupRef.current = null;
+      if (webApp?.BackButton) {
+        webApp.BackButton.offClick(handleBack);
       }
     };
   }, [shouldShow, handleBack]);
@@ -136,22 +73,21 @@ export function useBackButton(options: UseBackButtonOptions = {}) {
   // Hide on unmount
   useEffect(() => {
     return () => {
-      loadBackButtonModule().then((module) => {
-        if (module && !MAIN_PAGES.includes(pathname)) {
-          module.hide();
-        }
-      });
+      const webApp = getWebApp();
+      if (webApp?.BackButton && !MAIN_PAGES.includes(pathname)) {
+        webApp.BackButton.hide();
+      }
     };
   }, [pathname]);
 
   return {
-    show: useCallback(async () => {
-      const module = await loadBackButtonModule();
-      module?.show();
+    show: useCallback(() => {
+      const webApp = getWebApp();
+      webApp?.BackButton?.show();
     }, []),
-    hide: useCallback(async () => {
-      const module = await loadBackButtonModule();
-      module?.hide();
+    hide: useCallback(() => {
+      const webApp = getWebApp();
+      webApp?.BackButton?.hide();
     }, []),
   };
 }
