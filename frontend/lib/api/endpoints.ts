@@ -20,6 +20,7 @@ import type {
   TaskCheckResponse,
   NetworkType,
   TxType,
+  PetStatus,
 } from '@/types/api';
 
 // Auth
@@ -46,7 +47,7 @@ export const petsApi = {
     api.post<{ refund_amount: number; new_balance: number }>('/pets/sell', { pet_id: petId }),
 
   startTraining: (petId: number) =>
-    api.post<{ pet_id: number; status: string; training_started_at: string; training_ends_at: string }>('/pets/start-training', { pet_id: petId }),
+    api.post<{ pet_id: number; status: PetStatus; training_started_at: string; training_ends_at: string }>('/pets/start-training', { pet_id: petId }),
 
   claim: (petId: number) =>
     api.post<ClaimResponse>('/pets/claim', { pet_id: petId }),

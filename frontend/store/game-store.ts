@@ -174,11 +174,18 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   startTraining: async (petId) => {
     try {
-      const updatedPet = await petsApi.startTraining(petId);
+      const response = await petsApi.startTraining(petId);
       set((state) => ({
         petSlots: state.petSlots.map((slot) =>
           slot.pet && Number(slot.pet.id) === petId
-            ? { ...slot, pet: mapUserPetToPet(updatedPet) }
+            ? {
+                ...slot,
+                pet: {
+                  ...slot.pet,
+                  status: response.status,
+                  trainingEndsAt: new Date(response.training_ends_at).getTime(),
+                },
+              }
             : slot
         ),
       }));
