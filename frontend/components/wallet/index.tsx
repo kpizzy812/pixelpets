@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useBalance, useGameStore } from '@/store/game-store';
 import { walletApi } from '@/lib/api';
@@ -29,6 +30,8 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const router = useRouter();
   const balance = useBalance();
   const updateBalance = useGameStore((state) => state.updateBalance);
+  const t = useTranslations('wallet');
+  const tCommon = useTranslations('common');
 
   const [activeTab, setActiveTab] = useState<WalletTab>('deposit');
   const [selectedNetwork, setSelectedNetwork] = useState<NetworkType>('BEP-20');
@@ -55,7 +58,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const handleDeposit = async () => {
     const amountNum = Number(amount);
     if (!amount || amountNum < 5) {
-      showError('Minimum deposit is 5 XPET');
+      showError(t('minDeposit'));
       return;
     }
 
@@ -63,9 +66,9 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
     try {
       const result = await walletApi.createDeposit(selectedNetwork, amountNum);
       setDepositResult(result);
-      showSuccess('Deposit request created!');
+      showSuccess(t('depositCreated'));
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to create deposit');
+      showError(err instanceof Error ? err.message : t('failedDeposit'));
     } finally {
       setIsProcessing(false);
     }
@@ -74,15 +77,15 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const handleWithdraw = async () => {
     const amountNum = Number(amount);
     if (!amount || amountNum < 5) {
-      showError('Minimum withdrawal is 5 XPET');
+      showError(t('minWithdraw'));
       return;
     }
     if (!address) {
-      showError('Please enter your wallet address');
+      showError(t('enterAddress'));
       return;
     }
     if (amountNum > balance) {
-      showError('Insufficient balance');
+      showError(t('insufficientBalance'));
       return;
     }
 
@@ -90,11 +93,11 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
     try {
       const result = await walletApi.createWithdraw(selectedNetwork, address, amountNum);
       updateBalance(result.new_balance);
-      showSuccess(`Withdrawal submitted! Fee: ${formatNumber(result.fee)} XPET`);
+      showSuccess(t('withdrawSubmitted', { fee: formatNumber(result.fee) }));
       resetForm();
       onClose();
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to submit withdrawal');
+      showError(err instanceof Error ? err.message : t('failedWithdraw'));
     } finally {
       setIsProcessing(false);
     }
@@ -131,22 +134,22 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
               <Icon name="check-circle" size={32} className="text-[#00f5d4]" />
             </div>
 
-            <h2 className="text-xl font-bold text-[#f1f5f9] mb-2">Deposit Request Created</h2>
+            <h2 className="text-xl font-bold text-[#f1f5f9] mb-2">{t('depositSuccess.title')}</h2>
 
             <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-4">
-              <div className="text-sm text-[#64748b] mb-1">Send exactly</div>
+              <div className="text-sm text-[#64748b] mb-1">{t('depositSuccess.sendExactly')}</div>
               <div className="text-2xl font-bold text-[#c7f464] inline-flex items-center gap-2">
                 {depositResult.amount} <XpetCoin size={24} />
               </div>
               <div className="text-sm text-[#64748b] mt-1">
-                via {depositResult.network}
+                {t('depositSuccess.via', { network: depositResult.network })}
               </div>
             </div>
 
             {depositResult.deposit_address ? (
               <div className="mb-4">
                 <div className="text-xs text-[#64748b] uppercase tracking-wide mb-2">
-                  Deposit Address
+                  {t('depositSuccess.depositAddress')}
                 </div>
                 <div className="p-3 rounded-xl bg-[#1e293b]/60 break-all text-sm text-[#f1f5f9] font-mono">
                   {depositResult.deposit_address}
@@ -154,31 +157,31 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(depositResult.deposit_address!);
-                    showSuccess('Address copied!');
+                    showSuccess(t('depositSuccess.addressCopied'));
                   }}
                   className="mt-2 text-sm text-[#00f5d4] hover:underline"
                 >
-                  Copy Address
+                  {t('depositSuccess.copyAddress')}
                 </button>
               </div>
             ) : (
               <div className="p-4 rounded-xl bg-[#fbbf24]/10 border border-[#fbbf24]/30 mb-4">
                 <p className="text-sm text-[#fbbf24]">
-                  Deposit address will be provided by admin. Check your request status in transaction history.
+                  {t('depositSuccess.pendingAddress')}
                 </p>
               </div>
             )}
 
             <p className="text-xs text-[#64748b] mb-6">
-              Your deposit will be credited within 24 hours after confirmation.
+              {t('depositSuccess.creditInfo')}
             </p>
 
             <div className="flex gap-3">
               <Button variant="ghost" fullWidth onClick={handleClose}>
-                Close
+                {tCommon('close')}
               </Button>
               <Button variant="cyan" fullWidth onClick={() => setDepositResult(null)}>
-                New Deposit
+                {t('depositSuccess.newDeposit')}
               </Button>
             </div>
           </div>
@@ -199,7 +202,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
       <div className="relative w-full max-w-sm rounded-3xl bg-[#0d1220] border border-[#1e293b]/50 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-[#f1f5f9]">Wallet</h2>
+          <h2 className="text-xl font-bold text-[#f1f5f9]">{t('title')}</h2>
           <button
             onClick={handleClose}
             disabled={isProcessing}
@@ -211,7 +214,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
         {/* Balance */}
         <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-4 text-center">
-          <span className="text-sm text-[#64748b]">Available Balance</span>
+          <span className="text-sm text-[#64748b]">{t('availableBalance')}</span>
           <div className="text-2xl font-bold text-[#c7f464] mt-1 inline-flex items-center gap-2">
             {formatNumber(balance)} <XpetCoin size={24} />
           </div>
@@ -224,7 +227,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
         >
           <div className="flex items-center gap-3">
             <Icon name="tasks" size={20} className="text-[#00f5d4]" />
-            <span className="text-sm text-[#f1f5f9]">Transaction History</span>
+            <span className="text-sm text-[#f1f5f9]">{t('transactionHistory')}</span>
           </div>
           <span className="text-[#64748b]">→</span>
         </button>
@@ -239,7 +242,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 : 'bg-[#1e293b]/60 text-[#94a3b8]'
             }`}
           >
-            Deposit
+            {t('deposit')}
           </button>
           <button
             onClick={() => handleTabChange('withdraw')}
@@ -249,14 +252,14 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 : 'bg-[#1e293b]/60 text-[#94a3b8]'
             }`}
           >
-            Withdraw
+            {t('withdraw')}
           </button>
         </div>
 
         {/* Network Selection */}
         <div className="mb-4">
           <label className="text-xs text-[#64748b] uppercase tracking-wide mb-2 block">
-            Network
+            {t('network')}
           </label>
           <div className="flex gap-2">
             {NETWORKS.map((network) => (
@@ -279,13 +282,13 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
         {/* Amount Input */}
         <div className="mb-4">
           <label className="text-xs text-[#64748b] uppercase tracking-wide mb-2 block">
-            Amount (XPET)
+            {t('amount')}
           </label>
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Min: 5 XPET"
+            placeholder={t('amountPlaceholder')}
             className="w-full p-4 rounded-xl bg-[#1e293b]/40 border border-[#334155]/50 text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#00f5d4]/50"
           />
         </div>
@@ -295,13 +298,13 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
           <>
             <div className="mb-4">
               <label className="text-xs text-[#64748b] uppercase tracking-wide mb-2 block">
-                Wallet Address
+                {t('walletAddress')}
               </label>
               <input
                 type="text"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter your wallet address"
+                placeholder={t('walletAddressPlaceholder')}
                 className="w-full p-4 rounded-xl bg-[#1e293b]/40 border border-[#334155]/50 text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#00f5d4]/50"
               />
             </div>
@@ -309,16 +312,16 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
             {/* Fee Info */}
             <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-[#64748b]">Amount</span>
+                <span className="text-[#64748b]">{t('amount')}</span>
                 <span className="text-[#f1f5f9] inline-flex items-center gap-1">{formatNumber(withdrawAmount)} <XpetCoin size={18} /></span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-[#64748b]">Fee ($1 + 2%)</span>
+                <span className="text-[#64748b]">{t('fee')}</span>
                 <span className="text-red-400 inline-flex items-center gap-1">-{formatNumber(fee)} <XpetCoin size={18} /></span>
               </div>
               <div className="h-px bg-[#334155]" />
               <div className="flex justify-between text-sm">
-                <span className="text-[#64748b]">You Receive</span>
+                <span className="text-[#64748b]">{t('youReceive')}</span>
                 <span className="text-[#c7f464] font-medium">${formatNumber(netAmount)} USDT</span>
               </div>
             </div>
@@ -333,17 +336,15 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
           disabled={isProcessing || Number(amount) < 5 || (activeTab === 'withdraw' && !address)}
         >
           {isProcessing
-            ? 'Processing...'
+            ? t('processing')
             : activeTab === 'deposit'
-            ? 'Create Deposit Request'
-            : 'Submit Withdrawal'}
+            ? t('createDeposit')
+            : t('submitWithdraw')}
         </Button>
 
         {/* Info */}
         <p className="text-xs text-[#64748b] text-center mt-4">
-          {activeTab === 'deposit'
-            ? 'Deposits are processed manually within 24 hours.'
-            : 'Withdrawals are processed manually within 24-48 hours.'}
+          {activeTab === 'deposit' ? t('depositInfo') : t('withdrawInfo')}
         </p>
       </div>
     </div>

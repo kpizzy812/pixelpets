@@ -18,6 +18,7 @@ from app.services.admin.deposits import approve_deposit, reject_deposit
 from app.services.admin.withdrawals import complete_withdrawal, reject_withdrawal
 from app.services.admin.config import get_config_value, DEFAULT_CONFIG
 from app.services import telegram_notify
+from app.i18n import get_text as t, set_locale
 
 logger = logging.getLogger(__name__)
 
@@ -26,28 +27,10 @@ router = APIRouter(prefix="/webhook", tags=["webhook"])
 # CIS language codes (Russian-speaking countries)
 CIS_LANGUAGES = {"ru", "uk", "kk", "be", "uz", "tg", "ky", "az", "hy", "ka"}
 
-# Localized messages for /start
-START_MESSAGES = {
-    "en": "Welcome to Pixel Pets! Collect, train, and earn with your virtual pets.",
-    "ru": "Добро пожаловать в Pixel Pets! Собирай, тренируй и зарабатывай с виртуальными питомцами.",
-    "de": "Willkommen bei Pixel Pets! Sammle, trainiere und verdiene mit deinen virtuellen Haustieren.",
-    "es": "Bienvenido a Pixel Pets! Colecciona, entrena y gana con tus mascotas virtuales.",
-    "fr": "Bienvenue sur Pixel Pets! Collectez, entrainez et gagnez avec vos animaux virtuels.",
-    "pt": "Bem-vindo ao Pixel Pets! Colecione, treine e ganhe com seus pets virtuais.",
-    "it": "Benvenuto in Pixel Pets! Colleziona, allena e guadagna con i tuoi animali virtuali.",
-    "uk": "Ласкаво просимо до Pixel Pets! Збирай, тренуй та заробляй з віртуальними улюбленцями.",
-}
-
-# Localized button labels
+# Localized button labels (kept simple - not in main i18n system)
 BUTTON_LABELS = {
     "en": {"launch": "Launch App", "channel": "Channel", "chat": "Chat"},
     "ru": {"launch": "Запустить", "channel": "Канал", "chat": "Чат"},
-    "de": {"launch": "App starten", "channel": "Kanal", "chat": "Chat"},
-    "es": {"launch": "Iniciar App", "channel": "Canal", "chat": "Chat"},
-    "fr": {"launch": "Lancer l'App", "channel": "Chaîne", "chat": "Discussion"},
-    "pt": {"launch": "Iniciar App", "channel": "Canal", "chat": "Chat"},
-    "it": {"launch": "Avvia App", "channel": "Canale", "chat": "Chat"},
-    "uk": {"launch": "Запустити", "channel": "Канал", "chat": "Чат"},
 }
 
 
@@ -105,7 +88,8 @@ def get_language(lang_code: Optional[str]) -> str:
         return "en"
     # Take first 2 chars (e.g., "en-US" -> "en")
     lang = lang_code[:2].lower()
-    return lang if lang in START_MESSAGES else "en"
+    # Only support en and ru
+    return lang if lang in ("en", "ru") else "en"
 
 
 def is_cis_language(lang_code: Optional[str]) -> bool:
@@ -231,8 +215,9 @@ async def handle_start_command(message: dict) -> None:
     else:
         miniapp_launch_url = f"https://t.me/{bot_username}?startapp"
 
-    # Get localized strings
-    welcome_message = START_MESSAGES.get(lang, START_MESSAGES["en"])
+    # Set locale for translations and get localized strings
+    set_locale(lang)
+    welcome_message = t("bot.welcome")
     labels = BUTTON_LABELS.get(lang, BUTTON_LABELS["en"])
 
     # Build inline keyboard

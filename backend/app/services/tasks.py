@@ -11,6 +11,7 @@ from app.models.user import User
 from app.models.task import Task, UserTask
 from app.models.transaction import Transaction
 from app.models.enums import TaskStatus, TaskType, TxType
+from app.i18n import get_text as t
 
 
 async def get_tasks_for_user(db: AsyncSession, user_id: int) -> dict:
@@ -82,7 +83,7 @@ async def check_task(
     task = result.scalar_one_or_none()
 
     if not task:
-        raise ValueError("Task not found")
+        raise ValueError(t("error.task_not_found"))
 
     # Check if already completed
     result = await db.execute(
@@ -94,7 +95,7 @@ async def check_task(
     existing = result.scalar_one_or_none()
 
     if existing and existing.status == TaskStatus.COMPLETED:
-        raise ValueError("Task already completed")
+        raise ValueError(t("error.task_already_completed"))
 
     # Optional: verify task completion (e.g., Telegram channel subscription)
     # For now, we trust the client
@@ -134,7 +135,7 @@ async def check_task(
         "success": True,
         "reward_xpet": task.reward_xpet,
         "new_balance": user.balance_xpet,
-        "message": "Task completed!",
+        "message": t("success.task_completed"),
     }
 
 

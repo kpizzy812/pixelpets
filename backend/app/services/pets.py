@@ -10,6 +10,7 @@ from app.models.user import User
 from app.models.pet import PetType, UserPet
 from app.models.transaction import Transaction
 from app.models.enums import PetStatus, PetLevel, TxType
+from app.i18n import get_text as t
 
 MAX_SLOTS = 3
 SELL_REFUND_PERCENT = Decimal("0.85")
@@ -94,19 +95,19 @@ async def buy_pet(
     pet_type = result.scalar_one_or_none()
 
     if not pet_type:
-        raise ValueError("Pet type not found")
+        raise ValueError(t("error.pet_type_not_found"))
 
     if not pet_type.is_active:
-        raise ValueError("Pet type is not available")
+        raise ValueError(t("error.pet_type_not_available"))
 
     # Check balance
     if user.balance_xpet < pet_type.base_price:
-        raise ValueError("Insufficient balance")
+        raise ValueError(t("error.insufficient_balance"))
 
     # Check free slots
     free_slot = await get_free_slot(db, user.id)
     if free_slot is None:
-        raise ValueError("No free slots available")
+        raise ValueError(t("error.no_free_slots"))
 
     # Deduct balance
     user.balance_xpet -= pet_type.base_price
@@ -161,24 +162,24 @@ async def upgrade_pet(
     pet = result.scalar_one_or_none()
 
     if not pet:
-        raise ValueError("Pet not found")
+        raise ValueError(t("error.pet_not_found"))
 
     if pet.status == PetStatus.SOLD:
-        raise ValueError("Cannot upgrade sold pet")
+        raise ValueError(t("error.pet_cannot_sell"))
 
     if pet.status == PetStatus.EVOLVED:
-        raise ValueError("Pet has already evolved")
+        raise ValueError(t("error.pet_cannot_sell"))
 
     # Check next level
     next_level = get_next_level(pet.level)
     if not next_level:
-        raise ValueError("Pet is already at max level")
+        raise ValueError(t("error.pet_already_max_level"))
 
     # Calculate upgrade cost
     upgrade_cost = calculate_upgrade_cost(pet.pet_type.level_prices, next_level, pet.invested_total)
 
     if user.balance_xpet < upgrade_cost:
-        raise ValueError("Insufficient balance")
+        raise ValueError(t("error.insufficient_balance"))
 
     # Deduct balance and upgrade
     user.balance_xpet -= upgrade_cost
@@ -217,13 +218,13 @@ async def sell_pet(
     pet = result.scalar_one_or_none()
 
     if not pet:
-        raise ValueError("Pet not found")
+        raise ValueError(t("error.pet_not_found"))
 
     if pet.status == PetStatus.SOLD:
-        raise ValueError("Pet is already sold")
+        raise ValueError(t("error.pet_cannot_sell"))
 
     if pet.status == PetStatus.EVOLVED:
-        raise ValueError("Cannot sell evolved pet")
+        raise ValueError(t("error.pet_cannot_sell"))
 
     # Calculate refund
     refund_amount = pet.invested_total * SELL_REFUND_PERCENT
@@ -264,10 +265,10 @@ async def start_training(
     pet = result.scalar_one_or_none()
 
     if not pet:
-        raise ValueError("Pet not found")
+        raise ValueError(t("error.pet_not_found"))
 
     if pet.status != PetStatus.OWNED_IDLE:
-        raise ValueError("Pet must be idle to start training")
+        raise ValueError(t("error.pet_not_idle"))
 
     now = datetime.utcnow()
     pet.status = PetStatus.TRAINING
@@ -306,13 +307,13 @@ async def claim_profit(
     pet = result.scalar_one_or_none()
 
     if not pet:
-        raise ValueError("Pet not found")
+        raise ValueError(t("error.pet_not_found"))
 
     # Check and update training status
     pet = check_training_status(pet)
 
     if pet.status != PetStatus.READY_TO_CLAIM:
-        raise ValueError("Pet is not ready to claim")
+        raise ValueError(t("error.training_not_complete"))
 
     # Calculate profit
     daily_profit_raw = calculate_daily_profit(pet.invested_total, pet.pet_type.daily_rate)
