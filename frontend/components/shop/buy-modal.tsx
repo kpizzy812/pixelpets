@@ -46,7 +46,7 @@ export function BuyModal({ petType, balance, onConfirm, onClose, isLoading }: Bu
         {/* Pet Preview */}
         <div className="text-center mb-6">
           <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-[#1e293b]/80 to-[#0f172a]/80 border border-[#334155]/30 flex items-center justify-center mb-4">
-            <PetImage imageKey={petType.image_key} alt={petType.name} size={80} />
+            <PetImage imageKey={petType.image_key} level="BABY" alt={petType.name} size={80} />
           </div>
           <h2 className="text-xl font-bold text-[#f1f5f9]">{petType.name}</h2>
           <p className="text-sm text-[#64748b] mt-1">Confirm recruitment</p>

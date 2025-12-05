@@ -20,7 +20,7 @@ export function PetTypeCard({ petType, onBuy, disabled }: PetTypeCardProps) {
       {/* Pet Image - Full width, clipped with rounded corners */}
       <div className="aspect-square overflow-hidden rounded-t-2xl">
         <img
-          src={`/pets/${petType.image_key}.png`}
+          src={`/pets/${petType.image_key}1.png`}
           alt={petType.name}
           className="w-full h-full object-cover"
         />

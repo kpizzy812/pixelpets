@@ -149,14 +149,14 @@ export function ShopScreen() {
                         <div className="flex items-center gap-4">
                           {/* Pet Image */}
                           <div className="w-16 h-16 rounded-xl bg-[#1e293b]/40 overflow-hidden flex-shrink-0">
-                            <PetImage imageKey={pet.imageKey} alt={pet.name} size={64} className="w-full h-full object-cover" />
+                            <PetImage imageKey={pet.imageKey} level={pet.level} alt={pet.name} size={64} className="w-full h-full object-cover" />
                           </div>
 
                           {/* Pet Info */}
                           <div className="flex-1 min-w-0">
                             <h3 className="text-base font-semibold text-[#f1f5f9] truncate">{pet.name}</h3>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs text-[#64748b]">Lvl {pet.level}</span>
+                              <span className="text-xs text-[#64748b]">{pet.level}</span>
                               <span className="text-xs text-[#64748b]">•</span>
                               <span className="text-xs text-[#94a3b8]">{pet.rarity}</span>
                             </div>

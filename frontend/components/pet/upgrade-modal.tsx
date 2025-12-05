@@ -8,7 +8,7 @@ import { useGameStore, useBalance } from '@/store/game-store';
 import { showSuccess, showError } from '@/lib/toast';
 import { useHaptic } from '@/hooks/use-haptic';
 import { formatNumber } from '@/lib/format';
-import type { Pet } from '@/types/pet';
+import type { Pet, PetLevel } from '@/types/pet';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -17,15 +17,22 @@ interface UpgradeModalProps {
   upgradePrice: number | null;
 }
 
-const LEVEL_NAMES: Record<number, string> = {
-  1: 'Baby',
-  2: 'Adult',
-  3: 'Mythic',
+const LEVEL_DISPLAY: Record<PetLevel, string> = {
+  BABY: 'Baby',
+  ADULT: 'Adult',
+  MYTHIC: 'Mythic',
 };
 
-const LEVEL_BONUSES: Record<number, string> = {
-  2: '+0.2% daily rate',
-  3: '+0.4% daily rate',
+const NEXT_LEVEL: Record<PetLevel, PetLevel | null> = {
+  BABY: 'ADULT',
+  ADULT: 'MYTHIC',
+  MYTHIC: null,
+};
+
+const LEVEL_BONUSES: Record<PetLevel, string> = {
+  BABY: '',
+  ADULT: '+0.2% daily rate',
+  MYTHIC: '+0.4% daily rate',
 };
 
 export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModalProps) {
@@ -44,8 +51,8 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
   if (!isOpen || !pet) return null;
 
   const canAfford = upgradePrice !== null && balance >= upgradePrice;
-  const isMaxLevel = pet.level >= 3;
-  const nextLevel = pet.level + 1;
+  const isMaxLevel = pet.level === 'MYTHIC';
+  const nextLevel = NEXT_LEVEL[pet.level];
 
   const handleClose = () => {
     tap();
@@ -53,14 +60,14 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
   };
 
   const handleUpgrade = async () => {
-    if (!canAfford || isMaxLevel) return;
+    if (!canAfford || isMaxLevel || !nextLevel) return;
 
     setIsProcessing(true);
 
     try {
       await upgradePet(Number(pet.id));
       success();
-      showSuccess(`${pet.name} upgraded to ${LEVEL_NAMES[nextLevel]}!`);
+      showSuccess(`${pet.name} upgraded to ${LEVEL_DISPLAY[nextLevel]}!`);
       onClose();
     } catch (err) {
       hapticError();
@@ -95,12 +102,12 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
         {/* Pet Info */}
         <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-6 text-center">
           <div className="flex justify-center mb-3">
-            <PetImage imageKey={pet.imageKey} alt={pet.name} size={80} />
+            <PetImage imageKey={pet.imageKey} level={pet.level} alt={pet.name} size={80} />
           </div>
           <h3 className="text-lg font-bold text-[#f1f5f9]">{pet.name}</h3>
           <div className="flex justify-center items-center gap-2 mt-2">
             <span className="px-3 py-1 rounded-lg bg-[#00f5d4]/20 text-[#00f5d4] text-sm">
-              {LEVEL_NAMES[pet.level]} (Lvl {pet.level})
+              {LEVEL_DISPLAY[pet.level]}
             </span>
           </div>
         </div>
@@ -110,20 +117,20 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
             <span className="text-2xl mb-2 block">*</span>
             <p className="text-sm text-[#fbbf24]">This pet is already at maximum level!</p>
           </div>
-        ) : (
+        ) : nextLevel ? (
           <>
             {/* Upgrade Preview */}
             <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-6">
               <div className="flex justify-between items-center mb-3">
                 <span className="text-sm text-[#64748b]">Current Level</span>
-                <span className="text-sm text-[#f1f5f9]">{LEVEL_NAMES[pet.level]}</span>
+                <span className="text-sm text-[#f1f5f9]">{LEVEL_DISPLAY[pet.level]}</span>
               </div>
               <div className="flex justify-center mb-3">
                 <span className="text-[#c7f464] text-xl">-&gt;</span>
               </div>
               <div className="flex justify-between items-center mb-3">
                 <span className="text-sm text-[#64748b]">New Level</span>
-                <span className="text-sm text-[#c7f464] font-medium">{LEVEL_NAMES[nextLevel]}</span>
+                <span className="text-sm text-[#c7f464] font-medium">{LEVEL_DISPLAY[nextLevel]}</span>
               </div>
               <div className="h-px bg-[#334155] my-3" />
               <div className="flex justify-between items-center">
@@ -163,7 +170,7 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
                 : `Upgrade for ${upgradePrice != null ? formatNumber(upgradePrice) : '---'} XPET`}
             </Button>
           </>
-        )}
+        ) : null}
       </div>
     </div>
   );

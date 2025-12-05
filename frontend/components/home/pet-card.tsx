@@ -94,9 +94,9 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1e293b]/60 border border-[#334155]/30">
-            <span className="text-xs font-medium text-[#f1f5f9]">{pet.level} LVL</span>
+            <span className="text-xs font-medium text-[#f1f5f9]">{pet.level}</span>
           </div>
-          {onUpgrade && pet.level < 3 && (
+          {onUpgrade && pet.level !== 'MYTHIC' && (
             <button
               onClick={() => { tap(); onUpgrade(); }}
               className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#c7f464]/20 border border-[#c7f464]/40 hover:bg-[#c7f464]/30 transition-colors"
@@ -113,7 +113,7 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell }: P
       {/* Pet Image Area */}
       <div className="flex-1 flex items-center justify-center">
         <div className={`w-52 h-52 rounded-3xl bg-gradient-to-br ${getGradient()} border border-[#334155]/30 overflow-hidden shadow-lg`}>
-          <PetImage imageKey={pet.imageKey} alt={pet.name} size={208} className="w-full h-full object-cover" />
+          <PetImage imageKey={pet.imageKey} level={pet.level} alt={pet.name} size={208} className="w-full h-full object-cover" />
         </div>
       </div>
 

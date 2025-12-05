@@ -37,7 +37,7 @@ export function HallPetCard({ pet, rank }: HallPetCardProps) {
 
         {/* Pet Icon */}
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#fbbf24]/20 to-transparent border border-[#fbbf24]/30 flex items-center justify-center">
-          <PetImage imageKey={pet.pet_type.image_key} alt={pet.pet_type.name} size={48} />
+          <PetImage imageKey={pet.pet_type.image_key} level="MYTHIC" alt={pet.pet_type.name} size={48} />
         </div>
 
         {/* Info */}

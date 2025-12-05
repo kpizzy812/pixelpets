@@ -6,6 +6,8 @@ export type PetStatus =
   | 'EVOLVED'
   | 'SOLD';
 
+export type PetLevel = 'BABY' | 'ADULT' | 'MYTHIC';
+
 export type PetRarity = 'Common' | 'Uncommon' | 'Rare' | 'Epic' | 'Legendary' | 'Mythic';
 
 export interface Pet {
@@ -13,7 +15,7 @@ export interface Pet {
   slotIndex: number;
   name: string;
   imageKey: string;
-  level: number;
+  level: PetLevel;
   rarity: PetRarity;
   invested: number;
   dailyRate: number;

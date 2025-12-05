@@ -18,7 +18,7 @@ function mapUserPetToPet(userPet: UserPet): Pet {
     slotIndex: userPet.slot_index,
     name: userPet.pet_type.name,
     imageKey: userPet.pet_type.image_key,
-    level: userPet.level === 'BABY' ? 1 : userPet.level === 'ADULT' ? 2 : 3,
+    level: userPet.level,
     rarity: getRarity(userPet.pet_type.base_price),
     invested: userPet.invested_total,
     dailyRate: userPet.current_daily_rate,

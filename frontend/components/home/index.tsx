@@ -76,7 +76,7 @@ export function HomeScreen() {
     const pet = petSlots[slotIndex]?.pet;
     if (!pet) return null;
     // Upgrade prices increase with level
-    const basePrices: Record<number, number> = { 1: 25, 2: 50 };
+    const basePrices: Record<string, number> = { BABY: 25, ADULT: 50 };
     return basePrices[pet.level] ?? null;
   };
 
