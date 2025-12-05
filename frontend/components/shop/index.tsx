@@ -77,22 +77,24 @@ export function ShopScreen() {
           <InlineError message="All pet slots are full. Sell or evolve a pet to buy a new one." />
         )}
 
-        {/* Pet Catalog */}
+        {/* Pet Catalog - Grid 2x2 */}
         {isLoading && petTypes.length === 0 ? (
-          <div className="space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => (
+          <div className="grid grid-cols-2 gap-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <PetTypeCardSkeleton key={i} />
             ))}
           </div>
         ) : (
-          petTypes.map((petType) => (
-            <PetTypeCard
-              key={petType.id}
-              petType={petType}
-              onBuy={() => handleBuy(petType)}
-              disabled={!hasEmptySlots || balance < petType.base_price}
-            />
-          ))
+          <div className="grid grid-cols-2 gap-3">
+            {petTypes.map((petType) => (
+              <PetTypeCard
+                key={petType.id}
+                petType={petType}
+                onBuy={() => handleBuy(petType)}
+                disabled={!hasEmptySlots || balance < petType.base_price}
+              />
+            ))}
+          </div>
         )}
       </div>
 

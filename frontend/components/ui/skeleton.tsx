@@ -63,27 +63,24 @@ export function TaskItemSkeleton() {
   );
 }
 
-// Pet Type Card Skeleton (Shop)
+// Pet Type Card Skeleton (Shop - Grid)
 export function PetTypeCardSkeleton() {
   return (
-    <div className="p-4 rounded-2xl bg-[#0d1220]/80 border border-[#1e293b]/50">
-      <div className="flex items-start gap-4">
-        {/* Emoji */}
-        <Skeleton className="w-16 h-16 rounded-xl flex-shrink-0" />
+    <div className="p-3 rounded-2xl bg-[#0d1220]/80 border border-[#1e293b]/50 flex flex-col">
+      {/* Pet Image */}
+      <Skeleton className="aspect-square rounded-xl mb-3" />
 
-        {/* Content */}
-        <div className="flex-1 space-y-2">
-          <Skeleton className="w-1/2 h-5" />
-          <Skeleton className="w-full h-3" />
-          <div className="flex gap-4 mt-2">
-            <Skeleton className="w-20 h-4" />
-            <Skeleton className="w-20 h-4" />
-          </div>
-        </div>
+      {/* Name */}
+      <Skeleton className="w-2/3 h-4 mb-1" />
 
-        {/* Price/Button */}
-        <Skeleton className="w-24 h-10 rounded-xl flex-shrink-0" />
+      {/* Stats */}
+      <div className="flex justify-between mb-3">
+        <Skeleton className="w-12 h-3" />
+        <Skeleton className="w-16 h-3" />
       </div>
+
+      {/* Button */}
+      <Skeleton className="w-full h-8 rounded-xl" />
     </div>
   );
 }
@@ -209,10 +206,12 @@ export function ShopScreenSkeleton() {
       {/* Slots Info */}
       <Skeleton className="w-full h-12 rounded-xl" />
 
-      {/* Pet Types */}
-      {[1, 2, 3, 4, 5].map((i) => (
-        <PetTypeCardSkeleton key={i} />
-      ))}
+      {/* Pet Types Grid */}
+      <div className="grid grid-cols-2 gap-3">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <PetTypeCardSkeleton key={i} />
+        ))}
+      </div>
     </div>
   );
 }
