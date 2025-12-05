@@ -160,6 +160,12 @@ async def handle_deposit_callback(
         )
         return
 
+    # Store user info before approve (session will be invalidated after commit)
+    user_telegram_id = deposit.user.telegram_id
+    user_username = deposit.user.username
+    deposit_amount = deposit.amount
+    deposit_network = deposit.network
+
     if action == "approve":
         await approve_deposit(db, deposit_id, admin_id)
         status = RequestStatus.APPROVED
@@ -176,10 +182,10 @@ async def handle_deposit_callback(
     await telegram_notify.update_deposit_message(
         message_id=message_id,
         request_id=deposit_id,
-        user_telegram_id=deposit.user.telegram_id,
-        username=deposit.user.username,
-        amount=deposit.amount,
-        network=deposit.network,
+        user_telegram_id=user_telegram_id,
+        username=user_username,
+        amount=deposit_amount,
+        network=deposit_network,
         status=status,
         admin_username=admin_username,
     )
@@ -213,6 +219,14 @@ async def handle_withdrawal_callback(
         )
         return
 
+    # Store info before processing (session will be invalidated after commit)
+    user_telegram_id = withdrawal.user.telegram_id
+    user_username = withdrawal.user.username
+    withdrawal_amount = withdrawal.amount
+    withdrawal_fee = withdrawal.fee
+    withdrawal_network = withdrawal.network
+    withdrawal_wallet = withdrawal.wallet_address
+
     if action == "complete":
         await complete_withdrawal(db, withdrawal_id, admin_id)
         status = RequestStatus.COMPLETED
@@ -224,7 +238,7 @@ async def handle_withdrawal_callback(
     elif action == "copy":
         # Just show the full address
         await telegram_notify.answer_callback_query(
-            callback_id, withdrawal.wallet_address, show_alert=True
+            callback_id, withdrawal_wallet, show_alert=True
         )
         return
     else:
@@ -235,12 +249,12 @@ async def handle_withdrawal_callback(
     await telegram_notify.update_withdrawal_message(
         message_id=message_id,
         request_id=withdrawal_id,
-        user_telegram_id=withdrawal.user.telegram_id,
-        username=withdrawal.user.username,
-        amount=withdrawal.amount,
-        fee=withdrawal.fee,
-        network=withdrawal.network,
-        wallet_address=withdrawal.wallet_address,
+        user_telegram_id=user_telegram_id,
+        username=user_username,
+        amount=withdrawal_amount,
+        fee=withdrawal_fee,
+        network=withdrawal_network,
+        wallet_address=withdrawal_wallet,
         status=status,
         admin_username=admin_username,
     )
