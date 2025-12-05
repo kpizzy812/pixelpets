@@ -114,7 +114,7 @@ async def get_or_create_user(
         user.first_name = first_name
         user.last_name = last_name
         user.language_code = language_code
-        user.updated_at = datetime.now(timezone.utc)
+        user.updated_at = datetime.utcnow()
         await db.commit()
         return user
 
