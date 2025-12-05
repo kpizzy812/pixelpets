@@ -16,6 +16,9 @@ export function HomeScreen() {
   const petSlots = usePetSlots();
   const { startTraining, claimReward, fetchPets, user } = useGameStore();
 
+  // Debug log
+  console.log('[HomeScreen] petSlots:', petSlots, 'user:', user?.id, 'balance:', balance);
+
   // Modal states
   const [upgradeSlotIndex, setUpgradeSlotIndex] = useState<number | null>(null);
   const [sellSlotIndex, setSellSlotIndex] = useState<number | null>(null);
