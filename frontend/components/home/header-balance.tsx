@@ -22,7 +22,7 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
               Available
             </span>
             <span className="text-2xl font-bold text-[#f1f5f9]">
-              ${balance.toFixed(2)}
+              ${(balance ?? 0).toFixed(2)}
             </span>
           </div>
 

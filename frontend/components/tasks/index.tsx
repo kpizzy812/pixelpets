@@ -52,7 +52,7 @@ export function TasksScreen() {
         <div className="p-3 rounded-xl bg-[#0d1220]/80 border border-[#1e293b]/50 flex justify-between items-center">
           <span className="text-sm text-[#94a3b8]">Your Balance</span>
           <span className="text-sm font-medium text-[#c7f464]">
-            {balance.toFixed(2)} XPET
+            {(balance ?? 0).toFixed(2)} XPET
           </span>
         </div>
 

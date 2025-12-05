@@ -112,3 +112,11 @@ TELEGRAM_BOT_TOKEN=your-bot-token
 ## Localization
 
 Uses i18n with EN/RU required, plus DE/ES/FR/PT/IT for EU. Language detected from `initData.user.language_code`.
+
+## Development Workflow
+
+When making changes during development:
+1. After completing a logical piece of work, automatically commit and push
+2. Use descriptive commit messages
+3. Don't wait for user to ask - just commit and push when changes are ready
+4. For frontend changes, run `vercel --prod` after pushing to deploy

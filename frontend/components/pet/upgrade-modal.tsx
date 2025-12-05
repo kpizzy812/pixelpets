@@ -138,7 +138,7 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
               <div className="flex justify-between items-center">
                 <span className="text-sm text-[#64748b]">Your Balance</span>
                 <span className={`text-sm font-medium ${canAfford ? 'text-[#c7f464]' : 'text-red-400'}`}>
-                  {balance.toFixed(2)} XPET
+                  {(balance ?? 0).toFixed(2)} XPET
                 </span>
               </div>
             </div>

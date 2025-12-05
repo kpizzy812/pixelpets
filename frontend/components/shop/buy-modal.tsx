@@ -73,12 +73,12 @@ export function BuyModal({ petType, balance, onConfirm, onClose, isLoading }: Bu
           <div className="h-px bg-[#1e293b]" />
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">Your Balance</span>
-            <span className="text-[#f1f5f9] font-medium">{balance.toFixed(2)} XPET</span>
+            <span className="text-[#f1f5f9] font-medium">{(balance ?? 0).toFixed(2)} XPET</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[#94a3b8]">After Purchase</span>
             <span className={`font-medium ${canAfford ? 'text-[#c7f464]' : 'text-red-400'}`}>
-              {newBalance.toFixed(2)} XPET
+              {(newBalance ?? 0).toFixed(2)} XPET
             </span>
           </div>
         </div>

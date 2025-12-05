@@ -87,7 +87,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
     try {
       const result = await walletApi.createWithdraw(selectedNetwork, address, amountNum);
       updateBalance(result.new_balance);
-      showSuccess(`Withdrawal submitted! Fee: ${result.fee.toFixed(2)} XPET`);
+      showSuccess(`Withdrawal submitted! Fee: ${(result.fee ?? 0).toFixed(2)} XPET`);
       resetForm();
       onClose();
     } catch (err) {
@@ -210,7 +210,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
         <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-4 text-center">
           <span className="text-sm text-[#64748b]">Available Balance</span>
           <div className="text-2xl font-bold text-[#c7f464] mt-1">
-            {balance.toFixed(2)} XPET
+            {(balance ?? 0).toFixed(2)} XPET
           </div>
         </div>
 
