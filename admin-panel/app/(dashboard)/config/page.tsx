@@ -455,53 +455,107 @@ export default function ConfigPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {["BEP-20", "Solana", "TON"].map((network) => {
-              const addresses = configs?.find((c) => c.key === "deposit_addresses")?.value as
+              const currentAddresses = configs?.find((c) => c.key === "deposit_addresses")?.value as
                 | Record<string, string>
                 | undefined;
+              const addressKey = `deposit_${network}`;
+              const currentValue = configValues[addressKey] ?? currentAddresses?.[network] ?? "";
               return (
                 <div key={network} className="space-y-2">
                   <Label>{network}</Label>
-                  <Input
-                    value={addresses?.[network] || "Not configured"}
-                    disabled
-                    className="font-mono text-xs"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      value={currentValue}
+                      onChange={(e) =>
+                        setConfigValues({ ...configValues, [addressKey]: e.target.value })
+                      }
+                      placeholder="Enter wallet address"
+                      className="font-mono text-xs"
+                      disabled={!isSuperAdmin()}
+                    />
+                    {isSuperAdmin() && (
+                      <Button
+                        size="icon"
+                        onClick={() => {
+                          const addresses = configs?.find((c) => c.key === "deposit_addresses")?.value as Record<string, string> || {};
+                          const newAddresses = { ...addresses, [network]: configValues[addressKey] || "" };
+                          updateConfigMutation.mutate({ key: "deposit_addresses", value: newAddresses });
+                        }}
+                        disabled={updateConfigMutation.isPending}
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               );
             })}
-            <p className="text-xs text-muted-foreground">
-              Contact developer to update deposit addresses
-            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* All Configs Table */}
+      {/* All Configs Table - now editable */}
       <Card>
         <CardHeader>
           <CardTitle>All Configuration Values</CardTitle>
-          <CardDescription>Complete list of system configuration</CardDescription>
+          <CardDescription>Complete list of system configuration (click to edit)</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {configs?.map((config) => (
-              <div
-                key={config.key}
-                className="flex items-center justify-between py-2 border-b last:border-0"
-              >
-                <div>
-                  <p className="font-medium">{config.key}</p>
-                  {config.description && (
-                    <p className="text-xs text-muted-foreground">{config.description}</p>
-                  )}
+            {configs?.map((config) => {
+              const editKey = `edit_${config.key}`;
+              const isEditing = configValues[editKey] !== undefined;
+              const displayValue = typeof config.value === "object"
+                ? JSON.stringify(config.value)
+                : String(config.value);
+              return (
+                <div
+                  key={config.key}
+                  className="py-2 border-b last:border-0"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <p className="font-medium">{config.key}</p>
+                      {config.description && (
+                        <p className="text-xs text-muted-foreground">{config.description}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      value={configValues[editKey] ?? displayValue}
+                      onChange={(e) =>
+                        setConfigValues({ ...configValues, [editKey]: e.target.value })
+                      }
+                      className="font-mono text-sm"
+                      disabled={!isSuperAdmin()}
+                    />
+                    {isSuperAdmin() && (
+                      <Button
+                        size="icon"
+                        onClick={() => {
+                          const value = configValues[editKey] ?? displayValue;
+                          let parsedValue: unknown = value;
+                          if (!isNaN(Number(value)) && value !== "") {
+                            parsedValue = Number(value);
+                          } else {
+                            try {
+                              parsedValue = JSON.parse(value);
+                            } catch {
+                              // Keep as string
+                            }
+                          }
+                          updateConfigMutation.mutate({ key: config.key, value: parsedValue });
+                        }}
+                        disabled={updateConfigMutation.isPending}
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <code className="text-sm bg-muted px-2 py-1 rounded max-w-[300px] truncate">
-                  {typeof config.value === "object"
-                    ? JSON.stringify(config.value)
-                    : String(config.value)}
-                </code>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>
