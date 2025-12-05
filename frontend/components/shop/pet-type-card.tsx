@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Icon } from '@/components/ui/icon';
+import { XpetCoin } from '@/components/ui/xpet-coin';
 import type { PetType } from '@/types/api';
 
 interface PetTypeCardProps {
@@ -44,7 +44,7 @@ export function PetTypeCard({ petType, onBuy, disabled }: PetTypeCardProps) {
           disabled={disabled}
           className="w-full text-xs py-2 flex items-center justify-center gap-1"
         >
-          <Icon name="coins" size={14} />
+          <XpetCoin size={14} />
           <span>{petType.base_price}</span>
         </Button>
       </div>
