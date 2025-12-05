@@ -1,3 +1,4 @@
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import pool, create_engine
@@ -5,17 +6,25 @@ from sqlalchemy.engine import Connection
 
 from alembic import context
 
-# Import settings and models
-from app.core.config import settings
+# Import database Base for models
 from app.core.database import Base
 from app.models import *  # noqa: F401, F403 - Import all models for autogenerate
 
 # this is the Alembic Config object
 config = context.config
 
-# Set sqlalchemy.url from environment (convert async URL to sync)
-sync_url = settings.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
-config.set_main_option("sqlalchemy.url", sync_url)
+# Get DATABASE_URL from environment directly (more reliable for migrations)
+database_url = os.environ.get("DATABASE_URL", "")
+# Convert async URL to sync for alembic
+if database_url.startswith("postgresql+asyncpg://"):
+    sync_url = database_url.replace("postgresql+asyncpg://", "postgresql://")
+elif database_url.startswith("postgresql://"):
+    sync_url = database_url
+else:
+    sync_url = database_url
+
+if sync_url:
+    config.set_main_option("sqlalchemy.url", sync_url)
 
 # Interpret the config file for Python logging.
 if config.config_file_name is not None:
