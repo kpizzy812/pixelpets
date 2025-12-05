@@ -18,8 +18,8 @@ interface WalletModalProps {
 }
 
 const NETWORKS: { id: NetworkType; name: string; icon: IconName; color: string }[] = [
-  { id: 'BEP20', name: 'BEP-20 (BSC)', icon: 'network-bep20', color: 'text-yellow-400' },
-  { id: 'SOL', name: 'Solana', icon: 'network-sol', color: 'text-purple-400' },
+  { id: 'BEP-20', name: 'BEP-20 (BSC)', icon: 'network-bep20', color: 'text-yellow-400' },
+  { id: 'Solana', name: 'Solana', icon: 'network-sol', color: 'text-purple-400' },
   { id: 'TON', name: 'TON', icon: 'network-ton', color: 'text-cyan-400' },
 ];
 
@@ -29,7 +29,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const updateBalance = useGameStore((state) => state.updateBalance);
 
   const [activeTab, setActiveTab] = useState<WalletTab>('deposit');
-  const [selectedNetwork, setSelectedNetwork] = useState<NetworkType>('BEP20');
+  const [selectedNetwork, setSelectedNetwork] = useState<NetworkType>('BEP-20');
   const [amount, setAmount] = useState('');
   const [address, setAddress] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);

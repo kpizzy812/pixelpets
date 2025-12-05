@@ -6,7 +6,7 @@
 export type PetStatus = 'OWNED_IDLE' | 'TRAINING' | 'READY_TO_CLAIM' | 'EVOLVED' | 'SOLD';
 export type PetLevel = 'BABY' | 'TEEN' | 'ADULT';
 export type TxType = 'DEPOSIT' | 'WITHDRAW' | 'PET_PURCHASE' | 'PET_UPGRADE' | 'PET_SELL' | 'TRAINING_REWARD' | 'REFERRAL_REWARD' | 'TASK_REWARD' | 'ADMIN_ADJUSTMENT';
-export type NetworkType = 'BEP20' | 'SOL' | 'TON';
+export type NetworkType = 'BEP-20' | 'Solana' | 'TON';
 export type RequestStatus = 'PENDING' | 'COMPLETED' | 'REJECTED' | 'EXPIRED';
 
 // Auth
