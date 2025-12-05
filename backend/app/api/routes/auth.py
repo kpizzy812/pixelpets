@@ -67,6 +67,9 @@ async def get_me(
     db: AsyncSession = Depends(get_db),
 ):
     """Get current user profile with stats."""
+    # Refresh user to get latest balance
+    await db.refresh(current_user)
+
     # Count pets
     pets_result = await db.execute(
         select(func.count(UserPet.id)).where(
