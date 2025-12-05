@@ -6,7 +6,7 @@
 export type PetStatus = 'OWNED_IDLE' | 'TRAINING' | 'READY_TO_CLAIM' | 'EVOLVED' | 'SOLD';
 export type PetLevel = 'BABY' | 'ADULT' | 'MYTHIC';
 // Backend TxType values (lowercase)
-export type TxType = 'deposit' | 'withdraw' | 'claim' | 'ref_reward' | 'task_reward' | 'sell_refund' | 'admin_adjust' | 'pet_buy' | 'pet_upgrade';
+export type TxType = 'deposit' | 'withdraw' | 'claim' | 'ref_reward' | 'task_reward' | 'sell_refund' | 'admin_adjust' | 'pet_buy' | 'pet_upgrade' | 'withdraw_refund';
 export type NetworkType = 'BEP-20' | 'Solana' | 'TON';
 export type RequestStatus = 'PENDING' | 'COMPLETED' | 'REJECTED' | 'EXPIRED';
 

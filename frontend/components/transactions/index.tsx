@@ -19,6 +19,7 @@ const TX_TYPE_CONFIG: Record<TxType, { label: string; color: string; icon: strin
   ref_reward: { label: 'Referral Reward', color: 'text-purple-400', icon: '+' },
   task_reward: { label: 'Task Reward', color: 'text-yellow-400', icon: '+' },
   admin_adjust: { label: 'Admin Adjustment', color: 'text-gray-400', icon: '~' },
+  withdraw_refund: { label: 'Withdrawal Refund', color: 'text-green-400', icon: '+' },
 };
 
 const FILTER_OPTIONS: { value: TxType | 'ALL'; label: string }[] = [

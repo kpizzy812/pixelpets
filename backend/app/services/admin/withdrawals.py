@@ -146,9 +146,9 @@ async def reject_withdrawal(
     if withdrawal.status != RequestStatus.PENDING:
         raise ValueError(f"Withdrawal is already {withdrawal.status.value}")
 
-    # Refund user (amount was already deducted when they created request)
+    # Refund user (full amount was deducted when they created request, fee is inside)
     user = withdrawal.user
-    user.balance_xpet += withdrawal.amount  # Refund full amount (including fee)
+    user.balance_xpet += withdrawal.amount  # Refund the full amount that was deducted
 
     withdrawal.status = RequestStatus.REJECTED
     withdrawal.processed_at = datetime.utcnow()
@@ -157,7 +157,7 @@ async def reject_withdrawal(
     # Create refund transaction
     tx = Transaction(
         user_id=user.id,
-        type=TxType.ADMIN_ADJUST,
+        type=TxType.WITHDRAW_REFUND,
         amount_xpet=withdrawal.amount,
         meta={
             "reason": "Withdrawal rejected",

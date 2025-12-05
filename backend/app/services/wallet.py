@@ -110,13 +110,13 @@ async def create_withdraw_request(
         raise ValueError(f"Minimum withdrawal is {WITHDRAW_MIN} XPET")
 
     fee = calculate_withdraw_fee(amount)
-    total_deducted = amount + fee
+    net_amount = amount - fee  # User receives this amount
 
-    if user.balance_xpet < total_deducted:
+    if user.balance_xpet < amount:
         raise ValueError("Insufficient balance")
 
-    # Deduct from balance
-    user.balance_xpet -= total_deducted
+    # Deduct from balance (fee is inside the amount)
+    user.balance_xpet -= amount
 
     # Create request
     withdraw_request = WithdrawRequest(
@@ -129,16 +129,17 @@ async def create_withdraw_request(
     )
     db.add(withdraw_request)
 
-    # Record transaction
+    # Record transaction (amount is what user requested, fee stored separately)
     tx = Transaction(
         user_id=user.id,
         type=TxType.WITHDRAW,
-        amount_xpet=-total_deducted,
+        amount_xpet=-amount,
         fee=fee,
         meta={
             "network": network.value,
             "wallet_address": wallet_address,
             "request_id": withdraw_request.id,
+            "net_amount": float(net_amount),
         },
     )
     db.add(tx)

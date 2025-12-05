@@ -22,7 +22,6 @@ from app.services.wallet import (
     create_deposit_request,
     create_withdraw_request,
     get_transactions,
-    calculate_withdraw_fee,
 )
 
 router = APIRouter(prefix="/wallet", tags=["wallet"])
@@ -76,12 +75,11 @@ async def create_withdrawal(
             network=request.network,
             wallet_address=request.wallet_address,
         )
-        fee = calculate_withdraw_fee(request.amount)
         return WithdrawRequestResponse(
             request_id=withdraw_request.id,
             amount=withdraw_request.amount,
             fee=withdraw_request.fee,
-            total_deducted=request.amount + fee,
+            total_deducted=withdraw_request.amount,  # Fee is inside amount now
             network=withdraw_request.network,
             wallet_address=withdraw_request.wallet_address,
             status=withdraw_request.status,

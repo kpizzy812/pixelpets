@@ -25,6 +25,7 @@ class TxType(str, enum.Enum):
     ADMIN_ADJUST = "admin_adjust"
     PET_BUY = "pet_buy"
     PET_UPGRADE = "pet_upgrade"
+    WITHDRAW_REFUND = "withdraw_refund"
 
 
 class TxStatus(str, enum.Enum):
