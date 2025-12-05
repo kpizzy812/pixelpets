@@ -96,9 +96,9 @@ TASKS_DATA = [
     },
     {
         "title": "Follow on Twitter",
-        "description": "Follow @pixelpets",
+        "description": "Follow @pixelpetsapp",
         "reward_xpet": Decimal("0.20"),
-        "link": "https://twitter.com/pixelpets",
+        "link": "https://twitter.com/pixelpetsapp",
         "task_type": TaskType.TWITTER,
         "order": 3,
     },
