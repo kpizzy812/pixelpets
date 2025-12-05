@@ -15,6 +15,9 @@ export function Wheel({ rewards, isSpinning, winningIndex, onSpinEnd }: WheelPro
   const wheelRef = useRef<HTMLDivElement>(null);
   const hasSpunRef = useRef(false);
 
+  const onSpinEndRef = useRef(onSpinEnd);
+  onSpinEndRef.current = onSpinEnd;
+
   useEffect(() => {
     if (!wheelRef.current || rewards.length === 0) return;
 
@@ -30,7 +33,7 @@ export function Wheel({ rewards, isSpinning, winningIndex, onSpinEnd }: WheelPro
 
       const timeout = setTimeout(() => {
         hasSpunRef.current = false;
-        onSpinEnd?.();
+        onSpinEndRef.current?.();
       }, 4000);
 
       return () => clearTimeout(timeout);
@@ -41,7 +44,7 @@ export function Wheel({ rewards, isSpinning, winningIndex, onSpinEnd }: WheelPro
       wheelRef.current.style.transition = 'none';
       wheelRef.current.style.transform = 'rotate(0deg)';
     }
-  }, [isSpinning, winningIndex, rewards.length, onSpinEnd]);
+  }, [isSpinning, winningIndex, rewards.length]);
 
   if (rewards.length === 0) {
     return (
