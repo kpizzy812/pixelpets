@@ -105,8 +105,8 @@ TASKS_DATA = [
 ]
 
 # Spin wheel rewards - 8 segments
-# Total probability must add up to ensure fair weighting
-# Profit margin ~30-40% (house edge)
+# No empty rewards - always win something!
+# House edge ~35%, EV = 0.652 XPET per 1 XPET spin
 SPIN_REWARDS_DATA = [
     {
         "reward_type": SpinRewardType.XPET,
@@ -114,70 +114,70 @@ SPIN_REWARDS_DATA = [
         "label": "0.10",
         "emoji": "🪙",
         "color": "#FFD700",  # Gold
-        "probability": Decimal("25"),  # 25% chance
+        "probability": Decimal("28"),  # 28% chance
         "order": 0,
     },
     {
-        "reward_type": SpinRewardType.NOTHING,
-        "value": Decimal("0"),
-        "label": "Try Again",
-        "emoji": "😢",
-        "color": "#808080",  # Gray
-        "probability": Decimal("20"),  # 20% chance
+        "reward_type": SpinRewardType.XPET,
+        "value": Decimal("0.20"),
+        "label": "0.20",
+        "emoji": "✨",
+        "color": "#FFA500",  # Orange
+        "probability": Decimal("25"),  # 25% chance
         "order": 1,
     },
     {
         "reward_type": SpinRewardType.XPET,
-        "value": Decimal("0.25"),
-        "label": "0.25",
+        "value": Decimal("0.40"),
+        "label": "0.40",
         "emoji": "💰",
         "color": "#32CD32",  # Lime green
-        "probability": Decimal("18"),  # 18% chance
+        "probability": Decimal("20"),  # 20% chance
         "order": 2,
     },
     {
-        "reward_type": SpinRewardType.NOTHING,
-        "value": Decimal("0"),
-        "label": "No Luck",
-        "emoji": "💨",
-        "color": "#696969",  # Dim gray
-        "probability": Decimal("15"),  # 15% chance
+        "reward_type": SpinRewardType.XPET,
+        "value": Decimal("0.80"),
+        "label": "0.80",
+        "emoji": "💎",
+        "color": "#1E90FF",  # Dodger blue
+        "probability": Decimal("13"),  # 13% chance
         "order": 3,
     },
     {
         "reward_type": SpinRewardType.XPET,
-        "value": Decimal("0.50"),
-        "label": "0.50",
-        "emoji": "💎",
-        "color": "#1E90FF",  # Dodger blue
-        "probability": Decimal("12"),  # 12% chance
+        "value": Decimal("1.50"),
+        "label": "1.50",
+        "emoji": "🎁",
+        "color": "#9932CC",  # Dark orchid
+        "probability": Decimal("8"),  # 8% chance
         "order": 4,
     },
     {
         "reward_type": SpinRewardType.XPET,
-        "value": Decimal("0.05"),
-        "label": "0.05",
-        "emoji": "✨",
-        "color": "#FFA500",  # Orange
-        "probability": Decimal("5"),  # 5% chance
-        "order": 5,
-    },
-    {
-        "reward_type": SpinRewardType.XPET,
-        "value": Decimal("1.00"),
-        "label": "1.00",
+        "value": Decimal("3.00"),
+        "label": "3.00",
         "emoji": "🎉",
-        "color": "#9932CC",  # Dark orchid
+        "color": "#FF1493",  # Deep pink
         "probability": Decimal("4"),  # 4% chance
-        "order": 6,
+        "order": 5,
     },
     {
         "reward_type": SpinRewardType.XPET,
         "value": Decimal("5.00"),
         "label": "5.00",
         "emoji": "🔥",
-        "color": "#FF4500",  # Orange red (JACKPOT)
-        "probability": Decimal("1"),  # 1% chance
+        "color": "#FF4500",  # Orange red
+        "probability": Decimal("1.5"),  # 1.5% chance
+        "order": 6,
+    },
+    {
+        "reward_type": SpinRewardType.XPET,
+        "value": Decimal("15.00"),
+        "label": "15.00",
+        "emoji": "👑",
+        "color": "#8B00FF",  # Violet (JACKPOT)
+        "probability": Decimal("0.5"),  # 0.5% chance
         "order": 7,
     },
 ]

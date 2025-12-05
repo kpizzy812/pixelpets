@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
+import Image from 'next/image';
 import type { SpinReward } from '@/types/api';
 
 interface WheelProps {
@@ -54,19 +55,35 @@ export function Wheel({ rewards, isSpinning, winningIndex, onSpinEnd }: WheelPro
 
   return (
     <div className="relative w-72 h-72">
+      {/* Outer golden ring with glow */}
+      <div
+        className="absolute -inset-2 rounded-full pointer-events-none"
+        style={{
+          background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 25%, #FFD700 50%, #B8860B 75%, #FFD700 100%)',
+          boxShadow: '0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(0,0,0,0.3)',
+        }}
+      />
+
+      {/* Inner dark ring */}
+      <div className="absolute -inset-1 rounded-full bg-[#1a1a2e] pointer-events-none" />
+
       {/* Pointer */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-10">
-        <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[20px] border-t-[#c7f464] drop-shadow-lg" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-3 z-10">
+        <div
+          className="w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[24px] border-t-[#FFD700]"
+          style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}
+        />
       </div>
 
       {/* Wheel */}
       <div
         ref={wheelRef}
-        className="w-full h-full rounded-full overflow-hidden relative shadow-2xl"
+        className="w-full h-full rounded-full overflow-hidden relative"
         style={{
           background: `conic-gradient(${rewards
             .map((r, i) => `${r.color} ${i * segmentAngle}deg ${(i + 1) * segmentAngle}deg`)
             .join(', ')})`,
+          boxShadow: 'inset 0 0 30px rgba(0,0,0,0.3)',
         }}
       >
         {/* Segment labels */}
@@ -81,14 +98,23 @@ export function Wheel({ rewards, isSpinning, winningIndex, onSpinEnd }: WheelPro
               }}
             >
               <div
-                className="absolute flex flex-col items-center"
+                className="absolute flex flex-col items-center gap-0.5"
                 style={{
-                  transform: `translateY(-90px) rotate(0deg)`,
+                  transform: `translateY(-85px) rotate(0deg)`,
                 }}
               >
-                <span className="text-2xl">{reward.emoji}</span>
-                <span className="text-xs font-bold text-white drop-shadow-md">
-                  {reward.reward_type === 'nothing' ? '' : reward.label}
+                <Image
+                  src="/XPET.png"
+                  alt="XPET"
+                  width={24}
+                  height={24}
+                  className="drop-shadow-lg"
+                />
+                <span
+                  className="text-xs font-bold text-white"
+                  style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}
+                >
+                  {reward.label}
                 </span>
               </div>
             </div>
@@ -96,13 +122,37 @@ export function Wheel({ rewards, isSpinning, winningIndex, onSpinEnd }: WheelPro
         })}
 
         {/* Center circle */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-[#0d1220] border-4 border-[#c7f464] flex items-center justify-center shadow-lg">
-          <span className="text-2xl">🎰</span>
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full flex items-center justify-center"
+          style={{
+            background: 'linear-gradient(135deg, #1a1a2e 0%, #0d0d1a 100%)',
+            border: '3px solid #FFD700',
+            boxShadow: '0 0 15px rgba(255, 215, 0, 0.3), inset 0 0 10px rgba(0,0,0,0.5)',
+          }}
+        >
+          <Image
+            src="/XPET.png"
+            alt="XPET"
+            width={32}
+            height={32}
+            className="drop-shadow-lg"
+          />
         </div>
       </div>
 
-      {/* Outer ring */}
-      <div className="absolute inset-0 rounded-full border-4 border-[#c7f464]/30 pointer-events-none" />
+      {/* Decorative dots on rim */}
+      {[...Array(16)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute w-2 h-2 rounded-full bg-[#FFD700]"
+          style={{
+            top: '50%',
+            left: '50%',
+            transform: `rotate(${i * 22.5}deg) translateY(-142px) translate(-50%, -50%)`,
+            boxShadow: '0 0 4px rgba(255, 215, 0, 0.6)',
+          }}
+        />
+      ))}
     </div>
   );
 }

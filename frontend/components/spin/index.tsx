@@ -170,29 +170,26 @@ export function SpinScreen() {
           )}
         </div>
 
-        {/* Spin Buttons */}
-        <div className="w-full space-y-3">
+        {/* Spin Buttons - Horizontal Layout */}
+        <div className="w-full flex gap-3">
           {/* Free Spin Button */}
           <button
             onClick={() => handleSpin(true)}
             disabled={isSpinning || !wheelData?.can_free_spin}
-            className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+            className={`flex-1 py-3 px-4 rounded-xl font-bold transition-all ${
               wheelData?.can_free_spin && !isSpinning
                 ? 'bg-gradient-to-r from-[#c7f464] to-[#a3d944] text-[#0d1220] hover:opacity-90 active:scale-[0.98]'
                 : 'bg-[#1a2235] text-[#64748b] cursor-not-allowed'
             }`}
           >
             {isSpinning ? (
-              <span className="inline-flex items-center gap-2">
-                <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                {t('spinning')}
+              <span className="inline-flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
               </span>
             ) : wheelData?.can_free_spin ? (
-              t('freeSpin')
+              <span className="text-sm">{t('freeSpin')}</span>
             ) : (
-              <span className="inline-flex items-center gap-2">
-                {t('freeSpinIn')} {countdown || '...'}
-              </span>
+              <span className="text-xs">{countdown || '...'}</span>
             )}
           </button>
 
@@ -200,14 +197,14 @@ export function SpinScreen() {
           <button
             onClick={() => handleSpin(false)}
             disabled={isSpinning || balance < (wheelData?.paid_spin_cost || 1)}
-            className={`w-full py-3 rounded-xl font-medium transition-all border ${
+            className={`flex-1 py-3 px-4 rounded-xl font-bold transition-all ${
               !isSpinning && balance >= (wheelData?.paid_spin_cost || 1)
-                ? 'border-[#c7f464]/50 text-[#c7f464] hover:bg-[#c7f464]/10 active:scale-[0.98]'
-                : 'border-[#1e293b] text-[#64748b] cursor-not-allowed'
+                ? 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#0d1220] hover:opacity-90 active:scale-[0.98]'
+                : 'bg-[#1a2235] text-[#64748b] cursor-not-allowed'
             }`}
           >
-            <span className="inline-flex items-center gap-2">
-              {t('paidSpin')} ({wheelData?.paid_spin_cost || 1} <XpetCoin size={16} />)
+            <span className="inline-flex items-center justify-center gap-1.5 text-sm">
+              {wheelData?.paid_spin_cost || 1} <XpetCoin size={16} />
             </span>
           </button>
         </div>
