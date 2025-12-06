@@ -1,16 +1,14 @@
 'use client';
 
 import { useEffect, useCallback, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import { getHaptic } from './use-haptic';
+import { useGameStore, useActiveTab, type TabId } from '@/store/game-store';
 
 interface UseBackButtonOptions {
   // Custom back handler - return true to prevent default navigation
   onBack?: () => boolean | void;
-  // Whether to show the back button (auto-detected based on pathname if not provided)
+  // Whether to show the back button (auto-detected based on activeTab if not provided)
   show?: boolean;
-  // Fallback path when there's no history
-  fallbackPath?: string;
 }
 
 function getWebApp() {
@@ -20,17 +18,18 @@ function getWebApp() {
   return null;
 }
 
-// Pages that should NOT show back button (main navigation pages)
-const MAIN_PAGES = ['/', '/shop', '/tasks', '/referrals'];
+// Tabs that should NOT show back button (main navigation tabs)
+const MAIN_TABS: TabId[] = ['home', 'shop', 'tasks', 'referrals'];
 
 export function useBackButton(options: UseBackButtonOptions = {}) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const { onBack, show, fallbackPath = '/' } = options;
+  const activeTab = useActiveTab();
+  const setActiveTab = useGameStore((state) => state.setActiveTab);
+  const { onBack, show } = options;
   const callbackRef = useRef<(() => void) | null>(null);
 
-  // Determine if we should show based on pathname
-  const shouldShow = show !== undefined ? show : !MAIN_PAGES.includes(pathname);
+  // Determine if we should show based on activeTab
+  // Show back button only for secondary screens (like spin)
+  const shouldShow = show !== undefined ? show : !MAIN_TABS.includes(activeTab);
 
   const handleBack = useCallback(() => {
     const haptic = getHaptic();
@@ -41,13 +40,9 @@ export function useBackButton(options: UseBackButtonOptions = {}) {
       return;
     }
 
-    // Try to go back in history, fallback to home
-    if (window.history.length > 1) {
-      router.back();
-    } else {
-      router.push(fallbackPath);
-    }
-  }, [onBack, router, fallbackPath]);
+    // Go back to home tab
+    setActiveTab('home');
+  }, [onBack, setActiveTab]);
 
   useEffect(() => {
     const webApp = getWebApp();
@@ -74,11 +69,11 @@ export function useBackButton(options: UseBackButtonOptions = {}) {
   useEffect(() => {
     return () => {
       const webApp = getWebApp();
-      if (webApp?.BackButton && !MAIN_PAGES.includes(pathname)) {
+      if (webApp?.BackButton && !MAIN_TABS.includes(activeTab)) {
         webApp.BackButton.hide();
       }
     };
-  }, [pathname]);
+  }, [activeTab]);
 
   return {
     show: useCallback(() => {

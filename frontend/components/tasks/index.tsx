@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/components/layout/page-layout';
-import { FloatingSpinButton } from '@/components/layout/floating-spin-button';
 import { TaskItem } from './task-item';
 import { TaskItemSkeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/error-state';
@@ -125,8 +124,6 @@ export function TasksScreen() {
           </>
         )}
       </div>
-
-      <FloatingSpinButton />
     </PageLayout>
   );
 }

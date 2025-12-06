@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/components/layout/page-layout';
+import { FloatingSpinButton } from '@/components/layout/floating-spin-button';
 import { PetTypeCard } from './pet-type-card';
 import { BuyModal } from './buy-modal';
 import { SellModal } from '@/components/pet/sell-modal';
@@ -63,7 +64,7 @@ export function ShopScreen() {
       showSuccess(t('purchased', { name: selectedPet.name }));
       setSelectedPet(null);
       setSelectedSlot(null);
-      router.push('/');
+      setActiveTab('home');
     } catch (err) {
       showError(err instanceof Error ? err.message : t('failedToBuy'));
     } finally {
@@ -206,8 +207,6 @@ export function ShopScreen() {
         onClose={() => setSellPet(null)}
         pet={sellPet}
       />
-
-      <FloatingSpinButton />
     </PageLayout>
   );
 }
