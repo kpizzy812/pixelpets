@@ -45,9 +45,21 @@ import { useAuthStore } from "@/store/auth-store";
 import { Task, CreateTaskRequest, TaskType } from "@/types";
 
 const taskTypeColors: Record<TaskType, string> = {
+  TELEGRAM_CHANNEL: "bg-cyan-100 text-cyan-800",
+  TELEGRAM_CHAT: "bg-cyan-100 text-cyan-800",
   TWITTER: "bg-blue-100 text-blue-800",
-  TELEGRAM: "bg-cyan-100 text-cyan-800",
+  DISCORD: "bg-purple-100 text-purple-800",
+  WEBSITE: "bg-green-100 text-green-800",
   OTHER: "bg-gray-100 text-gray-800",
+};
+
+const taskTypeLabels: Record<TaskType, string> = {
+  TELEGRAM_CHANNEL: "Telegram Channel",
+  TELEGRAM_CHAT: "Telegram Chat",
+  TWITTER: "Twitter",
+  DISCORD: "Discord",
+  WEBSITE: "Website",
+  OTHER: "Other",
 };
 
 const defaultFormData: CreateTaskRequest = {
@@ -196,7 +208,7 @@ export default function TasksPage() {
                   </TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${taskTypeColors[task.task_type]}`}>
-                      {task.task_type}
+                      {taskTypeLabels[task.task_type]}
                     </span>
                   </TableCell>
                   <TableCell>{formatCurrency(task.reward_xpet)} XPET</TableCell>
@@ -301,8 +313,11 @@ export default function TasksPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="TELEGRAM_CHANNEL">Telegram Channel</SelectItem>
+                  <SelectItem value="TELEGRAM_CHAT">Telegram Chat</SelectItem>
                   <SelectItem value="TWITTER">Twitter</SelectItem>
-                  <SelectItem value="TELEGRAM">Telegram</SelectItem>
+                  <SelectItem value="DISCORD">Discord</SelectItem>
+                  <SelectItem value="WEBSITE">Website</SelectItem>
                   <SelectItem value="OTHER">Other</SelectItem>
                 </SelectContent>
               </Select>

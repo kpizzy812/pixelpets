@@ -1,4 +1,10 @@
-export type TaskType = "TWITTER" | "TELEGRAM" | "OTHER";
+export type TaskType =
+  | "TELEGRAM_CHANNEL"
+  | "TELEGRAM_CHAT"
+  | "TWITTER"
+  | "DISCORD"
+  | "WEBSITE"
+  | "OTHER";
 
 export interface Task {
   id: number;
