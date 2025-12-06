@@ -276,5 +276,25 @@
     "feature3": "Ne ratez plus jamais un claim",
     "buyAutoClaim": "Activer pour {price} XPET",
     "autoClaimActivated": "Auto-Claim activé pour {months} mois!"
+  },
+  "profile": {
+    "title": "Profil",
+    "petsSection": "Mes Animaux",
+    "petsOwned": "Animaux",
+    "petsValue": "Valeur totale",
+    "petsEvolved": "Évolués",
+    "totalEarned": "Total gagné",
+    "spinSection": "Roue de la chance",
+    "totalSpins": "Tours totaux",
+    "spinWinnings": "Gagné",
+    "referralsSection": "Parrainages",
+    "totalReferrals": "Partenaires",
+    "activeReferrals": "Actifs",
+    "refEarnings": "Gains partenaires",
+    "quickLinks": "Accès rapide",
+    "hallOfFame": "Gloire",
+    "transactions": "Historique",
+    "settings": "Paramètres",
+    "memberSince": "Membre depuis"
   }
 }

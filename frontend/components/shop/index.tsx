@@ -1,10 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/components/layout/page-layout';
-import { FloatingSpinButton } from '@/components/layout/floating-spin-button';
 import { PetTypeCard } from './pet-type-card';
 import { BuyModal } from './buy-modal';
 import { SellModal } from '@/components/pet/sell-modal';
@@ -23,9 +21,8 @@ import type { Pet } from '@/types/pet';
 type ShopMode = 'buy' | 'sell';
 
 export function ShopScreen() {
-  const router = useRouter();
   const balance = useBalance();
-  const { petTypes, petSlots, slotsUsed, maxSlots, fetchPetCatalog, buyPet, isLoading } = useGameStore();
+  const { petTypes, petSlots, slotsUsed, maxSlots, fetchPetCatalog, buyPet, setActiveTab, isLoading } = useGameStore();
   const t = useTranslations('shop');
 
   const [mode, setMode] = useState<ShopMode>('buy');

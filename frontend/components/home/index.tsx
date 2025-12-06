@@ -1,21 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useGameStore, useBalance, usePetSlots } from '@/store/game-store';
 import { HeaderBalance } from './header-balance';
 import { PetCarousel } from './pet-carousel';
-import { BottomNav } from '@/components/layout/bottom-nav';
-import { FloatingSpinButton } from '@/components/layout/floating-spin-button';
 import { UpgradeModal, SellModal, BoostModal } from '@/components/pet';
 import { showSuccess, showError, showPetAction } from '@/lib/toast';
 import { formatNumber } from '@/lib/format';
 
 export function HomeScreen() {
-  const router = useRouter();
   const balance = useBalance();
   const petSlots = usePetSlots();
-  const { startTraining, claimReward, fetchPets, user } = useGameStore();
+  const { startTraining, claimReward, fetchPets, setActiveTab, user } = useGameStore();
 
   // Modal states
   const [upgradeSlotIndex, setUpgradeSlotIndex] = useState<number | null>(null);
@@ -62,7 +58,7 @@ export function HomeScreen() {
   };
 
   const handleShop = () => {
-    router.push('/shop');
+    setActiveTab('shop');
   };
 
   const handleUpgrade = (slotIndex: number) => {
@@ -78,32 +74,20 @@ export function HomeScreen() {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      {/* Background - transparent to show body background image */}
-      <div className="fixed inset-0 pointer-events-none" />
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Header */}
+      <HeaderBalance balance={balance} />
 
-      {/* Content */}
-      <div className="relative flex flex-col h-full z-10 tg-safe-top">
-        {/* Header */}
-        <HeaderBalance balance={balance} />
-
-        {/* Pet Carousel */}
-        <PetCarousel
-          slots={petSlots}
-          onTrain={handleTrain}
-          onClaim={handleClaim}
-          onShop={handleShop}
-          onUpgrade={handleUpgrade}
-          onSell={handleSell}
-          onBoosts={handleBoosts}
-        />
-
-        {/* Bottom Navigation */}
-        <BottomNav />
-
-        {/* Floating Spin Button */}
-        <FloatingSpinButton />
-      </div>
+      {/* Pet Carousel */}
+      <PetCarousel
+        slots={petSlots}
+        onTrain={handleTrain}
+        onClaim={handleClaim}
+        onShop={handleShop}
+        onUpgrade={handleUpgrade}
+        onSell={handleSell}
+        onBoosts={handleBoosts}
+      />
 
       {/* Modals */}
       <UpgradeModal

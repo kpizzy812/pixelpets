@@ -1,15 +1,21 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useHaptic } from '@/hooks/use-haptic';
+import { useGameStore, useActiveTab } from '@/store/game-store';
 
 export function FloatingSpinButton() {
-  const router = useRouter();
+  const activeTab = useActiveTab();
+  const setActiveTab = useGameStore((state) => state.setActiveTab);
   const { tap } = useHaptic();
+
+  // Don't show on spin screen
+  if (activeTab === 'spin') {
+    return null;
+  }
 
   const handleClick = () => {
     tap();
-    router.push('/spin');
+    setActiveTab('spin');
   };
 
   return (

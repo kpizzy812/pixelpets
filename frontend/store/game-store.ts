@@ -3,6 +3,9 @@ import type { User, PetType, UserPet, MyPetsResponse, Task, ReferralsResponse } 
 import type { PetSlot, Pet } from '@/types/pet';
 import { petsApi, tasksApi, referralsApi } from '@/lib/api';
 
+// Tab types for navigation
+export type TabId = 'home' | 'shop' | 'tasks' | 'referrals' | 'spin';
+
 // Convert API UserPet to frontend Pet format
 function mapUserPetToPet(userPet: UserPet): Pet {
   const getRarity = (price: number): Pet['rarity'] => {
@@ -81,6 +84,7 @@ interface GameState {
 
   // UI State
   isWalletOpen: boolean;
+  activeTab: TabId;
 }
 
 interface GameActions {
@@ -107,6 +111,7 @@ interface GameActions {
   // UI
   openWallet: () => void;
   closeWallet: () => void;
+  setActiveTab: (tab: TabId) => void;
 
   // Utils
   reset: () => void;
@@ -132,6 +137,7 @@ const initialState: GameState = {
   referrals: null,
   referralsLoading: false,
   isWalletOpen: false,
+  activeTab: 'home',
 };
 
 export const useGameStore = create<GameStore>()((set, get) => ({
@@ -338,6 +344,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   // UI actions
   openWallet: () => set({ isWalletOpen: true }),
   closeWallet: () => set({ isWalletOpen: false }),
+  setActiveTab: (tab) => set({ activeTab: tab }),
 
   // Utils
   reset: () => set(initialState),
@@ -355,3 +362,5 @@ export const useBalance = () =>
 export const usePetSlots = () => useGameStore((state) => state.petSlots);
 
 export const useIsLoading = () => useGameStore((state) => state.isLoading);
+
+export const useActiveTab = () => useGameStore((state) => state.activeTab);

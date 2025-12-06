@@ -1,8 +1,6 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { BottomNav } from './bottom-nav';
-import { useBackButton } from '@/hooks/use-back-button';
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -11,29 +9,18 @@ interface PageLayoutProps {
 }
 
 export function PageLayout({ children, title }: PageLayoutProps) {
-  // Automatically show/hide Telegram back button based on current page
-  useBackButton();
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      {/* Background - transparent to show body background image */}
-      <div className="fixed inset-0 pointer-events-none" />
-
-      {/* Content */}
-      <div className="relative flex flex-col h-full z-10 tg-safe-top">
-        {/* Header */}
-        {title && (
-          <div className="mx-4 mt-4 p-4 rounded-3xl bg-[#0d1220]/80 border border-[#1e293b]/50 backdrop-blur-sm">
-            <h1 className="text-xl font-bold text-[#f1f5f9] text-center">{title}</h1>
-          </div>
-        )}
-
-        {/* Main Content */}
-        <div className="flex-1 overflow-y-auto scrollbar-hide">
-          {children}
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Header */}
+      {title && (
+        <div className="mx-4 mt-4 p-4 rounded-3xl bg-[#0d1220]/80 border border-[#1e293b]/50 backdrop-blur-sm">
+          <h1 className="text-xl font-bold text-[#f1f5f9] text-center">{title}</h1>
         </div>
+      )}
 
-        {/* Bottom Navigation */}
-        <BottomNav />
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide">
+        {children}
       </div>
     </div>
   );

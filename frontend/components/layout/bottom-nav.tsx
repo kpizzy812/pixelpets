@@ -1,59 +1,47 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useCallback } from 'react';
 import { Icon, type IconName } from '@/components/ui/icon';
 import { useHaptic } from '@/hooks/use-haptic';
-
-type NavItem = 'home' | 'shop' | 'tasks' | 'referrals';
+import { useGameStore, useActiveTab, type TabId } from '@/store/game-store';
 
 interface NavItemConfig {
-  id: NavItem;
+  id: TabId;
   icon: IconName;
-  href: string;
 }
 
 const NAV_ITEMS: NavItemConfig[] = [
-  { id: 'home', icon: 'home', href: '/' },
-  { id: 'shop', icon: 'shop', href: '/shop' },
-  { id: 'tasks', icon: 'tasks', href: '/tasks' },
-  { id: 'referrals', icon: 'referrals', href: '/referrals' },
+  { id: 'home', icon: 'home' },
+  { id: 'shop', icon: 'shop' },
+  { id: 'tasks', icon: 'tasks' },
+  { id: 'referrals', icon: 'referrals' },
 ];
 
 export function BottomNav() {
-  const pathname = usePathname();
+  const activeTab = useActiveTab();
+  const setActiveTab = useGameStore((state) => state.setActiveTab);
   const { tap, selection } = useHaptic();
 
-  const getActiveItem = (): NavItem => {
-    if (pathname === '/shop') return 'shop';
-    if (pathname === '/tasks') return 'tasks';
-    if (pathname === '/referrals') return 'referrals';
-    return 'home';
-  };
-
-  const currentItem = getActiveItem();
-
   const handleNavClick = useCallback(
-    (itemId: NavItem) => {
-      if (currentItem !== itemId) {
+    (itemId: TabId) => {
+      if (activeTab !== itemId) {
         selection();
+        setActiveTab(itemId);
       } else {
         tap();
       }
     },
-    [currentItem, selection, tap]
+    [activeTab, selection, tap, setActiveTab]
   );
 
   return (
     <div className="mx-4 mb-4 p-3 rounded-3xl bg-[#0d1220]/80 border border-[#1e293b]/50 backdrop-blur-xl">
       <div className="flex justify-around items-center">
         {NAV_ITEMS.map((item) => {
-          const isActive = currentItem === item.id;
+          const isActive = activeTab === item.id;
           return (
-            <Link
+            <button
               key={item.id}
-              href={item.href}
               onClick={() => handleNavClick(item.id)}
               className={`flex items-center justify-center w-16 h-16 rounded-xl transition-all duration-200 ${
                 isActive
@@ -66,7 +54,7 @@ export function BottomNav() {
                 size={40}
                 className={isActive ? 'text-[#050712]' : 'text-[#64748b]'}
               />
-            </Link>
+            </button>
           );
         })}
       </div>

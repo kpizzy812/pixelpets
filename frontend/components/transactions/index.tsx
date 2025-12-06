@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Icon } from '@/components/ui/icon';
 import { XpetCoin } from '@/components/ui/xpet-coin';
 import { formatNumber } from '@/lib/format';
+import { useBackButton } from '@/hooks/use-back-button';
 import type { Transaction, TxType } from '@/types/api';
 
 const TX_TYPE_CONFIG: Record<TxType, { label: string; color: string; icon: string }> = {
@@ -22,6 +23,8 @@ const TX_TYPE_CONFIG: Record<TxType, { label: string; color: string; icon: strin
   withdraw_refund: { label: 'Withdrawal Refund', color: 'text-green-400', icon: '+' },
   spin_cost: { label: 'Spin Cost', color: 'text-orange-400', icon: '-' },
   spin_win: { label: 'Spin Win', color: 'text-yellow-400', icon: '+' },
+  boost_purchase: { label: 'Boost Purchase', color: 'text-pink-400', icon: '-' },
+  auto_claim_commission: { label: 'Auto-Claim Fee', color: 'text-gray-400', icon: '-' },
 };
 
 const FILTER_OPTIONS: { value: TxType | 'ALL'; label: string }[] = [
@@ -104,6 +107,9 @@ export function TransactionsScreen() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+
+  // Enable Telegram Back Button
+  useBackButton({ show: true, fallbackPath: '/' });
 
   const fetchTransactions = useCallback(async (pageNum: number, txType: TxType | 'ALL', append = false) => {
     setIsLoading(true);

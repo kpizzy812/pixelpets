@@ -46,7 +46,7 @@ interface ProvidersProps {
 // Inner component that uses auth context
 function AppContent({ children }: { children: ReactNode }) {
   const { isLoading: authLoading, isAuthenticated, user } = useAuth();
-  const { fetchPets, fetchPetCatalog, setUser } = useGameStore();
+  const { fetchPets, fetchPetCatalog, fetchTasks, fetchReferrals, setUser } = useGameStore();
   const isWalletOpen = useGameStore((state) => state.isWalletOpen);
   const closeWallet = useGameStore((state) => state.closeWallet);
   const [isAppReady, setIsAppReady] = useState(false);
@@ -58,10 +58,12 @@ function AppContent({ children }: { children: ReactNode }) {
       if (isAuthenticated && user) {
         // Always sync fresh user data to game store
         setUser(user);
-        // Load essential data in parallel
+        // Load ALL essential data in parallel for instant tab switching
         await Promise.all([
           fetchPets(),
           fetchPetCatalog(),
+          fetchTasks(),
+          fetchReferrals(),
         ]);
         setIsAppReady(true);
       }
@@ -75,7 +77,7 @@ function AppContent({ children }: { children: ReactNode }) {
         setIsAppReady(true);
       }
     }
-  }, [authLoading, isAuthenticated, user, fetchPets, fetchPetCatalog, setUser]);
+  }, [authLoading, isAuthenticated, user, fetchPets, fetchPetCatalog, fetchTasks, fetchReferrals, setUser]);
 
   // Keep game store user in sync when auth user changes (e.g., balance updated)
   useEffect(() => {
