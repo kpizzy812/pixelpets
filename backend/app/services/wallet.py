@@ -9,6 +9,7 @@ from app.models.user import User
 from app.models.transaction import Transaction, DepositRequest, WithdrawRequest
 from app.models.enums import NetworkType, RequestStatus, TxType
 from app.services import telegram_notify
+from app.services.admin import config as admin_config
 from app.i18n import get_text as t
 
 logger = logging.getLogger(__name__)
@@ -16,13 +17,6 @@ logger = logging.getLogger(__name__)
 WITHDRAW_MIN = Decimal("5")
 WITHDRAW_FEE_FIXED = Decimal("1")
 WITHDRAW_FEE_PERCENT = Decimal("0.02")
-
-# Deposit addresses per network (in production, these would be dynamically generated)
-DEPOSIT_ADDRESSES = {
-    NetworkType.BEP20: "0x1234567890abcdef1234567890abcdef12345678",
-    NetworkType.SOLANA: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
-    NetworkType.TON: "EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2",
-}
 
 
 def calculate_withdraw_fee(amount: Decimal) -> Decimal:
@@ -65,7 +59,9 @@ async def create_deposit_request(
     network: NetworkType,
 ) -> DepositRequest:
     """Create a new deposit request."""
-    deposit_address = DEPOSIT_ADDRESSES.get(network)
+    # Get deposit addresses from config
+    deposit_addresses = await admin_config.get_config_value(db, "deposit_addresses", {})
+    deposit_address = deposit_addresses.get(network.value)
 
     deposit_request = DepositRequest(
         user_id=user.id,
