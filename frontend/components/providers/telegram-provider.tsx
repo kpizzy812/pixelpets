@@ -255,16 +255,14 @@ export function TelegramProvider({
         const scheme = WebApp.colorScheme || 'dark';
         setColorScheme(scheme);
 
+        // Set header/bottom bar to match our dark theme
+        // Note: We don't call setBackgroundColor to allow CSS background image to show
         if (WebApp.setHeaderColor) {
-          WebApp.setHeaderColor('bg_color');
-        }
-
-        if (WebApp.setBackgroundColor) {
-          WebApp.setBackgroundColor('bg_color');
+          WebApp.setHeaderColor('#050712');
         }
 
         if (WebApp.setBottomBarColor) {
-          WebApp.setBottomBarColor('bg_color');
+          WebApp.setBottomBarColor('#050712');
         }
 
         // Apply theme params to CSS variables
