@@ -88,13 +88,24 @@ export function AppLoader({ onComplete }: AppLoaderProps) {
             <img
               src="/pixelicons/logo.png"
               alt="Pixel Pets"
-              width={120}
-              height={120}
-              className="drop-shadow-[0_0_20px_rgba(147,51,234,0.6)]"
+              width={240}
+              height={240}
+              className="drop-shadow-[0_0_30px_rgba(147,51,234,0.7)]"
             />
           </div>
-          {/* Glow effect */}
-          <div className="absolute inset-0 blur-2xl bg-purple-500/30 -z-10 scale-150 animate-pulse" />
+          {/* Glow effect - oval radial gradient */}
+          <div
+            className="absolute -z-10 animate-pulse"
+            style={{
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '300px',
+              height: '200px',
+              background: 'radial-gradient(ellipse at center, rgba(147, 51, 234, 0.4) 0%, rgba(147, 51, 234, 0.1) 40%, transparent 70%)',
+              filter: 'blur(20px)',
+            }}
+          />
         </div>
 
         {/* Title */}
