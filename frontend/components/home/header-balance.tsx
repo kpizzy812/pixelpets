@@ -88,45 +88,38 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
           />
 
           {/* Menu Items */}
-          <div className="absolute right-4 top-[68px] z-50 w-48 rounded-xl bg-[#0d1220]/95 border border-[#1e293b]/70 backdrop-blur-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-            <button
-              onClick={() => {
-                setMenuOpen(false);
-                router.push('/hall-of-fame');
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-[#1e293b]/60 transition-colors border-b border-[#1e293b]/40"
-            >
-              <div className="w-9 h-9 rounded-lg bg-[#fbbf24]/15 border border-[#fbbf24]/25 flex items-center justify-center">
-                <Icon name="trophy" size={18} className="text-[#fbbf24]" />
-              </div>
-              <span className="text-sm font-medium text-[#f1f5f9]">Hall of Fame</span>
-            </button>
+          <div className="absolute right-4 top-[68px] z-50 w-auto rounded-xl bg-[#0d1220]/95 border border-[#1e293b]/70 backdrop-blur-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex flex-col gap-2 p-3">
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  router.push('/hall-of-fame');
+                }}
+                className="flex items-center justify-center w-16 h-16 rounded-xl bg-[#fbbf24]/15 border border-[#fbbf24]/25 hover:bg-[#fbbf24]/25 transition-all active:scale-95"
+              >
+                <Icon name="trophy" size={40} className="text-[#fbbf24]" />
+              </button>
 
-            <button
-              onClick={() => {
-                setMenuOpen(false);
-                openWallet();
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-[#1e293b]/60 transition-colors border-b border-[#1e293b]/40"
-            >
-              <div className="w-9 h-9 rounded-lg bg-[#00f5d4]/15 border border-[#00f5d4]/25 flex items-center justify-center">
-                <Icon name="wallet" size={18} className="text-[#00f5d4]" />
-              </div>
-              <span className="text-sm font-medium text-[#f1f5f9]">Wallet</span>
-            </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  openWallet();
+                }}
+                className="flex items-center justify-center w-16 h-16 rounded-xl bg-[#00f5d4]/15 border border-[#00f5d4]/25 hover:bg-[#00f5d4]/25 transition-all active:scale-95"
+              >
+                <Icon name="wallet" size={40} className="text-[#00f5d4]" />
+              </button>
 
-            <button
-              onClick={() => {
-                setMenuOpen(false);
-                router.push('/settings');
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-[#1e293b]/60 transition-colors"
-            >
-              <div className="w-9 h-9 rounded-lg bg-[#94a3b8]/15 border border-[#94a3b8]/25 flex items-center justify-center">
-                <Icon name="settings" size={18} className="text-[#94a3b8]" />
-              </div>
-              <span className="text-sm font-medium text-[#f1f5f9]">Settings</span>
-            </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  router.push('/settings');
+                }}
+                className="flex items-center justify-center w-16 h-16 rounded-xl bg-[#94a3b8]/15 border border-[#94a3b8]/25 hover:bg-[#94a3b8]/25 transition-all active:scale-95"
+              >
+                <Icon name="settings" size={40} className="text-[#94a3b8]" />
+              </button>
+            </div>
           </div>
         </>
       )}

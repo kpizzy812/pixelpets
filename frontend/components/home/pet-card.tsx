@@ -100,9 +100,11 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
         {onBoosts && (
           <button
             onClick={() => { tap(); onBoosts(); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#c7f464]/20 to-[#00f5d4]/20 border border-[#c7f464]/40 hover:border-[#c7f464]/60 transition-colors"
+            className="flex flex-col items-center gap-1 group"
           >
-            <Icon name="boosts" size={16} />
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-[#c7f464]/20 to-[#00f5d4]/20 border border-[#c7f464]/40 group-hover:border-[#c7f464]/60 transition-all flex items-center justify-center group-active:scale-95">
+              <Icon name="boosts" size={36} />
+            </div>
             <span className="text-xs font-medium text-[#c7f464]">Boosts</span>
           </button>
         )}
