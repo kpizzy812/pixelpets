@@ -41,8 +41,12 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
 
         {/* Pet Image Area */}
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-44 h-44 rounded-3xl bg-gradient-to-br from-[#1e293b]/80 to-[#0f172a]/80 border border-[#334155]/30 flex items-center justify-center">
-            <span className="text-6xl opacity-30">❓</span>
+          <div className="w-64 h-64 rounded-3xl overflow-hidden">
+            <img
+              src="/pixelicons/no-pets.png"
+              alt="Empty slot"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
 
