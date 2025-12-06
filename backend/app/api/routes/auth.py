@@ -11,12 +11,15 @@ from app.models.user import User
 from app.models.pet import UserPet
 from app.models.enums import PetStatus
 from app.models.referral import ReferralStats
+from app.models.spin import UserSpin
 from app.schemas.user import (
     TelegramAuthRequest,
     AuthResponse,
     UserResponse,
     UserWithStats,
     UserStats,
+    ProfileStats,
+    ProfileResponse,
 )
 from app.services.auth import (
     validate_telegram_init_data,
@@ -113,6 +116,113 @@ async def get_me(
     )
 
     return UserWithStats(
+        **UserResponse.model_validate(current_user).model_dump(),
+        stats=stats,
+    )
+
+
+@router.get("/profile", response_model=ProfileResponse)
+async def get_profile(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get full user profile with extended stats."""
+    await db.refresh(current_user)
+
+    # Count owned pets (not sold, not evolved)
+    pets_owned_result = await db.execute(
+        select(func.count(UserPet.id)).where(
+            UserPet.user_id == current_user.id,
+            UserPet.status.notin_([PetStatus.SOLD, PetStatus.EVOLVED]),
+        )
+    )
+    total_pets_owned = pets_owned_result.scalar() or 0
+
+    # Sum invested_total of owned pets
+    pets_value_result = await db.execute(
+        select(func.coalesce(func.sum(UserPet.invested_total), 0)).where(
+            UserPet.user_id == current_user.id,
+            UserPet.status.notin_([PetStatus.SOLD, PetStatus.EVOLVED]),
+        )
+    )
+    total_pets_value = pets_value_result.scalar() or Decimal("0")
+
+    # Count evolved pets
+    pets_evolved_result = await db.execute(
+        select(func.count(UserPet.id)).where(
+            UserPet.user_id == current_user.id,
+            UserPet.status == PetStatus.EVOLVED,
+        )
+    )
+    total_pets_evolved = pets_evolved_result.scalar() or 0
+
+    # Sum profit claimed (all pets)
+    claimed_result = await db.execute(
+        select(func.coalesce(func.sum(UserPet.profit_claimed), 0)).where(
+            UserPet.user_id == current_user.id
+        )
+    )
+    total_claimed = claimed_result.scalar() or Decimal("0")
+
+    # Total farmed from evolved pets (Hall of Fame)
+    total_farmed_result = await db.execute(
+        select(func.coalesce(func.sum(UserPet.profit_claimed), 0)).where(
+            UserPet.user_id == current_user.id,
+            UserPet.status == PetStatus.EVOLVED,
+        )
+    )
+    total_farmed_all_time = total_farmed_result.scalar() or Decimal("0")
+
+    # Spin stats
+    spin_wins_result = await db.execute(
+        select(func.coalesce(func.sum(UserSpin.reward_value), 0)).where(
+            UserSpin.user_id == current_user.id
+        )
+    )
+    total_spin_wins = spin_wins_result.scalar() or Decimal("0")
+
+    spin_count_result = await db.execute(
+        select(func.count(UserSpin.id)).where(
+            UserSpin.user_id == current_user.id
+        )
+    )
+    total_spins = spin_count_result.scalar() or 0
+
+    # Referral stats
+    ref_stats_result = await db.execute(
+        select(ReferralStats).where(ReferralStats.user_id == current_user.id)
+    )
+    ref_stats = ref_stats_result.scalar_one_or_none()
+
+    total_ref_earned = ref_stats.total_earned if ref_stats else Decimal("0")
+    total_referrals = 0
+    active_referrals = 0
+
+    if ref_stats:
+        total_referrals = (
+            ref_stats.level_1_count +
+            ref_stats.level_2_count +
+            ref_stats.level_3_count +
+            ref_stats.level_4_count +
+            ref_stats.level_5_count
+        )
+        # Active = level 1 only (direct referrals who bought pets)
+        active_referrals = ref_stats.level_1_count
+
+    stats = ProfileStats(
+        total_pets_owned=total_pets_owned,
+        total_pets_value=total_pets_value,
+        total_pets_evolved=total_pets_evolved,
+        total_claimed=total_claimed,
+        total_farmed_all_time=total_farmed_all_time,
+        total_spin_wins=total_spin_wins,
+        total_spins=total_spins,
+        total_ref_earned=total_ref_earned,
+        total_referrals=total_referrals,
+        active_referrals=active_referrals,
+    )
+
+    return ProfileResponse(
         **UserResponse.model_validate(current_user).model_dump(),
         stats=stats,
     )

@@ -45,6 +45,29 @@ class UserWithStats(UserResponse):
     stats: UserStats
 
 
+class ProfileStats(BaseModel):
+    """Extended stats for profile page."""
+    # Pets
+    total_pets_owned: int
+    total_pets_value: Decimal  # Sum of invested_total
+    total_pets_evolved: int
+    # Earnings
+    total_claimed: Decimal
+    total_farmed_all_time: Decimal  # From Hall of Fame
+    # Spin
+    total_spin_wins: Decimal
+    total_spins: int
+    # Referrals
+    total_ref_earned: Decimal
+    total_referrals: int
+    active_referrals: int
+
+
+class ProfileResponse(UserResponse):
+    """Full profile with extended stats."""
+    stats: ProfileStats
+
+
 class TelegramAuthRequest(BaseModel):
     init_data: str
     ref_code: Optional[str] = None

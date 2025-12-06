@@ -247,6 +247,26 @@
     "notFound": "Not found",
     "serverError": "Server error. Please try again later."
   },
+  "profile": {
+    "title": "Profile",
+    "petsSection": "My Pets",
+    "petsOwned": "Pets Owned",
+    "petsValue": "Total Value",
+    "petsEvolved": "Evolved",
+    "totalEarned": "Total Earned",
+    "spinSection": "Lucky Spin",
+    "totalSpins": "Total Spins",
+    "spinWinnings": "Total Won",
+    "referralsSection": "Referrals",
+    "totalReferrals": "Total Partners",
+    "activeReferrals": "Active",
+    "refEarnings": "Partner Earnings",
+    "quickLinks": "Quick Access",
+    "hallOfFame": "Fame",
+    "transactions": "History",
+    "settings": "Settings",
+    "memberSince": "Member since"
+  },
   "boosts": {
     "title": "Boosts",
     "tabSnacks": "Snacks",

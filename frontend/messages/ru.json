@@ -247,6 +247,26 @@
     "notFound": "Не найдено",
     "serverError": "Ошибка сервера. Попробуйте позже."
   },
+  "profile": {
+    "title": "Профиль",
+    "petsSection": "Мои питомцы",
+    "petsOwned": "Питомцев",
+    "petsValue": "Общая стоимость",
+    "petsEvolved": "Эволюция",
+    "totalEarned": "Всего заработано",
+    "spinSection": "Колесо удачи",
+    "totalSpins": "Всего спинов",
+    "spinWinnings": "Выиграно",
+    "referralsSection": "Рефералы",
+    "totalReferrals": "Всего партнёров",
+    "activeReferrals": "Активных",
+    "refEarnings": "Доход от партнёров",
+    "quickLinks": "Быстрый доступ",
+    "hallOfFame": "Слава",
+    "transactions": "История",
+    "settings": "Настройки",
+    "memberSince": "Участник с"
+  },
   "boosts": {
     "title": "Бусты",
     "tabSnacks": "Снеки",

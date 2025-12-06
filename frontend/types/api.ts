@@ -31,6 +31,24 @@ export interface AuthResponse {
   user: User;
 }
 
+// Profile
+export interface ProfileStats {
+  total_pets_owned: number;
+  total_pets_value: number;
+  total_pets_evolved: number;
+  total_claimed: number;
+  total_farmed_all_time: number;
+  total_spin_wins: number;
+  total_spins: number;
+  total_ref_earned: number;
+  total_referrals: number;
+  active_referrals: number;
+}
+
+export interface ProfileResponse extends User {
+  stats: ProfileStats;
+}
+
 // Pet Types (catalog)
 export interface PetType {
   id: number;

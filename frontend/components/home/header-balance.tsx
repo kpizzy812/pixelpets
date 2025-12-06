@@ -41,20 +41,26 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
     <div className="relative mx-4 mt-2">
       {/* Main Header Bar */}
       <div className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-[#1e293b]/90 to-[#0d1220]/90 border border-[#334155]/40 backdrop-blur-md shadow-lg">
-        {/* Avatar */}
-        <div className="flex-shrink-0">
+        {/* Avatar - clickable to open profile */}
+        <button
+          onClick={() => {
+            tap();
+            router.push('/profile');
+          }}
+          className="flex-shrink-0 active:scale-95 transition-transform"
+        >
           {avatarUrl ? (
             <img
               src={avatarUrl}
               alt="Avatar"
-              className="w-12 h-12 rounded-full border-2 border-[#00f5d4]/30"
+              className="w-12 h-12 rounded-full border-2 border-[#00f5d4]/30 hover:border-[#00f5d4]/60 transition-colors"
             />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#00f5d4] to-[#c7f464] flex items-center justify-center text-[#050712] font-bold text-lg">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#00f5d4] to-[#c7f464] flex items-center justify-center text-[#050712] font-bold text-lg hover:opacity-90 transition-opacity">
               {getUserInitials()}
             </div>
           )}
-        </div>
+        </button>
 
         {/* Balance Section */}
         <div className="flex-1 flex flex-col items-center px-4">

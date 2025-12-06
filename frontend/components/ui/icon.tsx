@@ -32,6 +32,11 @@ import {
   Copy,
   Dices,
   Menu,
+  PawPrint,
+  TrendingUp,
+  UserCheck,
+  DollarSign,
+  History,
   type LucideIcon,
   type LucideProps,
 } from 'lucide-react';
@@ -112,6 +117,15 @@ const icons = {
 
   // Menu
   menu: Menu,
+
+  // Profile stats
+  paw: PawPrint,
+  coin: Coins,
+  chart: TrendingUp,
+  users: Users,
+  'user-check': UserCheck,
+  dollar: DollarSign,
+  history: History,
 
   // Pet levels & actions (using images)
   boosts: 'image',
@@ -211,4 +225,9 @@ export {
   Copy,
   Dices,
   Menu,
+  PawPrint,
+  TrendingUp,
+  UserCheck,
+  DollarSign,
+  History,
 };

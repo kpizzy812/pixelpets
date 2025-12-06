@@ -6,6 +6,7 @@ import { api } from './client';
 import type {
   AuthResponse,
   User,
+  ProfileResponse,
   PetType,
   MyPetsResponse,
   UserPet,
@@ -42,6 +43,8 @@ export const authApi = {
     }),
 
   me: () => api.get<User>('/auth/me'),
+
+  profile: () => api.get<ProfileResponse>('/auth/profile'),
 };
 
 // Pets
