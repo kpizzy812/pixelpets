@@ -50,7 +50,7 @@ export function SpinScreen() {
     }
 
     const updateCountdown = () => {
-      const next = new Date(wheelData.next_free_spin_at!).getTime();
+      const next = new Date(wheelData.next_free_spin_at! + 'Z').getTime();
       const now = Date.now();
       const diff = next - now;
 

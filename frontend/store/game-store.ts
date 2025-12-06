@@ -38,7 +38,7 @@ function mapUserPetToPet(userPet: UserPet): Pet {
     dailyRate: dailyRate,
     status: userPet.status,
     trainingEndsAt: userPet.training_ends_at
-      ? new Date(userPet.training_ends_at).getTime()
+      ? new Date(userPet.training_ends_at + 'Z').getTime()
       : undefined,
     upgradeCost,
     evolutionFee,
@@ -207,7 +207,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
                 pet: {
                   ...slot.pet,
                   status: response.status,
-                  trainingEndsAt: new Date(response.training_ends_at).getTime(),
+                  trainingEndsAt: new Date(response.training_ends_at + 'Z').getTime(),
                 },
               }
             : slot
