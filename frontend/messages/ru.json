@@ -213,6 +213,7 @@
     "build": "Сборка",
     "support": "Поддержка",
     "newsChannel": "Канал новостей",
+    "guide": "Руководство",
     "telegramId": "Telegram ID",
     "refCode": "Реф. код"
   },

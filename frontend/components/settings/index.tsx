@@ -74,26 +74,18 @@ export function SettingsScreen() {
           <h3 className="text-sm font-medium text-[#64748b] uppercase tracking-wide mb-3">
             {t('language')}
           </h3>
-          <div className="space-y-2">
+          <div className="flex flex-wrap gap-2">
             {LANGUAGES.map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => handleLanguageChange(lang.code)}
-                className={`w-full p-4 rounded-xl flex items-center justify-between transition-all ${
+                className={`px-4 py-2 rounded-lg font-bold transition-all ${
                   locale === lang.code
-                    ? 'bg-[#00f5d4]/20 border border-[#00f5d4]/50'
-                    : 'bg-[#1e293b]/40 border border-[#1e293b]/50 hover:bg-[#1e293b]/60'
+                    ? 'bg-[#00f5d4] text-[#050712]'
+                    : 'bg-[#1e293b]/40 border border-[#1e293b]/50 text-[#f1f5f9] hover:bg-[#1e293b]/60'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">{lang.code.toUpperCase()}</span>
-                  <div className="text-left">
-                    <p className="text-sm text-[#f1f5f9]">{lang.nativeName}</p>
-                  </div>
-                </div>
-                {locale === lang.code && (
-                  <span className="text-[#00f5d4]">OK</span>
-                )}
+                {lang.code.toUpperCase()}
               </button>
             ))}
           </div>
@@ -119,7 +111,7 @@ export function SettingsScreen() {
         {/* Support Links */}
         <div className="space-y-2">
           <a
-            href="https://t.me/pixelpets_support"
+            href="https://t.me/PixelPetsSupport"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-between p-4 rounded-xl bg-[#1e293b]/40 border border-[#1e293b]/50 hover:bg-[#1e293b]/60 transition-colors"
@@ -131,7 +123,7 @@ export function SettingsScreen() {
             <span className="text-[#64748b]">-&gt;</span>
           </a>
           <a
-            href="https://t.me/pixelpets_channel"
+            href="https://t.me/PixelPets_Official"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-between p-4 rounded-xl bg-[#1e293b]/40 border border-[#1e293b]/50 hover:bg-[#1e293b]/60 transition-colors"
@@ -139,6 +131,18 @@ export function SettingsScreen() {
             <div className="flex items-center gap-3">
               <span className="text-xl">NEWS</span>
               <span className="text-sm text-[#f1f5f9]">{t('newsChannel')}</span>
+            </div>
+            <span className="text-[#64748b]">-&gt;</span>
+          </a>
+          <a
+            href="https://pixelpets.gitbook.io/pixelpets-docs/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between p-4 rounded-xl bg-[#1e293b]/40 border border-[#1e293b]/50 hover:bg-[#1e293b]/60 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-xl">DOCS</span>
+              <span className="text-sm text-[#f1f5f9]">{t('guide')}</span>
             </div>
             <span className="text-[#64748b]">-&gt;</span>
           </a>

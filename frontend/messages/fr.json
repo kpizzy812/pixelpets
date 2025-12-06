@@ -210,6 +210,7 @@
     "build": "Build",
     "support": "Support",
     "newsChannel": "Chaîne d'actualités",
+    "guide": "Guide",
     "telegramId": "Telegram ID",
     "refCode": "Code de ref"
   },

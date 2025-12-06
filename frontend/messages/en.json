@@ -213,6 +213,7 @@
     "build": "Build",
     "support": "Support",
     "newsChannel": "News Channel",
+    "guide": "Guide",
     "telegramId": "Telegram ID",
     "refCode": "Ref Code"
   },
