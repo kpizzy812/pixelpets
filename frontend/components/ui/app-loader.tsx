@@ -71,14 +71,14 @@ export function AppLoader({ onComplete }: AppLoaderProps) {
 
   if (!isVisible) {
     return (
-      <div className="fixed inset-0 z-[100] bg-[#050712] flex items-center justify-center opacity-0 transition-opacity duration-300" />
+      <div className="fixed inset-0 z-[100] flex items-center justify-center opacity-0 transition-opacity duration-300" />
     );
   }
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#050712] flex flex-col items-center justify-center transition-opacity duration-300">
-      {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1a0a2e] via-[#0a0f1a] to-[#050712] pointer-events-none" />
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-300">
+      {/* Background - transparent to show body background image */}
+      <div className="absolute inset-0 pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center px-8 w-full max-w-xs">

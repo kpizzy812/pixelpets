@@ -150,8 +150,9 @@ export function BalanceHeaderSkeleton() {
 // Home Screen Skeleton
 export function HomeScreenSkeleton() {
   return (
-    <div className="h-screen flex flex-col bg-[#050712] overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1a0a2e] via-[#0a0f1a] to-[#050712] pointer-events-none" />
+    <div className="h-screen flex flex-col overflow-hidden">
+      {/* Background - transparent to show body background image */}
+      <div className="absolute inset-0 pointer-events-none" />
 
       <div className="relative flex flex-col h-full z-10">
         {/* Header */}

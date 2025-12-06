@@ -12,8 +12,8 @@ interface PageLayoutProps {
 export function PageLayout({ children, title }: PageLayoutProps) {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      {/* Gradient Background - fixed to cover full screen including safe areas */}
-      <div className="fixed inset-0 bg-gradient-to-b from-[#1a0a2e] via-[#0a0f1a] to-[#050712] pointer-events-none" />
+      {/* Background - transparent to show body background image */}
+      <div className="fixed inset-0 pointer-events-none" />
 
       {/* Content */}
       <div className="relative flex flex-col h-full z-10 tg-safe-top">
