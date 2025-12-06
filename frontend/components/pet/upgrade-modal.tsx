@@ -8,6 +8,7 @@ import { useGameStore, useBalance } from '@/store/game-store';
 import { showSuccess, showError } from '@/lib/toast';
 import { useHaptic } from '@/hooks/use-haptic';
 import { formatNumber } from '@/lib/format';
+import { useTelegram } from '@/components/providers/telegram-provider';
 import type { Pet, PetLevel } from '@/types/pet';
 
 interface UpgradeModalProps {
@@ -34,6 +35,26 @@ export function UpgradeModal({ isOpen, onClose, pet }: UpgradeModalProps) {
   const { upgradePet } = useGameStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const { impact, success, error: hapticError, tap } = useHaptic();
+  const { webApp } = useTelegram();
+
+  // Handle Telegram Back Button
+  useEffect(() => {
+    if (!isOpen || !webApp?.BackButton) return;
+
+    const handleBackClick = () => {
+      if (!isProcessing) {
+        onClose();
+      }
+    };
+
+    webApp.BackButton.onClick(handleBackClick);
+    webApp.BackButton.show();
+
+    return () => {
+      webApp.BackButton.offClick(handleBackClick);
+      webApp.BackButton.hide();
+    };
+  }, [isOpen, webApp, isProcessing, onClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -75,7 +96,7 @@ export function UpgradeModal({ isOpen, onClose, pet }: UpgradeModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"

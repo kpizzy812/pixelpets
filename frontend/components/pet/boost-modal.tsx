@@ -10,6 +10,7 @@ import { showSuccess, showError } from '@/lib/toast';
 import { useHaptic } from '@/hooks/use-haptic';
 import { formatNumber } from '@/lib/format';
 import { useTranslations } from 'next-intl';
+import { useTelegram } from '@/components/providers/telegram-provider';
 import Image from 'next/image';
 import type { Pet } from '@/types/pet';
 import type {
@@ -50,6 +51,26 @@ export function BoostModal({ isOpen, onClose, pet }: BoostModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const { impact, success, error: hapticError, tap } = useHaptic();
   const t = useTranslations('boosts');
+  const { webApp } = useTelegram();
+
+  // Handle Telegram Back Button
+  useEffect(() => {
+    if (!isOpen || !webApp?.BackButton) return;
+
+    const handleBackClick = () => {
+      if (!isProcessing) {
+        onClose();
+      }
+    };
+
+    webApp.BackButton.onClick(handleBackClick);
+    webApp.BackButton.show();
+
+    return () => {
+      webApp.BackButton.offClick(handleBackClick);
+      webApp.BackButton.hide();
+    };
+  }, [isOpen, webApp, isProcessing, onClose]);
 
   const handleInsufficientBalance = () => {
     tap();
@@ -529,7 +550,7 @@ export function BoostModal({ isOpen, onClose, pet }: BoostModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"

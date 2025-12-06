@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { PetImage } from '@/components/ui/pet-image';
 import { XpetCoin } from '@/components/ui/xpet-coin';
 import { useGameStore } from '@/store/game-store';
 import { showSuccess, showError } from '@/lib/toast';
 import { formatNumber } from '@/lib/format';
+import { useTelegram } from '@/components/providers/telegram-provider';
 import type { Pet } from '@/types/pet';
 
 interface SellModalProps {
@@ -22,6 +23,26 @@ export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const t = useTranslations('sellModal');
   const tCommon = useTranslations('common');
+  const { webApp } = useTelegram();
+
+  // Handle Telegram Back Button
+  useEffect(() => {
+    if (!isOpen || !webApp?.BackButton) return;
+
+    const handleBackClick = () => {
+      if (!isProcessing) {
+        onClose();
+      }
+    };
+
+    webApp.BackButton.onClick(handleBackClick);
+    webApp.BackButton.show();
+
+    return () => {
+      webApp.BackButton.offClick(handleBackClick);
+      webApp.BackButton.hide();
+    };
+  }, [isOpen, webApp, isProcessing, onClose]);
 
   if (!isOpen || !pet) return null;
 
@@ -43,7 +64,7 @@ export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"

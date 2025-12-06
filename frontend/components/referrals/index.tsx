@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/components/layout/page-layout';
+import { FloatingSpinButton } from '@/components/layout/floating-spin-button';
 import { RefStatsCard } from './ref-stats-card';
 import { RefLevelCard } from './ref-level-card';
 import { InviteCard } from './invite-card';
@@ -113,6 +114,8 @@ export function ReferralsScreen() {
           />
         )}
       </div>
+
+      <FloatingSpinButton />
     </PageLayout>
   );
 }
