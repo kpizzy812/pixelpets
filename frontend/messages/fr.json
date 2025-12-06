@@ -15,7 +15,8 @@
     "sell": "Vendre",
     "xpet": "XPET",
     "day": "jour",
-    "perDay": "/jour"
+    "perDay": "/jour",
+    "balance": "Solde"
   },
   "nav": {
     "home": "Accueil",

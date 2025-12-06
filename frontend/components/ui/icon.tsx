@@ -31,6 +31,7 @@ import {
   Share2,
   Copy,
   Dices,
+  Menu,
   type LucideIcon,
   type LucideProps,
 } from 'lucide-react';
@@ -90,6 +91,9 @@ const icons = {
 
   // Spin
   spin: Dices,
+
+  // Menu
+  menu: Menu,
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -162,4 +166,5 @@ export {
   Share2,
   Copy,
   Dices,
+  Menu,
 };

@@ -15,7 +15,8 @@
     "sell": "Sell",
     "xpet": "XPET",
     "day": "day",
-    "perDay": "/day"
+    "perDay": "/day",
+    "balance": "Balance"
   },
   "nav": {
     "home": "Home",

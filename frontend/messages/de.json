@@ -15,7 +15,8 @@
     "sell": "Verkaufen",
     "xpet": "XPET",
     "day": "Tag",
-    "perDay": "/Tag"
+    "perDay": "/Tag",
+    "balance": "Guthaben"
   },
   "nav": {
     "home": "Start",
