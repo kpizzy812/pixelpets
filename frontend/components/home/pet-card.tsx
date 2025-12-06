@@ -84,19 +84,21 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
     <div className="pet-card flex flex-col h-full">
       {/* Top Pills */}
       <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-2">
+        {onUpgrade && pet.level !== 'MYTHIC' ? (
+          <button
+            onClick={() => { tap(); onUpgrade(); }}
+            className="flex flex-col items-center gap-1 group"
+          >
+            <div className="flex items-center justify-center group-hover:scale-110 group-active:scale-95 transition-transform">
+              <Icon name="levelup" size={56} />
+            </div>
+            <span className="text-xs font-medium text-[#c7f464]">{t('levelUp')}</span>
+          </button>
+        ) : (
           <div className="flex items-center justify-center w-10 h-10">
             <Icon name={getLevelIcon()} size={40} />
           </div>
-          {onUpgrade && pet.level !== 'MYTHIC' && (
-            <button
-              onClick={() => { tap(); onUpgrade(); }}
-              className="flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
-            >
-              <Icon name="levelup" size={32} />
-            </button>
-          )}
-        </div>
+        )}
         {onBoosts && (
           <button
             onClick={() => { tap(); onBoosts(); }}
@@ -105,7 +107,7 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
             <div className="flex items-center justify-center group-hover:scale-110 group-active:scale-95 transition-transform">
               <Icon name="boosts" size={56} />
             </div>
-            <span className="text-xs font-medium text-[#c7f464]">Boosts</span>
+            <span className="text-xs font-medium text-[#c7f464]">{t('boosts')}</span>
           </button>
         )}
       </div>

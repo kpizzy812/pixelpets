@@ -30,6 +30,8 @@
     "claimLoot": "Riscuoti",
     "evolved": "Evoluto",
     "unknown": "Sconosciuto",
+    "levelUp": "Livello",
+    "boosts": "Potenziamenti",
     "startedTraining": "{name} ha iniziato l'allenamento!",
     "evolutionMessage": "{name} si è evoluto! +{profit} USDT guadagnati",
     "claimMessage": "+{profit} USDT riscossi!",

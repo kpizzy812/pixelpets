@@ -31,6 +31,8 @@
     "claimLoot": "Забрать",
     "evolved": "Эволюция",
     "unknown": "Неизвестно",
+    "levelUp": "Уровень",
+    "boosts": "Бусты",
     "startedTraining": "{name} начал тренировку!",
     "evolutionMessage": "{name} эволюционировал! +{profit} USDT заработано",
     "claimMessage": "+{profit} USDT получено!",

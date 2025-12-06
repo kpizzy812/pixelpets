@@ -31,6 +31,8 @@
     "claimLoot": "Claim Loot",
     "evolved": "Evolved",
     "unknown": "Unknown",
+    "levelUp": "Level Up",
+    "boosts": "Boosts",
     "startedTraining": "{name} started training!",
     "evolutionMessage": "{name} evolved! +{profit} USDT earned",
     "claimMessage": "+{profit} USDT claimed!",
