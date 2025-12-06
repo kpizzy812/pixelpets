@@ -32,7 +32,11 @@
     "unknown": "Неизвестно",
     "startedTraining": "{name} начал тренировку!",
     "evolutionMessage": "{name} эволюционировал! +{profit} USDT заработано",
-    "claimMessage": "+{profit} USDT получено!"
+    "claimMessage": "+{profit} USDT получено!",
+    "emptySlot": {
+      "title": "Купи своего первого пета!",
+      "description": "Начни зарабатывать ежедневные награды, тренируя своего пиксельного питомца"
+    }
   },
   "shop": {
     "title": "Магазин питомцев",

@@ -31,7 +31,11 @@
     "unknown": "Desconocido",
     "startedTraining": "¡{name} comenzó a entrenar!",
     "evolutionMessage": "¡{name} evolucionó! +{profit} USDT ganados",
-    "claimMessage": "¡+{profit} USDT reclamados!"
+    "claimMessage": "¡+{profit} USDT reclamados!",
+    "emptySlot": {
+      "title": "¡Compra tu primera mascota!",
+      "description": "Comienza a ganar recompensas diarias entrenando tu mascota pixel"
+    }
   },
   "shop": {
     "title": "Tienda de Mascotas",

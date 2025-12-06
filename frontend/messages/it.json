@@ -31,7 +31,11 @@
     "unknown": "Sconosciuto",
     "startedTraining": "{name} ha iniziato l'allenamento!",
     "evolutionMessage": "{name} si è evoluto! +{profit} USDT guadagnati",
-    "claimMessage": "+{profit} USDT riscossi!"
+    "claimMessage": "+{profit} USDT riscossi!",
+    "emptySlot": {
+      "title": "Acquista il tuo primo pet!",
+      "description": "Inizia a guadagnare ricompense giornaliere allenando il tuo pet pixel"
+    }
   },
   "shop": {
     "title": "Negozio Pet",

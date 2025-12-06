@@ -31,7 +31,11 @@
     "unknown": "Inconnu",
     "startedTraining": "{name} a commencé l'entraînement !",
     "evolutionMessage": "{name} a évolué ! +{profit} USDT gagnés",
-    "claimMessage": "+{profit} USDT réclamés !"
+    "claimMessage": "+{profit} USDT réclamés !",
+    "emptySlot": {
+      "title": "Achetez votre premier animal !",
+      "description": "Commencez à gagner des récompenses quotidiennes en entraînant votre animal pixel"
+    }
   },
   "shop": {
     "title": "Animalerie",

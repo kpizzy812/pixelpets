@@ -32,7 +32,11 @@
     "unknown": "Unknown",
     "startedTraining": "{name} started training!",
     "evolutionMessage": "{name} evolved! +{profit} USDT earned",
-    "claimMessage": "+{profit} USDT claimed!"
+    "claimMessage": "+{profit} USDT claimed!",
+    "emptySlot": {
+      "title": "Buy Your First Pet!",
+      "description": "Start earning daily rewards by training your pixel pet"
+    }
   },
   "shop": {
     "title": "Pet Shop",

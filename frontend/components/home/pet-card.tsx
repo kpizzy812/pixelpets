@@ -28,38 +28,29 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
   // Empty slot
   if (!pet) {
     return (
-      <div className="pet-card flex flex-col h-full">
-        {/* Top Pills */}
-        <div className="flex justify-between items-start mb-4">
-          <div className="px-3 py-1.5 rounded-xl bg-[#1e293b]/60 border border-[#334155]/30">
-            <span className="text-xs text-[#64748b]">? LVL</span>
-          </div>
-          <div className="px-3 py-1.5 rounded-xl bg-[#1e293b]/60 border border-[#334155]/30">
-            <span className="text-xs text-[#64748b]">{t('unknown')}</span>
-          </div>
-        </div>
-
+      <div className="pet-card flex flex-col h-full items-center justify-center gap-6 py-8">
         {/* Pet Image Area */}
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-64 h-64 rounded-3xl overflow-hidden">
-            <img
-              src="/pixelicons/no-pets.png"
-              alt="Empty slot"
-              className="w-full h-full object-cover"
-            />
-          </div>
+        <div className="w-[280px] h-[280px] rounded-3xl overflow-hidden">
+          <img
+            src="/pixelicons/no-pets.png"
+            alt="Empty slot"
+            className="w-full h-full object-cover"
+          />
         </div>
 
-        {/* Bottom Info */}
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-lg font-medium text-[#64748b]">???</span>
-          <div className="px-3 py-1.5 rounded-xl bg-[#1e293b]/60 border border-[#334155]/30">
-            <span className="text-xs text-[#64748b]">+?.?%</span>
-          </div>
-        </div>
+        {/* Title */}
+        <h3 className="text-xl font-bold text-[#f1f5f9] text-center">
+          {t('emptySlot.title')}
+        </h3>
+
+        {/* Description */}
+        <p className="text-sm text-[#94a3b8] text-center max-w-[280px] leading-relaxed">
+          {t('emptySlot.description')}
+        </p>
 
         {/* CTA */}
-        <Button variant="lime" fullWidth onClick={onShop}>
+        <Button variant="cyan" fullWidth onClick={onShop}>
+          <Icon name="shop" size={18} className="mr-2" />
           {t('toShop')}
         </Button>
       </div>
