@@ -37,8 +37,10 @@
     "evolutionMessage": "{name} evolved! +{profit} USDT earned",
     "claimMessage": "+{profit} USDT claimed!",
     "emptySlot": {
-      "title": "Buy Your First Pet!",
-      "description": "Start earning daily rewards by training your pixel pet"
+      "title": "Buy Pet",
+      "description": "Get another pet to maximize your earnings",
+      "firstPetTitle": "Buy Your First Pet!",
+      "firstPetDescription": "Start earning daily rewards by training your pixel pet"
     }
   },
   "shop": {

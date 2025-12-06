@@ -17,9 +17,10 @@ interface PetCardProps {
   onUpgrade?: () => void;
   onSell?: () => void;
   onBoosts?: () => void;
+  isFirstPet?: boolean;
 }
 
-export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onBoosts }: PetCardProps) {
+export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onBoosts, isFirstPet = false }: PetCardProps) {
   const { tap } = useHaptic();
   const { pet } = slot;
   const countdown = useCountdown(pet?.trainingEndsAt);
@@ -40,12 +41,12 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
 
         {/* Title */}
         <h3 className="text-xl font-bold text-[#f1f5f9] text-center">
-          {t('emptySlot.title')}
+          {isFirstPet ? t('emptySlot.firstPetTitle') : t('emptySlot.title')}
         </h3>
 
         {/* Description */}
         <p className="text-sm text-[#94a3b8] text-center max-w-[280px] leading-relaxed">
-          {t('emptySlot.description')}
+          {isFirstPet ? t('emptySlot.firstPetDescription') : t('emptySlot.description')}
         </p>
 
         {/* CTA */}

@@ -7,6 +7,7 @@ import { Icon } from '@/components/ui/icon';
 import { formatNumber } from '@/lib/format';
 import { useGameStore } from '@/store/game-store';
 import { useTelegram } from '@/components/providers/telegram-provider';
+import { useHaptic } from '@/hooks/use-haptic';
 
 interface HeaderBalanceProps {
   balance: number;
@@ -17,14 +18,14 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
   const t = useTranslations('common');
   const openWallet = useGameStore((state) => state.openWallet);
   const { user } = useTelegram();
+  const { tap } = useHaptic();
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Get user avatar photo URL from Telegram
   const getAvatarUrl = () => {
     if (!user) return null;
     // Telegram provides photo_url for profile pictures in WebApp
-    // If not available, we'll show initials
-    return null; // Will be replaced with actual photo_url when available
+    return user.photo_url || null;
   };
 
   const getUserInitials = () => {
@@ -67,7 +68,7 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
 
         {/* Burger Menu Button */}
         <button
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={() => { tap(); setMenuOpen(!menuOpen); }}
           className="flex-shrink-0 w-12 h-12 rounded-full bg-[#1e293b]/80 border border-[#334155]/60 flex items-center justify-center hover:bg-[#334155]/80 hover:border-[#00f5d4]/40 transition-all active:scale-95"
         >
           <Icon
@@ -92,6 +93,7 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
             <div className="flex flex-col gap-2 p-3">
               <button
                 onClick={() => {
+                  tap();
                   setMenuOpen(false);
                   router.push('/hall-of-fame');
                 }}
@@ -102,6 +104,7 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
 
               <button
                 onClick={() => {
+                  tap();
                   setMenuOpen(false);
                   openWallet();
                 }}
@@ -112,6 +115,7 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
 
               <button
                 onClick={() => {
+                  tap();
                   setMenuOpen(false);
                   router.push('/settings');
                 }}

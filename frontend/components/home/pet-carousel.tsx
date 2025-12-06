@@ -18,6 +18,9 @@ export function PetCarousel({ slots, onTrain, onClaim, onShop, onUpgrade, onSell
   const [activeIndex, setActiveIndex] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Check if user has any pets
+  const hasPets = slots.some(slot => slot.pet !== null);
+
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
@@ -66,6 +69,7 @@ export function PetCarousel({ slots, onTrain, onClaim, onShop, onUpgrade, onSell
                 onUpgrade={onUpgrade ? () => onUpgrade(slot.index) : undefined}
                 onSell={onSell ? () => onSell(slot.index) : undefined}
                 onBoosts={onBoosts ? () => onBoosts(slot.index) : undefined}
+                isFirstPet={!hasPets}
               />
             </div>
           </div>

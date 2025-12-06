@@ -36,8 +36,10 @@
     "evolutionMessage": "{name} a évolué ! +{profit} USDT gagnés",
     "claimMessage": "+{profit} USDT réclamés !",
     "emptySlot": {
-      "title": "Achetez votre premier animal !",
-      "description": "Commencez à gagner des récompenses quotidiennes en entraînant votre animal pixel"
+      "title": "Acheter un pet",
+      "description": "Obtenez un autre animal pour maximiser vos gains",
+      "firstPetTitle": "Achetez votre premier animal !",
+      "firstPetDescription": "Commencez à gagner des récompenses quotidiennes en entraînant votre animal pixel"
     }
   },
   "shop": {

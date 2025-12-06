@@ -36,8 +36,10 @@
     "evolutionMessage": "{name} si è evoluto! +{profit} USDT guadagnati",
     "claimMessage": "+{profit} USDT riscossi!",
     "emptySlot": {
-      "title": "Acquista il tuo primo pet!",
-      "description": "Inizia a guadagnare ricompense giornaliere allenando il tuo pet pixel"
+      "title": "Acquista pet",
+      "description": "Prendi un altro pet per massimizzare i tuoi guadagni",
+      "firstPetTitle": "Acquista il tuo primo pet!",
+      "firstPetDescription": "Inizia a guadagnare ricompense giornaliere allenando il tuo pet pixel"
     }
   },
   "shop": {
