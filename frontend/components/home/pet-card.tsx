@@ -91,9 +91,9 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
           {onUpgrade && pet.level !== 'MYTHIC' && (
             <button
               onClick={() => { tap(); onUpgrade(); }}
-              className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#c7f464]/20 border border-[#c7f464]/40 hover:bg-[#c7f464]/30 transition-colors"
+              className="flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
             >
-              <Icon name="levelup" size={16} />
+              <Icon name="levelup" size={32} />
             </button>
           )}
         </div>
@@ -102,8 +102,8 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
             onClick={() => { tap(); onBoosts(); }}
             className="flex flex-col items-center gap-1 group"
           >
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-[#c7f464]/20 to-[#00f5d4]/20 border border-[#c7f464]/40 group-hover:border-[#c7f464]/60 transition-all flex items-center justify-center group-active:scale-95">
-              <Icon name="boosts" size={36} />
+            <div className="flex items-center justify-center group-hover:scale-110 group-active:scale-95 transition-transform">
+              <Icon name="boosts" size={56} />
             </div>
             <span className="text-xs font-medium text-[#c7f464]">Boosts</span>
           </button>
