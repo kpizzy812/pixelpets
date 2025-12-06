@@ -1,11 +1,17 @@
 'use client';
 
-import { TasksScreen } from '@/components/tasks';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useGameStore } from '@/store/game-store';
 
 export default function TasksPage() {
-  return (
-    <main className="app-container">
-      <TasksScreen />
-    </main>
-  );
+  const router = useRouter();
+  const setActiveTab = useGameStore((state) => state.setActiveTab);
+
+  useEffect(() => {
+    setActiveTab('tasks');
+    router.replace('/');
+  }, [setActiveTab, router]);
+
+  return null;
 }

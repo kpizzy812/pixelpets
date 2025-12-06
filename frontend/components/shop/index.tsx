@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/components/layout/page-layout';
-import { FloatingSpinButton } from '@/components/layout/floating-spin-button';
 import { PetTypeCard } from './pet-type-card';
 import { BuyModal } from './buy-modal';
 import { SellModal } from '@/components/pet/sell-modal';

@@ -1,11 +1,17 @@
 'use client';
 
-import { ReferralsScreen } from '@/components/referrals';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useGameStore } from '@/store/game-store';
 
 export default function ReferralsPage() {
-  return (
-    <main className="app-container">
-      <ReferralsScreen />
-    </main>
-  );
+  const router = useRouter();
+  const setActiveTab = useGameStore((state) => state.setActiveTab);
+
+  useEffect(() => {
+    setActiveTab('referrals');
+    router.replace('/');
+  }, [setActiveTab, router]);
+
+  return null;
 }

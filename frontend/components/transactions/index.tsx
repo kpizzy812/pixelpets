@@ -109,7 +109,7 @@ export function TransactionsScreen() {
   const [hasMore, setHasMore] = useState(false);
 
   // Enable Telegram Back Button
-  useBackButton({ show: true, fallbackPath: '/' });
+  useBackButton({ show: true });
 
   const fetchTransactions = useCallback(async (pageNum: number, txType: TxType | 'ALL', append = false) => {
     setIsLoading(true);

@@ -75,10 +75,10 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
     }
   };
 
-  const getLevelIcon = (): 'level1' | 'level2' | 'level3' => {
-    if (pet.level === 'BABY') return 'level1';
-    if (pet.level === 'ADULT') return 'level2';
-    return 'level3'; // MYTHIC
+  const getLevelNumber = (): number => {
+    if (pet.level === 'BABY') return 1;
+    if (pet.level === 'ADULT') return 2;
+    return 3; // MYTHIC
   };
 
   return (
@@ -96,9 +96,7 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
             <span className="text-xs font-medium text-[#c7f464]">{t('levelUp')}</span>
           </button>
         ) : (
-          <div className="flex items-center justify-center w-10 h-10">
-            <Icon name={getLevelIcon()} size={40} />
-          </div>
+          <div className="w-14 h-14" />
         )}
         {onBoosts && (
           <button
@@ -123,7 +121,9 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
       {/* Bottom Info */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex flex-col">
-          <span className="text-lg font-medium text-[#f1f5f9]">{pet.name}</span>
+          <span className="text-lg font-medium text-[#f1f5f9]">
+            {pet.name} ({getLevelNumber()})
+          </span>
           <span className="text-xs text-[#94a3b8]">
             +${(pet.invested * pet.dailyRate / 100).toFixed(2)}/day
           </span>
