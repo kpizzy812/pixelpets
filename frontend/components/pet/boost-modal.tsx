@@ -211,7 +211,7 @@ export function BoostModal({ isOpen, onClose, pet }: BoostModalProps) {
                     : 'bg-[#1e293b]/40 border-[#334155]/30 hover:border-[#334155]/60'
                 }`}
               >
-                <span className="text-2xl block mb-1">{SNACK_EMOJIS[snackType]}</span>
+                <Image src={SNACK_IMAGES[snackType]} alt={snackType} width={32} height={32} className="mx-auto mb-1" />
                 <span className="text-xs font-medium text-[#f1f5f9]">{SNACK_NAMES[snackType]}</span>
                 <span className="text-xs text-[#c7f464] block">+{price.bonus_percent}%</span>
               </button>
@@ -288,7 +288,7 @@ export function BoostModal({ isOpen, onClose, pet }: BoostModalProps) {
     if (currentBoost >= maxBoost) {
       return (
         <div className="p-4 rounded-xl bg-[#fbbf24]/10 border border-[#fbbf24]/30 text-center">
-          <span className="text-3xl mb-2 block">🏆</span>
+          <Image src="/pixelicons/roi.png" alt="ROI Max" width={48} height={48} className="mx-auto mb-2" />
           <p className="text-sm text-[#fbbf24]">{t('maxBoostReached')}</p>
           <p className="text-xs text-[#94a3b8] mt-1">{t('maxBoostDescription', { percent: maxBoost })}</p>
         </div>
@@ -413,7 +413,7 @@ export function BoostModal({ isOpen, onClose, pet }: BoostModalProps) {
       return (
         <div className="space-y-4">
           <div className="p-4 rounded-xl bg-[#c7f464]/10 border border-[#c7f464]/30 text-center">
-            <span className="text-3xl mb-2 block">🤖</span>
+            <Image src="/pixelicons/autoclaim.png" alt="Auto-claim" width={48} height={48} className="mx-auto mb-2" />
             <p className="text-sm text-[#c7f464]">{t('autoClaimActive')}</p>
             <p className="text-xs text-[#94a3b8] mt-1">
               {t('expiresIn', { days: autoClaimStatus.days_remaining || 0 })}
@@ -555,33 +555,33 @@ export function BoostModal({ isOpen, onClose, pet }: BoostModalProps) {
           <div className="flex gap-1 p-1 rounded-xl bg-[#1e293b]/40">
             <button
               onClick={() => { tap(); setActiveTab('snacks'); }}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all ${
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                 activeTab === 'snacks'
                   ? 'bg-[#c7f464] text-[#0d1220]'
                   : 'text-[#94a3b8] hover:text-[#f1f5f9]'
               }`}
             >
-              🍪 {t('tabSnacks')}
+              <Image src="/pixelicons/snack.png" alt="" width={16} height={16} /> {t('tabSnacks')}
             </button>
             <button
               onClick={() => { tap(); setActiveTab('roi'); }}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all ${
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                 activeTab === 'roi'
                   ? 'bg-[#c7f464] text-[#0d1220]'
                   : 'text-[#94a3b8] hover:text-[#f1f5f9]'
               }`}
             >
-              📈 {t('tabRoi')}
+              <Image src="/pixelicons/roi.png" alt="" width={16} height={16} /> {t('tabRoi')}
             </button>
             <button
               onClick={() => { tap(); setActiveTab('autoclaim'); }}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all ${
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
                 activeTab === 'autoclaim'
                   ? 'bg-[#00f5d4] text-[#0d1220]'
                   : 'text-[#94a3b8] hover:text-[#f1f5f9]'
               }`}
             >
-              🤖 {t('tabAutoClaim')}
+              <Image src="/pixelicons/autoclaim.png" alt="" width={16} height={16} /> {t('tabAutoClaim')}
             </button>
           </div>
         </div>
