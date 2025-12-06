@@ -79,9 +79,9 @@ class SpinRewardType(str, enum.Enum):
 
 
 class SnackType(str, enum.Enum):
-    COOKIE = "COOKIE"  # +10% bonus
-    STEAK = "STEAK"  # +25% bonus
-    CAKE = "CAKE"  # +50% bonus
+    COOKIE = "cookie"  # +10% bonus
+    STEAK = "steak"  # +25% bonus
+    CAKE = "cake"  # +50% bonus
 
 
 class BoostType(str, enum.Enum):
