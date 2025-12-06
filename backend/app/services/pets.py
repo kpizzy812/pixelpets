@@ -11,6 +11,7 @@ from app.models.pet import PetType, UserPet
 from app.models.transaction import Transaction
 from app.models.enums import PetStatus, PetLevel, TxType
 from app.i18n import get_text as t
+from app.core.config import settings
 
 MAX_SLOTS = 3
 SELL_BASE_FEE = Decimal("0.15")  # 15% minimum fee when no profit claimed
@@ -174,10 +175,10 @@ async def upgrade_pet(
     db: AsyncSession,
     user: User,
     pet_id: int,
-) -> tuple[UserPet, Decimal]:
+) -> tuple[UserPet, Decimal, Decimal, Decimal]:
     """
     Upgrade a pet to the next level.
-    Returns (upgraded_pet, new_balance) or raises ValueError.
+    Returns (upgraded_pet, new_balance, upgrade_cost, evolution_fee) or raises ValueError.
     """
     # Get pet
     result = await db.execute(
@@ -201,31 +202,38 @@ async def upgrade_pet(
     if not next_level:
         raise ValueError(t("error.pet_already_max_level"))
 
-    # Calculate upgrade cost
+    # Calculate upgrade cost and evolution fee
     upgrade_cost = calculate_upgrade_cost(pet.pet_type.level_prices, next_level, pet.invested_total)
+    evolution_fee = upgrade_cost * Decimal(str(settings.EVOLUTION_FEE_PERCENT))
+    total_cost = upgrade_cost + evolution_fee
 
-    if user.balance_xpet < upgrade_cost:
+    if user.balance_xpet < total_cost:
         raise ValueError(t("error.insufficient_balance"))
 
-    # Deduct balance and upgrade
-    user.balance_xpet -= upgrade_cost
-    pet.invested_total += upgrade_cost
+    # Deduct balance (upgrade_cost goes to invested_total, fee is burned)
+    user.balance_xpet -= total_cost
+    pet.invested_total += upgrade_cost  # Only upgrade cost adds to invested_total
     pet.level = next_level
     pet.updated_at = datetime.utcnow()
 
-    # Record transaction
+    # Record transaction (shows total cost paid)
     tx = Transaction(
         user_id=user.id,
         type=TxType.PET_UPGRADE,
-        amount_xpet=-upgrade_cost,
-        meta={"pet_id": pet_id, "new_level": next_level.value},
+        amount_xpet=-total_cost,
+        meta={
+            "pet_id": pet_id,
+            "new_level": next_level.value,
+            "upgrade_cost": str(upgrade_cost),
+            "evolution_fee": str(evolution_fee),
+        },
     )
     db.add(tx)
 
     await db.commit()
     await db.refresh(pet)
 
-    return pet, user.balance_xpet
+    return pet, user.balance_xpet, upgrade_cost, evolution_fee
 
 
 async def sell_pet(

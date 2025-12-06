@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     # App
     DEBUG: bool = False
 
+    # Game Economics
+    EVOLUTION_FEE_PERCENT: float = 0.10  # 10% fee on upgrades (doesn't add to invested_total)
+
     class Config:
         env_file = ".env"
 

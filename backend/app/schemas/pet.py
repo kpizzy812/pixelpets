@@ -37,6 +37,7 @@ class UserPetResponse(BaseModel):
     training_started_at: Optional[datetime]
     training_ends_at: Optional[datetime]
     upgrade_cost: Optional[Decimal]
+    evolution_fee: Optional[Decimal]  # 10% fee on upgrade (not added to invested_total)
     next_level: Optional[PetLevel]
     current_daily_rate: Decimal  # Daily rate as percentage (e.g., 1.5 for 1.5%)
     roi_boost_percent: Optional[Decimal] = None  # ROI boost as percentage (e.g., 10 for +10%)
@@ -67,6 +68,9 @@ class PetIdRequest(BaseModel):
 class UpgradePetResponse(BaseModel):
     pet: UserPetResponse
     new_balance: Decimal
+    upgrade_cost: Decimal  # Amount added to invested_total
+    evolution_fee: Decimal  # 10% fee (not added to invested_total)
+    total_paid: Decimal  # upgrade_cost + evolution_fee
 
 
 class SellPetResponse(BaseModel):

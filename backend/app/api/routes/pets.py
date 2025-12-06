@@ -38,6 +38,7 @@ from app.services.pets import (
     MAX_SLOTS,
 )
 from app.services.boosts import get_pet_total_roi_boost
+from app.core.config import settings
 
 router = APIRouter(prefix="/pets", tags=["pets"])
 
@@ -54,8 +55,10 @@ async def pet_to_response(pet, db: AsyncSession) -> UserPetResponse:
 
     next_level = get_next_level(pet.level)
     upgrade_cost = None
+    evolution_fee = None
     if next_level and pet.status not in [PetStatus.EVOLVED, PetStatus.SOLD]:
         upgrade_cost = calculate_upgrade_cost(pet.pet_type.level_prices, next_level, pet.invested_total)
+        evolution_fee = upgrade_cost * Decimal(str(settings.EVOLUTION_FEE_PERCENT))
 
     # Convert daily_rate from decimal (0.015) to percentage (1.5)
     current_daily_rate = pet.pet_type.daily_rate * 100
@@ -72,6 +75,7 @@ async def pet_to_response(pet, db: AsyncSession) -> UserPetResponse:
         training_started_at=pet.training_started_at,
         training_ends_at=pet.training_ends_at,
         upgrade_cost=upgrade_cost,
+        evolution_fee=evolution_fee,
         next_level=next_level,
         current_daily_rate=current_daily_rate,
         roi_boost_percent=roi_boost * Decimal("100") if roi_boost else None,
@@ -125,12 +129,15 @@ async def upgrade_pet_endpoint(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Upgrade a pet to the next level."""
+    """Upgrade a pet to the next level. Includes 10% evolution fee."""
     try:
-        pet, new_balance = await upgrade_pet(db, current_user, request.pet_id)
+        pet, new_balance, upgrade_cost, evolution_fee = await upgrade_pet(db, current_user, request.pet_id)
         return UpgradePetResponse(
             pet=await pet_to_response(pet, db),
             new_balance=new_balance,
+            upgrade_cost=upgrade_cost,
+            evolution_fee=evolution_fee,
+            total_paid=upgrade_cost + evolution_fee,
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
