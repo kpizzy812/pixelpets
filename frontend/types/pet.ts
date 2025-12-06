@@ -21,6 +21,8 @@ export interface Pet {
   dailyRate: number;
   status: PetStatus;
   trainingEndsAt?: number;
+  upgradeCost: number | null;    // Amount added to invested_total
+  evolutionFee: number | null;   // 10% fee (not added to invested_total)
 }
 
 export interface PetSlot {

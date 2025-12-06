@@ -60,7 +60,8 @@ export interface UserPet {
   roi_progress: number;
   can_claim: boolean;
   claimable_amount: number;
-  upgrade_price: number | null;
+  upgrade_cost: number | null;  // Amount added to invested_total
+  evolution_fee: number | null; // 10% fee (not added to invested_total)
 }
 
 export interface MyPetsResponse {

@@ -10,6 +10,7 @@ import { showSuccess, showError } from '@/lib/toast';
 import { useHaptic } from '@/hooks/use-haptic';
 import { formatNumber } from '@/lib/format';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import type { Pet } from '@/types/pet';
 import type {
   SnackType,
@@ -26,10 +27,10 @@ interface BoostModalProps {
 
 type BoostTab = 'snacks' | 'roi' | 'autoclaim';
 
-const SNACK_EMOJIS: Record<SnackType, string> = {
-  cookie: '🍪',
-  steak: '🥩',
-  cake: '🎂',
+const SNACK_IMAGES: Record<SnackType, string> = {
+  cookie: '/pixelicons/coockie.png',
+  steak: '/pixelicons/stake.png',
+  cake: '/pixelicons/cake.png',
 };
 
 const SNACK_NAMES: Record<SnackType, string> = {
@@ -179,7 +180,7 @@ export function BoostModal({ isOpen, onClose, pet }: BoostModalProps) {
     if (snackPrices.active_snack) {
       return (
         <div className="p-4 rounded-xl bg-[#c7f464]/10 border border-[#c7f464]/30 text-center">
-          <span className="text-3xl mb-2 block">{SNACK_EMOJIS[snackPrices.active_snack as SnackType]}</span>
+          <Image src={SNACK_IMAGES[snackPrices.active_snack as SnackType]} alt={snackPrices.active_snack} width={48} height={48} className="mx-auto mb-2" />
           <p className="text-sm text-[#c7f464]">
             {t('activeSnack', { snack: SNACK_NAMES[snackPrices.active_snack as SnackType] })}
           </p>

@@ -20,6 +20,12 @@ function mapUserPetToPet(userPet: UserPet): Pet {
   const dailyRate = typeof userPet.current_daily_rate === 'string'
     ? parseFloat(userPet.current_daily_rate)
     : userPet.current_daily_rate;
+  const upgradeCost = userPet.upgrade_cost != null
+    ? (typeof userPet.upgrade_cost === 'string' ? parseFloat(userPet.upgrade_cost) : userPet.upgrade_cost)
+    : null;
+  const evolutionFee = userPet.evolution_fee != null
+    ? (typeof userPet.evolution_fee === 'string' ? parseFloat(userPet.evolution_fee) : userPet.evolution_fee)
+    : null;
 
   return {
     id: String(userPet.id),
@@ -34,6 +40,8 @@ function mapUserPetToPet(userPet: UserPet): Pet {
     trainingEndsAt: userPet.training_ends_at
       ? new Date(userPet.training_ends_at).getTime()
       : undefined,
+    upgradeCost,
+    evolutionFee,
   };
 }
 

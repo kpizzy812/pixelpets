@@ -14,7 +14,6 @@ interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
   pet: Pet | null;
-  upgradePrice: number | null;
 }
 
 const LEVEL_DISPLAY: Record<PetLevel, string> = {
@@ -30,7 +29,7 @@ const NEXT_LEVEL: Record<PetLevel, PetLevel | null> = {
 };
 
 
-export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModalProps) {
+export function UpgradeModal({ isOpen, onClose, pet }: UpgradeModalProps) {
   const balance = useBalance();
   const { upgradePet } = useGameStore();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -44,7 +43,11 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
 
   if (!isOpen || !pet) return null;
 
-  const canAfford = upgradePrice !== null && balance >= upgradePrice;
+  // Get upgrade costs from pet data
+  const upgradeCost = pet.upgradeCost;
+  const evolutionFee = pet.evolutionFee;
+  const totalCost = upgradeCost != null && evolutionFee != null ? upgradeCost + evolutionFee : null;
+  const canAfford = totalCost !== null && balance >= totalCost;
   const isMaxLevel = pet.level === 'MYTHIC';
   const nextLevel = NEXT_LEVEL[pet.level];
 
@@ -155,14 +158,27 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
               <div className="flex justify-between items-center">
                 <span className="text-sm text-[#64748b]">After Upgrade</span>
                 <span className="text-sm text-[#c7f464] font-medium inline-flex items-center gap-1">
-                  {upgradePrice != null ? formatNumber(pet.invested + upgradePrice) : '---'} <XpetCoin size={18} />
+                  {upgradeCost != null ? formatNumber(pet.invested + upgradeCost) : '---'} <XpetCoin size={18} />
                 </span>
               </div>
               <div className="h-px bg-[#334155]" />
               <div className="flex justify-between items-center">
                 <span className="text-sm text-[#64748b]">Upgrade Cost</span>
                 <span className="text-sm text-[#f1f5f9] font-medium inline-flex items-center gap-1">
-                  {upgradePrice != null ? formatNumber(upgradePrice) : '---'} <XpetCoin size={18} />
+                  {upgradeCost != null ? formatNumber(upgradeCost) : '---'} <XpetCoin size={18} />
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-[#64748b]">Evolution Fee</span>
+                <span className="text-sm text-[#fbbf24] font-medium inline-flex items-center gap-1">
+                  {evolutionFee != null ? formatNumber(evolutionFee) : '---'} <XpetCoin size={18} />
+                </span>
+              </div>
+              <div className="h-px bg-[#334155]" />
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-[#f1f5f9] font-medium">Total</span>
+                <span className="text-sm text-[#f1f5f9] font-bold inline-flex items-center gap-1">
+                  {totalCost != null ? formatNumber(totalCost) : '---'} <XpetCoin size={18} />
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -185,7 +201,7 @@ export function UpgradeModal({ isOpen, onClose, pet, upgradePrice }: UpgradeModa
                 ? 'Upgrading...'
                 : !canAfford
                 ? 'Insufficient Balance'
-                : `Upgrade for ${upgradePrice != null ? formatNumber(upgradePrice) : '---'} XPET`}
+                : `Upgrade for ${totalCost != null ? formatNumber(totalCost) : '---'} XPET`}
             </Button>
           </>
         ) : null}

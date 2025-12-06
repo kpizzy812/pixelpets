@@ -76,16 +76,6 @@ export function HomeScreen() {
     setBoostSlotIndex(slotIndex);
   };
 
-  // Get upgrade price from original API data (we need to track this)
-  const getUpgradePrice = (slotIndex: number): number | null => {
-    // For now return estimated upgrade price based on level
-    const pet = petSlots[slotIndex]?.pet;
-    if (!pet) return null;
-    // Upgrade prices increase with level
-    const basePrices: Record<string, number> = { BABY: 25, ADULT: 50 };
-    return basePrices[pet.level] ?? null;
-  };
-
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* Gradient Background - outside safe area to cover full screen */}
@@ -116,7 +106,6 @@ export function HomeScreen() {
         isOpen={upgradeSlotIndex !== null}
         onClose={() => setUpgradeSlotIndex(null)}
         pet={upgradePet}
-        upgradePrice={upgradeSlotIndex !== null ? getUpgradePrice(upgradeSlotIndex) : null}
       />
 
       <SellModal
