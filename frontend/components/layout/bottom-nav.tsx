@@ -6,7 +6,7 @@ import { useCallback } from 'react';
 import { Icon, type IconName } from '@/components/ui/icon';
 import { useHaptic } from '@/hooks/use-haptic';
 
-type NavItem = 'home' | 'shop' | 'spin' | 'tasks' | 'referrals';
+type NavItem = 'home' | 'shop' | 'tasks' | 'referrals';
 
 interface NavItemConfig {
   id: NavItem;
@@ -17,7 +17,6 @@ interface NavItemConfig {
 const NAV_ITEMS: NavItemConfig[] = [
   { id: 'home', icon: 'home', href: '/' },
   { id: 'shop', icon: 'shop', href: '/shop' },
-  { id: 'spin', icon: 'spin', href: '/spin' },
   { id: 'tasks', icon: 'tasks', href: '/tasks' },
   { id: 'referrals', icon: 'referrals', href: '/referrals' },
 ];
@@ -28,7 +27,6 @@ export function BottomNav() {
 
   const getActiveItem = (): NavItem => {
     if (pathname === '/shop') return 'shop';
-    if (pathname === '/spin') return 'spin';
     if (pathname === '/tasks') return 'tasks';
     if (pathname === '/referrals') return 'referrals';
     return 'home';

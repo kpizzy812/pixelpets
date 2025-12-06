@@ -6,6 +6,7 @@ import { useGameStore, useBalance, usePetSlots } from '@/store/game-store';
 import { HeaderBalance } from './header-balance';
 import { PetCarousel } from './pet-carousel';
 import { BottomNav } from '@/components/layout/bottom-nav';
+import { FloatingSpinButton } from '@/components/layout/floating-spin-button';
 import { UpgradeModal, SellModal, BoostModal } from '@/components/pet';
 import { showSuccess, showError, showPetAction } from '@/lib/toast';
 import { formatNumber } from '@/lib/format';
@@ -99,6 +100,9 @@ export function HomeScreen() {
 
         {/* Bottom Navigation */}
         <BottomNav />
+
+        {/* Floating Spin Button */}
+        <FloatingSpinButton />
       </div>
 
       {/* Modals */}
