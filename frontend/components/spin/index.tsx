@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { PageLayout } from '@/components/layout/page-layout';
 import { Wheel } from './wheel';
 import { XpetCoin } from '@/components/ui/xpet-coin';
@@ -9,12 +10,15 @@ import { useGameStore, useBalance } from '@/store/game-store';
 import { spinApi } from '@/lib/api';
 import { showReward, showError } from '@/lib/toast';
 import { formatNumber } from '@/lib/format';
+import { useHaptic } from '@/hooks/use-haptic';
 import type { SpinReward, SpinWheelResponse } from '@/types/api';
 
 export function SpinScreen() {
   const balance = useBalance();
   const { updateBalance } = useGameStore();
   const t = useTranslations('spin');
+  const haptic = useHaptic();
+  const hapticIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const [wheelData, setWheelData] = useState<SpinWheelResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,8 +83,44 @@ export function SpinScreen() {
       return;
     }
 
+    // Haptic on button press
+    haptic.press();
+
     setIsSpinning(true);
     setLastWin(null);
+
+    // Start periodic haptic during spin (simulates pointer hitting segments)
+    // Fast at first (50ms), slowing down as wheel decelerates
+    let interval = 50;
+    let elapsed = 0;
+    const totalDuration = 4000;
+
+    const tickHaptic = () => {
+      if (elapsed >= totalDuration) {
+        if (hapticIntervalRef.current) {
+          clearTimeout(hapticIntervalRef.current);
+          hapticIntervalRef.current = null;
+        }
+        return;
+      }
+
+      haptic.impact('light');
+      elapsed += interval;
+
+      // Slow down the haptic as wheel decelerates
+      // First 1s: 50ms, 1-2s: 80ms, 2-3s: 150ms, 3-4s: 300ms
+      if (elapsed > 3000) {
+        interval = 300;
+      } else if (elapsed > 2000) {
+        interval = 150;
+      } else if (elapsed > 1000) {
+        interval = 80;
+      }
+
+      hapticIntervalRef.current = setTimeout(tickHaptic, interval);
+    };
+
+    hapticIntervalRef.current = setTimeout(tickHaptic, interval);
 
     try {
       const result = await spinApi.spin(isFree);
@@ -89,12 +129,19 @@ export function SpinScreen() {
 
       // Show result after animation
       setTimeout(() => {
+        // Strong haptic when reward appears
+        haptic.notification('success');
         setLastWin({ reward: result.reward, amount: result.amount_won });
         if (result.amount_won > 0) {
           showReward(result.amount_won);
         }
       }, 4000);
     } catch (err) {
+      // Stop haptic interval on error
+      if (hapticIntervalRef.current) {
+        clearTimeout(hapticIntervalRef.current);
+        hapticIntervalRef.current = null;
+      }
       setIsSpinning(false);
       showError(err instanceof Error ? err.message : t('spinFailed'));
     }
@@ -154,7 +201,15 @@ export function SpinScreen() {
           {lastWin && !isSpinning && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full animate-fade-in">
               <div className="text-center">
-                <div className="text-4xl mb-2">{lastWin.reward.emoji}</div>
+                <div className="mb-2 flex justify-center">
+                  <Image
+                    src="/XPET.png"
+                    alt="XPET"
+                    width={48}
+                    height={48}
+                    className="drop-shadow-lg"
+                  />
+                </div>
                 {lastWin.amount > 0 ? (
                   <>
                     <div className="text-lg font-bold text-[#c7f464]">
