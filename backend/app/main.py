@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.database import async_session
-from app.api.routes import auth, pets, wallet, referrals, tasks, spin, telegram_webhook, boosts
+from app.api.routes import auth, pets, wallet, referrals, tasks, spin, telegram_webhook, boosts, syntra
 from app.api.routes.admin import router as admin_router
 from app.services.auto_claim import run_auto_claim_job
 
@@ -84,6 +84,9 @@ app.include_router(admin_router)
 
 # Telegram webhook
 app.include_router(telegram_webhook.router)
+
+# Syntra integration
+app.include_router(syntra.router)
 
 
 @app.get("/health")

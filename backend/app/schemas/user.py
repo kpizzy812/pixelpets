@@ -53,3 +53,12 @@ class TelegramAuthRequest(BaseModel):
 class AuthResponse(BaseModel):
     access_token: str
     user: UserResponse
+
+
+class SyntraVerifyResponse(BaseModel):
+    """Ответ для проверки пользователя Syntra"""
+    is_registered: bool
+    has_pet: bool
+    pets_count: int
+    total_invested: Decimal
+    registered_at: Optional[datetime]
