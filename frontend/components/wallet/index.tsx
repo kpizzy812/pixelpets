@@ -139,7 +139,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
             <div className="p-4 rounded-2xl bg-[#1e293b]/40 mb-4">
               <div className="text-sm text-[#64748b] mb-1">{t('depositSuccess.sendExactly')}</div>
               <div className="text-2xl font-bold text-[#c7f464] inline-flex items-center gap-2">
-                {depositResult.amount} <XpetCoin size={24} />
+                {depositResult.amount} <Image src="/USDT.png" alt="USDT" width={24} height={24} />
               </div>
               <div className="text-sm text-[#64748b] mt-1">
                 {t('depositSuccess.via', { network: depositResult.network })}
@@ -288,6 +288,17 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                e.currentTarget.blur(); // Close keyboard
+                if (activeTab === 'deposit') {
+                  handleDeposit();
+                } else {
+                  handleWithdraw();
+                }
+              }
+            }}
             placeholder={t('amountPlaceholder')}
             className="w-full p-4 rounded-xl bg-[#1e293b]/40 border border-[#334155]/50 text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#00f5d4]/50"
           />
