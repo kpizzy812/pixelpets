@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Optional
@@ -10,6 +11,7 @@ from app.models.user import User
 from app.models.pet import PetType, UserPet
 from app.models.transaction import Transaction
 from app.models.enums import PetStatus, PetLevel, TxType
+from app.services.user_notifications import notify_pet_evolved
 from app.i18n import get_text as t
 from app.core.config import settings
 
@@ -449,6 +451,17 @@ async def claim_profit(
     db.add(tx)
 
     await db.commit()
+
+    # Notify user if pet evolved (fire-and-forget)
+    if evolved:
+        asyncio.create_task(
+            notify_pet_evolved(
+                user_telegram_id=user.telegram_id,
+                pet_name=pet.pet_type.name,
+                total_earned=pet.profit_claimed,
+                locale=user.language_code or "en",
+            )
+        )
 
     # Process referral rewards (after main commit)
     from app.services.referrals import process_referral_rewards

@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional, Tuple, List
@@ -14,6 +15,7 @@ from app.models import (
     RequestStatus,
     NetworkType,
 )
+from app.services.user_notifications import notify_withdrawal_approved
 from app.i18n import get_text as t
 
 
@@ -93,7 +95,9 @@ async def complete_withdrawal(
 ) -> WithdrawRequest:
     """Mark withdrawal as completed (already sent)."""
     result = await db.execute(
-        select(WithdrawRequest).where(WithdrawRequest.id == withdrawal_id)
+        select(WithdrawRequest)
+        .options(joinedload(WithdrawRequest.user))
+        .where(WithdrawRequest.id == withdrawal_id)
     )
     withdrawal = result.scalar_one_or_none()
 
@@ -124,6 +128,17 @@ async def complete_withdrawal(
 
     await db.commit()
     await db.refresh(withdrawal)
+
+    # Notify user about withdrawal completion (fire-and-forget)
+    user = withdrawal.user
+    asyncio.create_task(
+        notify_withdrawal_approved(
+            user_telegram_id=user.telegram_id,
+            amount=withdrawal.amount - withdrawal.fee,  # Net amount sent to user
+            tx_hash=tx_hash or "",
+            locale=user.language_code or "en",
+        )
+    )
 
     return withdrawal
 

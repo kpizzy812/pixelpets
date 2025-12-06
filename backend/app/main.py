@@ -10,11 +10,13 @@ from app.core.database import async_session
 from app.api.routes import auth, pets, wallet, referrals, tasks, spin, telegram_webhook, boosts, syntra
 from app.api.routes.admin import router as admin_router
 from app.services.auto_claim import run_auto_claim_job
+from app.services.training_notifications import run_training_notification_job
 
 logger = logging.getLogger(__name__)
 
-# Auto-claim scheduler settings
+# Scheduler settings
 AUTO_CLAIM_INTERVAL_MINUTES = 5
+TRAINING_NOTIFICATION_INTERVAL_MINUTES = 5
 
 
 async def auto_claim_scheduler():
@@ -36,22 +38,49 @@ async def auto_claim_scheduler():
             await asyncio.sleep(60)  # Wait a bit before retrying
 
 
+async def training_notification_scheduler():
+    """Background task that sends training complete notifications every N minutes."""
+    while True:
+        try:
+            await asyncio.sleep(TRAINING_NOTIFICATION_INTERVAL_MINUTES * 60)
+
+            async with async_session() as db:
+                stats = await run_training_notification_job(db)
+                if stats["processed"] > 0:
+                    logger.info(f"Training notifications sent: {stats}")
+        except asyncio.CancelledError:
+            logger.info("Training notification scheduler stopped")
+            break
+        except Exception as e:
+            logger.error(f"Training notification scheduler error: {e}")
+            # Continue running despite errors
+            await asyncio.sleep(60)  # Wait a bit before retrying
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifespan - start/stop background tasks."""
-    # Start auto-claim scheduler
-    scheduler_task = asyncio.create_task(auto_claim_scheduler())
+    # Start schedulers
+    auto_claim_task = asyncio.create_task(auto_claim_scheduler())
+    training_notification_task = asyncio.create_task(training_notification_scheduler())
     logger.info("Auto-claim scheduler started")
+    logger.info("Training notification scheduler started")
 
     yield
 
-    # Stop scheduler on shutdown
-    scheduler_task.cancel()
+    # Stop schedulers on shutdown
+    auto_claim_task.cancel()
+    training_notification_task.cancel()
     try:
-        await scheduler_task
+        await auto_claim_task
+    except asyncio.CancelledError:
+        pass
+    try:
+        await training_notification_task
     except asyncio.CancelledError:
         pass
     logger.info("Auto-claim scheduler stopped")
+    logger.info("Training notification scheduler stopped")
 
 
 app = FastAPI(

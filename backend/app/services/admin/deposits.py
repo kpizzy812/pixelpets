@@ -15,7 +15,7 @@ from app.models import (
     RequestStatus,
     NetworkType,
 )
-from app.services.user_notifications import notify_partner_deposited
+from app.services.user_notifications import notify_partner_deposited, notify_deposit_approved
 from app.i18n import get_text as t
 
 
@@ -129,6 +129,15 @@ async def approve_deposit(
 
     await db.commit()
     await db.refresh(deposit)
+
+    # Notify user about deposit approval (fire-and-forget)
+    asyncio.create_task(
+        notify_deposit_approved(
+            user_telegram_id=user.telegram_id,
+            amount=deposit.amount,
+            locale=user.language_code or "en",
+        )
+    )
 
     # Notify referrer about partner's deposit (fire-and-forget)
     if user.referrer_id:
