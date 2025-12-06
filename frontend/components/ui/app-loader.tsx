@@ -85,10 +85,16 @@ export function AppLoader({ onComplete }: AppLoaderProps) {
         {/* Logo/Pet Animation */}
         <div className="relative mb-8">
           <div className="animate-bounce">
-            <Icon name="egg" size={72} className="text-[#c7f464]" />
+            <img
+              src="/pixelicons/logo.png"
+              alt="Pixel Pets"
+              width={120}
+              height={120}
+              className="drop-shadow-[0_0_20px_rgba(147,51,234,0.6)]"
+            />
           </div>
           {/* Glow effect */}
-          <div className="absolute inset-0 blur-2xl bg-[#c7f464]/20 -z-10 scale-150" />
+          <div className="absolute inset-0 blur-2xl bg-purple-500/30 -z-10 scale-150 animate-pulse" />
         </div>
 
         {/* Title */}
