@@ -74,20 +74,26 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
     }
   };
 
+  const getLevelIcon = (): 'level1' | 'level2' | 'level3' => {
+    if (pet.level === 'BABY') return 'level1';
+    if (pet.level === 'ADULT') return 'level2';
+    return 'level3'; // MYTHIC
+  };
+
   return (
     <div className="pet-card flex flex-col h-full">
       {/* Top Pills */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1e293b]/60 border border-[#334155]/30">
-            <span className="text-xs font-medium text-[#f1f5f9]">{pet.level}</span>
+          <div className="flex items-center justify-center w-10 h-10">
+            <Icon name={getLevelIcon()} size={40} />
           </div>
           {onUpgrade && pet.level !== 'MYTHIC' && (
             <button
               onClick={() => { tap(); onUpgrade(); }}
               className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#c7f464]/20 border border-[#c7f464]/40 hover:bg-[#c7f464]/30 transition-colors"
             >
-              <Icon name="upgrade" size={16} className="text-[#c7f464]" />
+              <Icon name="levelup" size={16} />
             </button>
           )}
         </div>
@@ -96,7 +102,7 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
             onClick={() => { tap(); onBoosts(); }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#c7f464]/20 to-[#00f5d4]/20 border border-[#c7f464]/40 hover:border-[#c7f464]/60 transition-colors"
           >
-            <span className="text-sm">🚀</span>
+            <Icon name="boosts" size={16} />
             <span className="text-xs font-medium text-[#c7f464]">Boosts</span>
           </button>
         )}

@@ -37,13 +37,31 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Image icons that use pixelicons
+const imageIcons = {
+  home: '/pixelicons/home.png',
+  shop: '/pixelicons/shop.png',
+  tasks: '/pixelicons/tasks.png',
+  referrals: '/pixelicons/refs.png',
+  spin: '/pixelicons/spin.png',
+  trophy: '/pixelicons/trophy.png',
+  wallet: '/pixelicons/wallet.png',
+  settings: '/pixelicons/settings.png',
+  boosts: '/pixelicons/boosts.png',
+  level1: '/pixelicons/level1.png',
+  level2: '/pixelicons/level2.png',
+  level3: '/pixelicons/level3.png',
+  levelup: '/pixelicons/levelup.png',
+  checkbox: '/pixelicons/checkbox.png',
+} as const;
+
 // Icon name to Lucide component mapping
 const icons = {
-  // Navigation
-  home: Home,
-  shop: ShoppingCart,
-  tasks: ClipboardList,
-  referrals: Users,
+  // Navigation (using images)
+  home: 'image',
+  shop: 'image',
+  tasks: 'image',
+  referrals: 'image',
 
   // Currency/Networks
   coins: Coins,
@@ -84,16 +102,24 @@ const icons = {
   share: Share2,
   copy: Copy,
 
-  // Header
-  trophy: Trophy,
-  wallet: Wallet,
-  settings: Settings,
+  // Header (using images)
+  trophy: 'image',
+  wallet: 'image',
+  settings: 'image',
 
-  // Spin
-  spin: Dices,
+  // Spin (using image)
+  spin: 'image',
 
   // Menu
   menu: Menu,
+
+  // Pet levels & actions (using images)
+  boosts: 'image',
+  level1: 'image',
+  level2: 'image',
+  level3: 'image',
+  levelup: 'image',
+  checkbox: 'image',
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -110,6 +136,24 @@ export function Icon({ name, className, size = 24, ...props }: IconProps) {
   if (!IconComponent) {
     console.warn(`Icon "${name}" not found`);
     return null;
+  }
+
+  // Handle image icons from pixelicons
+  if (IconComponent === 'image') {
+    const imageSrc = imageIcons[name as keyof typeof imageIcons];
+    if (!imageSrc) {
+      console.warn(`Image icon "${name}" not found`);
+      return null;
+    }
+
+    return (
+      <img
+        src={imageSrc}
+        alt={name}
+        className={cn('inline-block', className)}
+        style={{ width: size, height: size }}
+      />
+    );
   }
 
   // Handle custom SVG components (like Twitter)

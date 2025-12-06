@@ -43,7 +43,7 @@ export function TaskItem({ task, onGo, onCheck, isChecking }: TaskItemProps) {
         {/* Icon */}
         <div className="w-12 h-12 rounded-xl bg-[#1e293b]/60 flex items-center justify-center">
           {task.is_completed ? (
-            <Icon name="check-circle" size={24} className="text-green-400" />
+            <Icon name="checkbox" size={28} />
           ) : task.task_type === 'telegram' ? (
             <Image src="/tg.svg" alt="Telegram" width={24} height={24} />
           ) : (
