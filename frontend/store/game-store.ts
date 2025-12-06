@@ -248,7 +248,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
             : null,
         };
       });
-      return { profit: result.profit, evolved: result.evolved };
+      return { profit: result.profit_claimed, evolved: result.evolved };
     } catch (err) {
       set({ error: err instanceof Error ? err.message : 'Failed to claim reward' });
       throw err;

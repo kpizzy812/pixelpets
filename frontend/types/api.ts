@@ -71,8 +71,16 @@ export interface MyPetsResponse {
 }
 
 export interface ClaimResponse {
-  profit: number;
+  profit_claimed: number;
+  base_profit?: number;
+  snack_bonus?: number;
+  snack_used?: string;
+  roi_boost_percent?: number;
+  auto_claim_commission?: number;
   new_balance: number;
+  pet_status: string;
+  total_profit_claimed: number;
+  max_profit: number;
   evolved: boolean;
 }
 
