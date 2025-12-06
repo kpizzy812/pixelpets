@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { BottomNav } from './bottom-nav';
+import { useBackButton } from '@/hooks/use-back-button';
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -10,6 +11,8 @@ interface PageLayoutProps {
 }
 
 export function PageLayout({ children, title }: PageLayoutProps) {
+  // Automatically show/hide Telegram back button based on current page
+  useBackButton();
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* Background - transparent to show body background image */}

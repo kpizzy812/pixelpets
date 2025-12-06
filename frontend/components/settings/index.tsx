@@ -3,7 +3,6 @@
 import { useTranslations } from 'next-intl';
 import { PageLayout } from '@/components/layout/page-layout';
 import { useGameStore } from '@/store/game-store';
-import { useBackButton } from '@/hooks/use-back-button';
 import { useHaptic } from '@/hooks/use-haptic';
 import { useLocale } from '@/hooks/use-locale';
 import type { Locale } from '@/i18n/request';
@@ -28,9 +27,6 @@ export function SettingsScreen() {
   const { locale, setLocale } = useLocale();
   const { selection, success } = useHaptic();
   const t = useTranslations('settings');
-
-  // Enable Telegram back button for this page
-  useBackButton();
 
   const handleLanguageChange = (lang: Locale) => {
     if (lang === locale) return;

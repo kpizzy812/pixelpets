@@ -5,7 +5,6 @@ import { PageLayout } from '@/components/layout/page-layout';
 import { HallPetCard } from './hall-pet-card';
 import { XpetCoin } from '@/components/ui/xpet-coin';
 import { petsApi } from '@/lib/api';
-import { useBackButton } from '@/hooks/use-back-button';
 import { formatNumber } from '@/lib/format';
 import type { HallOfFameEntry } from '@/types/api';
 
@@ -14,9 +13,6 @@ export function HallOfFameScreen() {
   const [totalEarned, setTotalEarned] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Enable Telegram back button for this page
-  useBackButton();
 
   useEffect(() => {
     const fetchHallOfFame = async () => {
