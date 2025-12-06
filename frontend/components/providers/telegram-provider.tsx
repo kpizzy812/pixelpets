@@ -215,7 +215,22 @@ export function TelegramProvider({
         }
 
         // ═══════════════════════════════════════════════════════════
-        // STEP 5: Security and UX settings
+        // STEP 5: Request write access for bot messaging
+        // ═══════════════════════════════════════════════════════════
+
+        // Check if bot already has permission to write
+        const allowsWriteToPm = initDataUnsafe?.user?.allows_write_to_pm;
+        console.log('[TelegramProvider] allows_write_to_pm:', allowsWriteToPm);
+
+        // If no permission yet, request it (shows native Telegram popup)
+        if (!allowsWriteToPm && WebApp.requestWriteAccess) {
+          WebApp.requestWriteAccess((granted) => {
+            console.log('[TelegramProvider] Write access granted:', granted);
+          });
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // STEP 6: Security and UX settings
         // ═══════════════════════════════════════════════════════════
 
         // Disable vertical swipes to close (Bot API 7.7+)
@@ -235,7 +250,7 @@ export function TelegramProvider({
         }
 
         // ═══════════════════════════════════════════════════════════
-        // STEP 6: Theme and colors
+        // STEP 7: Theme and colors
         // ═══════════════════════════════════════════════════════════
         const scheme = WebApp.colorScheme || 'dark';
         setColorScheme(scheme);
@@ -282,7 +297,7 @@ export function TelegramProvider({
         }
 
         // ═══════════════════════════════════════════════════════════
-        // STEP 7: Safe Area Insets for iOS notch
+        // STEP 8: Safe Area Insets for iOS notch
         // ═══════════════════════════════════════════════════════════
         const updateSafeAreaInsets = () => {
           const root = document.documentElement;
@@ -310,7 +325,7 @@ export function TelegramProvider({
         WebApp.onEvent('contentSafeAreaChanged', updateSafeAreaInsets);
 
         // ═══════════════════════════════════════════════════════════
-        // STEP 8: Log app info
+        // STEP 9: Log app info
         // ═══════════════════════════════════════════════════════════
         console.log('[TelegramProvider] WebApp Info:', {
           version: WebApp.version,
@@ -323,12 +338,12 @@ export function TelegramProvider({
         });
 
         // ═══════════════════════════════════════════════════════════
-        // STEP 9: Block page scroll (prevent swipe-down close)
+        // STEP 10: Block page scroll (prevent swipe-down close)
         // ═══════════════════════════════════════════════════════════
         document.body.classList.add('mobile-body');
 
         // ═══════════════════════════════════════════════════════════
-        // STEP 10: Complete initialization
+        // STEP 11: Complete initialization
         // ═══════════════════════════════════════════════════════════
         setWebApp(WebApp);
         setIsReady(true);
