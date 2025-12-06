@@ -1,5 +1,7 @@
 import toast from 'react-hot-toast';
 import { createElement } from 'react';
+import { getPetImageUrl } from '@/components/ui/pet-image';
+import type { PetLevel } from '@/types/pet';
 
 export const showSuccess = (message: string) => {
   toast.success(message);
@@ -28,10 +30,10 @@ export const showReward = (amount: number) => {
   });
 };
 
-export const showPetAction = (imageKey: string, message: string) => {
+export const showPetAction = (imageKey: string, level: PetLevel, message: string) => {
   toast.success(message, {
     icon: createElement('img', {
-      src: `/pets/${imageKey}.png`,
+      src: getPetImageUrl(imageKey, level),
       alt: 'pet',
       style: { width: 24, height: 24, objectFit: 'contain' },
     }),

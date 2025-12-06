@@ -37,7 +37,7 @@ export function HomeScreen() {
     if (slot?.pet) {
       try {
         await startTraining(Number(slot.pet.id));
-        showPetAction(slot.pet.imageKey, `${slot.pet.name} started training!`);
+        showPetAction(slot.pet.imageKey, slot.pet.level, `${slot.pet.name} started training!`);
       } catch (err) {
         showError(err instanceof Error ? err.message : 'Failed to start training');
       }
