@@ -39,8 +39,17 @@ export function TasksScreen() {
       } else {
         showError(t('taskNotCompleted'));
       }
-    } catch (err) {
-      showError(err instanceof Error ? err.message : t('failedToCheck'));
+    } catch (err: any) {
+      // Extract error message from API response
+      let errorMessage = t('failedToCheck');
+
+      if (err?.data?.detail) {
+        errorMessage = err.data.detail;
+      } else if (err?.message && !err.message.includes('API Error')) {
+        errorMessage = err.message;
+      }
+
+      showError(errorMessage);
     } finally {
       setCheckingId(null);
     }
