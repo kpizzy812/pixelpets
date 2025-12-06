@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional
+import re
 
 import httpx
 from sqlalchemy import select, func
@@ -140,16 +141,25 @@ async def check_task(
 
 async def verify_telegram_subscription(
     user_telegram_id: int,
-    channel_username: str,
+    chat_id: str,
 ) -> bool:
     """
     Verify if user is subscribed to a Telegram channel.
     Requires bot to be admin in the channel.
+    chat_id can be @username or numeric ID like -1001234567890
     """
     try:
         url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/getChatMember"
+
+        # If chat_id is numeric (starts with - or is digit), use as-is
+        # Otherwise prepend @ for username
+        if chat_id.lstrip('-').isdigit():
+            formatted_chat_id = chat_id
+        else:
+            formatted_chat_id = f"@{chat_id.lstrip('@')}"
+
         params = {
-            "chat_id": f"@{channel_username}",
+            "chat_id": formatted_chat_id,
             "user_id": user_telegram_id,
         }
 
@@ -171,15 +181,30 @@ async def verify_task_completion(user: User, task: Task) -> bool:
     Verify task completion based on task type.
     Returns True if verified or verification not required.
     """
-    if task.task_type == TaskType.TELEGRAM_CHANNEL:
-        if task.verification_data and task.verification_data.get("channel_id"):
-            channel = task.verification_data["channel_id"].lstrip("@")
-            return await verify_telegram_subscription(user.telegram_id, channel)
+    if task.task_type == TaskType.TELEGRAM_CHANNEL or task.task_type == TaskType.TELEGRAM_CHAT:
+        # Get channel/chat ID from verification_data or link
+        chat_id = None
 
-    if task.task_type == TaskType.TELEGRAM_CHAT:
-        if task.verification_data and task.verification_data.get("chat_id"):
-            chat = task.verification_data["chat_id"].lstrip("@")
-            return await verify_telegram_subscription(user.telegram_id, chat)
+        if task.verification_data and task.verification_data.get("channel_id"):
+            chat_id = task.verification_data["channel_id"]
+        elif task.link:
+            # Extract from link: supports @username, t.me/username, https://t.me/username, or numeric ID
+            # First check if it's a numeric ID (like -1001234567890)
+            if task.link.lstrip('-').isdigit():
+                chat_id = task.link
+            else:
+                # Try to extract username from URL or @username
+                match = re.search(r'(?:@|t\.me/)([a-zA-Z0-9_]+)', task.link)
+                if match:
+                    chat_id = match.group(1)
+                elif task.link.startswith('@'):
+                    chat_id = task.link[1:]
+
+        if chat_id:
+            return await verify_telegram_subscription(user.telegram_id, chat_id)
+
+        # If no chat_id found, return False
+        return False
 
     # For other task types, trust the client
     return True

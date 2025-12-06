@@ -323,12 +323,28 @@ export default function TasksPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Link (optional)</Label>
+              <Label>
+                Link
+                {(formData.task_type === "TELEGRAM_CHANNEL" || formData.task_type === "TELEGRAM_CHAT") && (
+                  <span className="text-xs text-muted-foreground ml-1">
+                    (e.g., @channelname or https://t.me/channelname)
+                  </span>
+                )}
+              </Label>
               <Input
                 value={formData.link || ""}
                 onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                placeholder="https://..."
+                placeholder={
+                  formData.task_type === "TELEGRAM_CHANNEL" || formData.task_type === "TELEGRAM_CHAT"
+                    ? "@channelname or https://t.me/channelname"
+                    : "https://..."
+                }
               />
+              {(formData.task_type === "TELEGRAM_CHANNEL" || formData.task_type === "TELEGRAM_CHAT") && (
+                <p className="text-xs text-amber-600">
+                  ⚠️ Bot must be admin in the channel/chat to verify subscriptions
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Switch
