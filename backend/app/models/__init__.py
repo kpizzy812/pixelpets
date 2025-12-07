@@ -11,6 +11,8 @@ from app.models.enums import (
     SpinRewardType,
     SnackType,
     BoostType,
+    BroadcastStatus,
+    BroadcastTargetType,
 )
 from app.models.user import User
 from app.models.pet import PetType, UserPet
@@ -22,6 +24,7 @@ from app.models.config import SystemConfig
 from app.models.admin_log import AdminActionLog
 from app.models.spin import SpinReward, UserSpin
 from app.models.boost import PetSnack, PetRoiBoost, AutoClaimSubscription, BoostTransaction
+from app.models.broadcast import Broadcast, BroadcastLog
 
 __all__ = [
     # Enums
@@ -57,4 +60,9 @@ __all__ = [
     "PetRoiBoost",
     "AutoClaimSubscription",
     "BoostTransaction",
+    # Broadcast
+    "BroadcastStatus",
+    "BroadcastTargetType",
+    "Broadcast",
+    "BroadcastLog",
 ]

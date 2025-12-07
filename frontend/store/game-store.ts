@@ -34,10 +34,10 @@ function mapUserPetToPet(userPet: UserPet): Pet {
     : userPet.profit_claimed;
   const roiCap = typeof userPet.roi_cap === 'string'
     ? parseFloat(userPet.roi_cap)
-    : userPet.roi_cap;
+    : (userPet.roi_cap ?? 0);
   const roiProgress = typeof userPet.roi_progress === 'string'
     ? parseFloat(userPet.roi_progress)
-    : userPet.roi_progress;
+    : (userPet.roi_progress ?? 0);
 
   return {
     id: String(userPet.id),

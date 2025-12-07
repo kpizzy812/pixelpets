@@ -88,3 +88,24 @@ class BoostType(str, enum.Enum):
     ROI_BOOST = "ROI_BOOST"  # Permanent ROI cap increase
     SNACK = "SNACK"  # One-time claim bonus
     AUTO_CLAIM = "AUTO_CLAIM"  # Auto-claim subscription
+
+
+class BroadcastStatus(str, enum.Enum):
+    DRAFT = "DRAFT"  # Not yet scheduled
+    SCHEDULED = "SCHEDULED"  # Scheduled for future
+    SENDING = "SENDING"  # Currently being sent
+    COMPLETED = "COMPLETED"  # All messages sent
+    CANCELLED = "CANCELLED"  # Cancelled by admin
+    FAILED = "FAILED"  # Failed to complete
+
+
+class BroadcastTargetType(str, enum.Enum):
+    ALL = "ALL"  # All users
+    ACTIVE = "ACTIVE"  # Users with pets or balance > 0
+    INACTIVE = "INACTIVE"  # Users without pets and balance = 0
+    WITH_BALANCE = "WITH_BALANCE"  # Users with balance filter
+    WITH_PETS = "WITH_PETS"  # Users with active pets
+    WITH_DEPOSITS = "WITH_DEPOSITS"  # Users who have made deposits
+    BY_LANGUAGE = "BY_LANGUAGE"  # Filter by language code
+    BY_REGISTRATION = "BY_REGISTRATION"  # Filter by registration date
+    CUSTOM = "CUSTOM"  # Custom list of telegram IDs
