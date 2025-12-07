@@ -20,7 +20,14 @@ export function ProfileScreen() {
   const router = useRouter();
   const { user: telegramUser } = useTelegram();
   const { tap } = useHaptic();
-  useBackButton({ show: true });
+
+  useBackButton({
+    show: true,
+    onBack: () => {
+      router.push('/');
+      return true;
+    },
+  });
 
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);

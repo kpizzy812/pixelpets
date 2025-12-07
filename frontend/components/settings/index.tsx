@@ -1,10 +1,12 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { PageLayout } from '@/components/layout/page-layout';
 import { useGameStore } from '@/store/game-store';
 import { useHaptic } from '@/hooks/use-haptic';
 import { useLocale } from '@/hooks/use-locale';
+import { useBackButton } from '@/hooks/use-back-button';
 import type { Locale } from '@/i18n/request';
 
 interface LanguageOption {
@@ -23,10 +25,19 @@ const LANGUAGES: LanguageOption[] = [
 ];
 
 export function SettingsScreen() {
+  const router = useRouter();
   const { user } = useGameStore();
   const { locale, setLocale } = useLocale();
   const { selection, success } = useHaptic();
   const t = useTranslations('settings');
+
+  useBackButton({
+    show: true,
+    onBack: () => {
+      router.push('/');
+      return true;
+    },
+  });
 
   const handleLanguageChange = (lang: Locale) => {
     if (lang === locale) return;
