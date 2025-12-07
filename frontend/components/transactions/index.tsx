@@ -108,8 +108,14 @@ export function TransactionsScreen() {
   const [totalPages, setTotalPages] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
-  // Enable Telegram Back Button
-  useBackButton({ show: true });
+  // Enable Telegram Back Button with navigation
+  useBackButton({
+    show: true,
+    onBack: () => {
+      router.push('/');
+      return true; // Prevent default setActiveTab behavior
+    },
+  });
 
   const fetchTransactions = useCallback(async (pageNum: number, txType: TxType | 'ALL', append = false) => {
     setIsLoading(true);
