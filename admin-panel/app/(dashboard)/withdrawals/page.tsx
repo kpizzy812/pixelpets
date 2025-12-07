@@ -47,9 +47,9 @@ import { Withdrawal, WithdrawalStatus, NetworkType } from "@/types";
 import Link from "next/link";
 
 const statusColors: Record<WithdrawalStatus, "default" | "success" | "destructive"> = {
-  pending: "default",
-  completed: "success",
-  rejected: "destructive",
+  PENDING: "default",
+  COMPLETED: "success",
+  REJECTED: "destructive",
 };
 
 const networkColors: Record<NetworkType, string> = {
@@ -134,9 +134,9 @@ export default function WithdrawalsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
+            <SelectItem value="COMPLETED">Completed</SelectItem>
+            <SelectItem value="REJECTED">Rejected</SelectItem>
           </SelectContent>
         </Select>
 
@@ -234,7 +234,7 @@ export default function WithdrawalsPage() {
                     {formatDate(withdrawal.created_at)}
                   </TableCell>
                   <TableCell>
-                    {withdrawal.status === "pending" && isAdminOrAbove() ? (
+                    {withdrawal.status === "PENDING" && isAdminOrAbove() ? (
                       <div className="flex gap-1">
                         <Button
                           size="sm"

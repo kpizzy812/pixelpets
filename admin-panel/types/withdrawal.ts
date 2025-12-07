@@ -1,6 +1,6 @@
 import { NetworkType } from "./deposit";
 
-export type WithdrawalStatus = "pending" | "completed" | "rejected";
+export type WithdrawalStatus = "PENDING" | "COMPLETED" | "REJECTED";
 
 export interface Withdrawal {
   id: number;

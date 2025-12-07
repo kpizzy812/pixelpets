@@ -1,4 +1,4 @@
-export type DepositStatus = "pending" | "approved" | "rejected";
+export type DepositStatus = "PENDING" | "APPROVED" | "REJECTED";
 export type NetworkType = "BEP-20" | "Solana" | "TON";
 
 export interface Deposit {

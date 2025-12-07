@@ -46,9 +46,9 @@ import { Deposit, DepositStatus, NetworkType } from "@/types";
 import Link from "next/link";
 
 const statusColors: Record<DepositStatus, "default" | "success" | "destructive"> = {
-  pending: "default",
-  approved: "success",
-  rejected: "destructive",
+  PENDING: "default",
+  APPROVED: "success",
+  REJECTED: "destructive",
 };
 
 const networkColors: Record<NetworkType, string> = {
@@ -125,9 +125,9 @@ export default function DepositsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
+            <SelectItem value="APPROVED">Approved</SelectItem>
+            <SelectItem value="REJECTED">Rejected</SelectItem>
           </SelectContent>
         </Select>
 
@@ -201,7 +201,7 @@ export default function DepositsPage() {
                     {formatDate(deposit.created_at)}
                   </TableCell>
                   <TableCell>
-                    {deposit.status === "pending" && isAdminOrAbove() ? (
+                    {deposit.status === "PENDING" && isAdminOrAbove() ? (
                       <div className="flex gap-1">
                         <Button
                           size="sm"
