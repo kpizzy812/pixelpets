@@ -213,10 +213,13 @@ export function PetDetailScreen({ pet, onBack }: PetDetailScreenProps) {
               </button>
             </div>
           </div>
-          {/* SOON Badge Overlay */}
+          {/* MINT NFT SOON Badge Overlay */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="px-6 py-2 rounded-full bg-[#1e293b]/90 border border-[#334155]">
-              <span className="text-lg font-bold text-[#c7f464]">SOON</span>
+            <div className="px-6 py-2 rounded-full bg-[#1e293b]/90 border border-[#334155] flex items-center gap-2">
+              <svg className="w-5 h-5 text-[#a855f7]" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+              <span className="text-lg font-bold text-[#c7f464]">MINT NFT SOON</span>
             </div>
           </div>
         </div>
