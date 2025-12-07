@@ -10,6 +10,7 @@ from app.api.routes.admin import (
     config,
     stats,
     logs,
+    broadcast,
 )
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -23,3 +24,4 @@ router.include_router(tasks.router)
 router.include_router(config.router)
 router.include_router(stats.router)
 router.include_router(logs.router)
+router.include_router(broadcast.router)

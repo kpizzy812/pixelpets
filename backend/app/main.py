@@ -11,12 +11,14 @@ from app.api.routes import auth, pets, wallet, referrals, tasks, spin, telegram_
 from app.api.routes.admin import router as admin_router
 from app.services.auto_claim import run_auto_claim_job
 from app.services.training_notifications import run_training_notification_job
+from app.services.admin.broadcast import run_broadcast_scheduler
 
 logger = logging.getLogger(__name__)
 
 # Scheduler settings
 AUTO_CLAIM_INTERVAL_MINUTES = 5
 TRAINING_NOTIFICATION_INTERVAL_MINUTES = 5
+BROADCAST_SCHEDULER_INTERVAL_MINUTES = 1  # Check every minute for scheduled broadcasts
 
 
 async def auto_claim_scheduler():
@@ -57,20 +59,41 @@ async def training_notification_scheduler():
             await asyncio.sleep(60)  # Wait a bit before retrying
 
 
+async def broadcast_scheduler():
+    """Background task that checks and sends scheduled broadcasts."""
+    while True:
+        try:
+            await asyncio.sleep(BROADCAST_SCHEDULER_INTERVAL_MINUTES * 60)
+
+            async with async_session() as db:
+                stats = await run_broadcast_scheduler(db)
+                if stats["processed"] > 0:
+                    logger.info(f"Broadcast scheduler completed: {stats}")
+        except asyncio.CancelledError:
+            logger.info("Broadcast scheduler stopped")
+            break
+        except Exception as e:
+            logger.error(f"Broadcast scheduler error: {e}")
+            await asyncio.sleep(60)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifespan - start/stop background tasks."""
     # Start schedulers
     auto_claim_task = asyncio.create_task(auto_claim_scheduler())
     training_notification_task = asyncio.create_task(training_notification_scheduler())
+    broadcast_task = asyncio.create_task(broadcast_scheduler())
     logger.info("Auto-claim scheduler started")
     logger.info("Training notification scheduler started")
+    logger.info("Broadcast scheduler started")
 
     yield
 
     # Stop schedulers on shutdown
     auto_claim_task.cancel()
     training_notification_task.cancel()
+    broadcast_task.cancel()
     try:
         await auto_claim_task
     except asyncio.CancelledError:
@@ -79,8 +102,13 @@ async def lifespan(app: FastAPI):
         await training_notification_task
     except asyncio.CancelledError:
         pass
+    try:
+        await broadcast_task
+    except asyncio.CancelledError:
+        pass
     logger.info("Auto-claim scheduler stopped")
     logger.info("Training notification scheduler stopped")
+    logger.info("Broadcast scheduler stopped")
 
 
 app = FastAPI(

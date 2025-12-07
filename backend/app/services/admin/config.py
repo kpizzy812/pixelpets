@@ -25,6 +25,9 @@ DEFAULT_CONFIG = {
     "channel_cis": "PIXELPETS_CISOFFICIAL",  # CIS channel (ru, uk, kk, be, uz)
     "channel_west": "pixelpets_en",  # Western channel (en, de, es, fr, pt, it, etc)
     "chat_general": "pixelpets_chat",  # General chat for all users
+    # Auto-repost settings
+    "auto_repost_enabled": False,  # Toggle for auto-repost from channel
+    "repost_channel_id": None,  # Channel ID to repost from (e.g., -1001234567890)
 }
 
 
@@ -130,3 +133,27 @@ async def init_default_configs(db: AsyncSession) -> None:
         existing = await get_config(db, key)
         if not existing:
             await set_config(db, key, value, f"Default value for {key}")
+
+
+async def get_auto_repost_enabled(db: AsyncSession) -> bool:
+    """Get auto-repost toggle state."""
+    value = await get_config_value(db, "auto_repost_enabled", False)
+    return bool(value)
+
+
+async def set_auto_repost_enabled(db: AsyncSession, enabled: bool) -> bool:
+    """Set auto-repost toggle state."""
+    await set_config(db, "auto_repost_enabled", enabled, "Auto-repost from channel enabled")
+    return enabled
+
+
+async def get_repost_channel_id(db: AsyncSession) -> int | None:
+    """Get channel ID for auto-repost."""
+    value = await get_config_value(db, "repost_channel_id", None)
+    return int(value) if value else None
+
+
+async def set_repost_channel_id(db: AsyncSession, channel_id: int | None) -> int | None:
+    """Set channel ID for auto-repost."""
+    await set_config(db, "repost_channel_id", channel_id, "Channel ID to repost from")
+    return channel_id

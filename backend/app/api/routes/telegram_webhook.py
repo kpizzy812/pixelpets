@@ -18,6 +18,7 @@ from app.services.admin.deposits import approve_deposit, reject_deposit
 from app.services.admin.withdrawals import complete_withdrawal, reject_withdrawal
 from app.services.admin.config import get_config_value, DEFAULT_CONFIG
 from app.services import telegram_notify
+from app.services.channel_repost import handle_channel_post
 from app.i18n import get_text as t, set_locale
 
 logger = logging.getLogger(__name__)
@@ -303,6 +304,13 @@ async def telegram_webhook(request: Request):
         if text.startswith("/start"):
             await handle_start_command(message)
             return {"ok": True}
+
+    # Handle channel posts (for auto-repost feature)
+    channel_post = data.get("channel_post")
+    if channel_post:
+        async with async_session() as db:
+            await handle_channel_post(db, channel_post)
+        return {"ok": True}
 
     # Handle callback queries (admin inline buttons)
     callback_query = data.get("callback_query")
