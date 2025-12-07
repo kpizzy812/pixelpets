@@ -1,14 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageLayout } from '@/components/layout/page-layout';
 import { HallPetCard } from './hall-pet-card';
 import { XpetCoin } from '@/components/ui/xpet-coin';
 import { petsApi } from '@/lib/api';
 import { formatNumber } from '@/lib/format';
+import { useBackButton } from '@/hooks/use-back-button';
 import type { HallOfFameEntry } from '@/types/api';
 
 export function HallOfFameScreen() {
+  const router = useRouter();
+
+  useBackButton({
+    show: true,
+    onBack: () => {
+      router.push('/');
+      return true;
+    },
+  });
   const [pets, setPets] = useState<HallOfFameEntry[]>([]);
   const [totalEarned, setTotalEarned] = useState(0);
   const [isLoading, setIsLoading] = useState(true);

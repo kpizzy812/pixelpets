@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { Icon } from '@/components/ui/icon';
 import { formatNumber } from '@/lib/format';
 import { useGameStore } from '@/store/game-store';
@@ -67,9 +68,15 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
           <span className="text-[9px] uppercase tracking-[0.15em] text-[#94a3b8] font-semibold mb-0.5">
             {t('balance')}
           </span>
-          <span className="text-2xl font-bold bg-gradient-to-r from-[#f1f5f9] to-[#cbd5e1] bg-clip-text text-transparent">
-            ${formatNumber(balance)}
-          </span>
+          <div className="flex items-center gap-2">
+            <Image src="/XPET.png" alt="XPET" width={28} height={28} />
+            <span className="text-2xl font-bold bg-gradient-to-r from-[#c7f464] to-[#a3d944] bg-clip-text text-transparent">
+              {formatNumber(balance)}
+            </span>
+            <span className="text-sm text-[#64748b]">
+              (${formatNumber(balance)})
+            </span>
+          </div>
         </div>
 
         {/* Burger Menu Button */}
