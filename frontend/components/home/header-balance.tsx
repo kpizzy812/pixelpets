@@ -41,7 +41,7 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
   return (
     <div className="relative mx-4 mt-2">
       {/* Main Header Bar */}
-      <div className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-[#1e293b]/90 to-[#0d1220]/90 border border-[#334155]/40 backdrop-blur-md shadow-lg">
+      <div className="flex items-center justify-between py-2">
         {/* Avatar - clickable to open profile */}
         <button
           onClick={() => {
@@ -63,17 +63,17 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
           )}
         </button>
 
-        {/* Balance Section */}
-        <div className="flex-1 flex flex-col items-center px-4">
+        {/* Balance Section with rounded background */}
+        <div className="flex flex-col items-center px-5 py-2 rounded-full bg-[#0d1220]/80 border border-[#1e293b]/60 backdrop-blur-sm">
           <span className="text-[9px] uppercase tracking-[0.15em] text-[#94a3b8] font-semibold mb-0.5">
             {t('balance')}
           </span>
           <div className="flex items-center gap-2">
-            <Image src="/XPET.png" alt="XPET" width={28} height={28} />
-            <span className="text-2xl font-bold bg-gradient-to-r from-[#c7f464] to-[#a3d944] bg-clip-text text-transparent">
+            <Image src="/XPET.png" alt="XPET" width={24} height={24} />
+            <span className="text-xl font-bold bg-gradient-to-r from-[#c7f464] to-[#a3d944] bg-clip-text text-transparent">
               {formatNumber(balance)}
             </span>
-            <span className="text-sm text-[#64748b]">
+            <span className="text-xs text-[#64748b]">
               (${formatNumber(balance)})
             </span>
           </div>
@@ -85,9 +85,9 @@ export function HeaderBalance({ balance }: HeaderBalanceProps) {
           className="flex-shrink-0 w-12 h-12 rounded-full bg-[#1e293b]/80 border border-[#334155]/60 flex items-center justify-center hover:bg-[#334155]/80 hover:border-[#00f5d4]/40 transition-all active:scale-95"
         >
           <Icon
-            name="menu"
+            name={menuOpen ? 'close' : 'menu'}
             size={22}
-            className={`text-[#94a3b8] transition-transform ${menuOpen ? 'rotate-90' : ''}`}
+            className="text-[#94a3b8]"
           />
         </button>
       </div>
