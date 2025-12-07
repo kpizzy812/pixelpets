@@ -2,7 +2,6 @@
 Telegram notification service for admin alerts.
 Sends notifications to admin group with inline keyboard buttons.
 """
-import json
 import logging
 from decimal import Decimal
 from typing import Optional
@@ -33,13 +32,13 @@ async def send_message(
         "parse_mode": parse_mode,
     }
     if reply_markup:
-        payload["reply_markup"] = json.dumps(reply_markup)
+        payload["reply_markup"] = reply_markup
 
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{BOT_API_URL}/sendMessage",
-                data=payload,
+                json=payload,  # Use json= for proper nested object serialization
                 timeout=10.0,
             )
             result = response.json()
@@ -71,13 +70,13 @@ async def edit_message(
         "parse_mode": parse_mode,
     }
     if reply_markup:
-        payload["reply_markup"] = json.dumps(reply_markup)
+        payload["reply_markup"] = reply_markup
 
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{BOT_API_URL}/editMessageText",
-                data=payload,
+                json=payload,  # Use json= for proper nested object serialization
                 timeout=10.0,
             )
             result = response.json()
