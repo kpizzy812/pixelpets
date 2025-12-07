@@ -19,9 +19,14 @@ from app.services.admin.withdrawals import complete_withdrawal, reject_withdrawa
 from app.services.admin.config import get_config_value, DEFAULT_CONFIG, is_broadcast_admin
 from app.services import telegram_notify
 from app.services.channel_repost import handle_channel_post
-from app.services.admin.broadcast import create_broadcast, execute_broadcast
+from app.services.admin.broadcast import create_broadcast, execute_broadcast, get_target_users_count
+from app.models.broadcast import Broadcast
 from app.models.enums import BroadcastTargetType
 from app.i18n import get_text as t, set_locale
+
+# In-memory storage for pending broadcasts (admin_id -> broadcast_data)
+# In production, consider using Redis
+PENDING_BROADCASTS: dict[int, dict] = {}
 
 logger = logging.getLogger(__name__)
 
@@ -244,21 +249,56 @@ async def send_welcome_to_user(
     )
 
 
+def get_broadcast_menu_keyboard() -> dict:
+    """Get main broadcast menu inline keyboard."""
+    return {
+        "inline_keyboard": [
+            [
+                {"text": "👥 Всем пользователям", "callback_data": "bc:target:ALL"},
+                {"text": "⚡ Активным", "callback_data": "bc:target:ACTIVE"},
+            ],
+            [
+                {"text": "🐾 С питомцами", "callback_data": "bc:target:WITH_PETS"},
+                {"text": "💰 С депозитами", "callback_data": "bc:target:WITH_DEPOSITS"},
+            ],
+            [
+                {"text": "😴 Неактивным", "callback_data": "bc:target:INACTIVE"},
+            ],
+            [
+                {"text": "❌ Отмена", "callback_data": "bc:cancel"},
+            ],
+        ]
+    }
+
+
+def get_confirm_keyboard() -> dict:
+    """Get confirmation keyboard."""
+    return {
+        "inline_keyboard": [
+            [
+                {"text": "✅ ОТПРАВИТЬ", "callback_data": "bc:confirm:send"},
+            ],
+            [
+                {"text": "👁 Превью", "callback_data": "bc:preview"},
+                {"text": "🔙 Назад", "callback_data": "bc:back"},
+            ],
+            [
+                {"text": "❌ Отмена", "callback_data": "bc:cancel"},
+            ],
+        ]
+    }
+
+
 async def handle_broadcast_command(message: dict) -> None:
     """
     Handle /broadcast command.
-    Admin replies to a message with /broadcast to send it to all users.
+    Admin replies to a message with /broadcast to show target selection menu.
     Preserves original formatting via entities.
-
-    Usage:
-    1. Reply to any message with /broadcast - sends to ALL users
-    2. Reply with /broadcast active - sends only to active users (with pets/balance)
     """
     chat = message.get("chat", {})
     chat_id = chat.get("id")
     from_user = message.get("from", {})
     telegram_id = from_user.get("id")
-    text = message.get("text", "")
 
     if not chat_id or not telegram_id:
         return
@@ -270,7 +310,7 @@ async def handle_broadcast_command(message: dict) -> None:
     if not is_admin:
         await telegram_notify.send_message(
             chat_id,
-            "❌ You are not authorized to use this command.\n\nContact the owner to get broadcast access.",
+            "❌ У вас нет доступа к этой команде.",
         )
         logger.warning(f"Unauthorized broadcast attempt from {telegram_id}")
         return
@@ -280,29 +320,12 @@ async def handle_broadcast_command(message: dict) -> None:
     if not reply_to:
         await telegram_notify.send_message(
             chat_id,
-            "📢 <b>Broadcast Command</b>\n\n"
-            "Reply to a message with <code>/broadcast</code> to send it to all users.\n\n"
-            "<b>Options:</b>\n"
-            "• <code>/broadcast</code> - send to ALL users\n"
-            "• <code>/broadcast active</code> - only active users (with pets/balance)\n"
-            "• <code>/broadcast pets</code> - only users with pets\n"
-            "• <code>/broadcast deposits</code> - only users who deposited\n\n"
-            "<b>Supports:</b> text, photos, videos with formatting preserved",
+            "📢 <b>Рассылка</b>\n\n"
+            "Ответьте на сообщение командой /broadcast чтобы разослать его пользователям.\n\n"
+            "<b>Поддерживается:</b> текст, фото, видео с форматированием",
             parse_mode="HTML",
         )
         return
-
-    # Parse target type from command
-    parts = text.strip().split()
-    target_type = BroadcastTargetType.ALL
-    if len(parts) > 1:
-        target_arg = parts[1].lower()
-        if target_arg == "active":
-            target_type = BroadcastTargetType.ACTIVE
-        elif target_arg == "pets":
-            target_type = BroadcastTargetType.WITH_PETS
-        elif target_arg == "deposits":
-            target_type = BroadcastTargetType.WITH_DEPOSITS
 
     # Extract content from replied message
     broadcast_text = reply_to.get("text") or reply_to.get("caption") or ""
@@ -314,7 +337,6 @@ async def handle_broadcast_command(message: dict) -> None:
 
     photo = reply_to.get("photo")
     if photo and isinstance(photo, list) and len(photo) > 0:
-        # Get highest resolution photo (last in array)
         photo_file_id = photo[-1].get("file_id")
 
     video = reply_to.get("video")
@@ -324,54 +346,206 @@ async def handle_broadcast_command(message: dict) -> None:
     if not broadcast_text and not photo_file_id and not video_file_id:
         await telegram_notify.send_message(
             chat_id,
-            "❌ The replied message has no content to broadcast.",
+            "❌ Сообщение пустое, нечего рассылать.",
         )
         return
 
-    # Send progress message
+    # Store pending broadcast data
+    PENDING_BROADCASTS[telegram_id] = {
+        "text": broadcast_text,
+        "entities": entities,
+        "photo_file_id": photo_file_id,
+        "video_file_id": video_file_id,
+        "target_type": None,
+        "chat_id": chat_id,
+    }
+
+    # Show target selection menu
     await telegram_notify.send_message(
         chat_id,
-        f"📤 Starting broadcast ({target_type.value})...\nPlease wait.",
+        "📢 <b>Выберите аудиторию рассылки:</b>",
+        reply_markup=get_broadcast_menu_keyboard(),
+        parse_mode="HTML",
     )
 
-    # Create and execute broadcast
+
+async def handle_broadcast_callback(callback_query: dict) -> None:
+    """Handle broadcast menu callback queries."""
+    callback_id = callback_query.get("id")
+    callback_data = callback_query.get("data", "")
+    from_user = callback_query.get("from", {})
+    telegram_id = from_user.get("id")
+    message = callback_query.get("message", {})
+    message_id = message.get("message_id")
+    chat_id = message.get("chat", {}).get("id")
+
+    if not telegram_id or not callback_data.startswith("bc:"):
+        return
+
+    # Check admin access
     async with async_session() as db:
-        try:
-            broadcast = await create_broadcast(
-                db=db,
-                text=broadcast_text,
+        is_admin = await is_broadcast_admin(db, telegram_id)
+
+    if not is_admin:
+        await telegram_notify.answer_callback_query(callback_id, "❌ Нет доступа", show_alert=True)
+        return
+
+    parts = callback_data.split(":")
+    action = parts[1] if len(parts) > 1 else ""
+
+    # Cancel action
+    if action == "cancel":
+        PENDING_BROADCASTS.pop(telegram_id, None)
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            "❌ Рассылка отменена.",
+            reply_markup=None,
+        )
+        await telegram_notify.answer_callback_query(callback_id)
+        return
+
+    # Back to menu
+    if action == "back":
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            "📢 <b>Выберите аудиторию рассылки:</b>",
+            reply_markup=get_broadcast_menu_keyboard(),
+        )
+        await telegram_notify.answer_callback_query(callback_id)
+        return
+
+    # Target selection
+    if action == "target":
+        target_type_str = parts[2] if len(parts) > 2 else "ALL"
+        pending = PENDING_BROADCASTS.get(telegram_id)
+
+        if not pending:
+            await telegram_notify.answer_callback_query(
+                callback_id, "❌ Сессия истекла. Начните заново с /broadcast", show_alert=True
+            )
+            return
+
+        target_type = BroadcastTargetType(target_type_str)
+        pending["target_type"] = target_type
+
+        # Get user count for this target
+        async with async_session() as db:
+            # Create temp broadcast to count users
+            temp_broadcast = Broadcast(
+                text="",
                 target_type=target_type,
-                photo_file_id=photo_file_id,
-                video_file_id=video_file_id,
-                entities=entities,
             )
+            user_count = await get_target_users_count(db, temp_broadcast)
 
-            stats = await execute_broadcast(db, broadcast.id)
+        target_labels = {
+            "ALL": "👥 Всем пользователям",
+            "ACTIVE": "⚡ Активным пользователям",
+            "WITH_PETS": "🐾 Пользователям с питомцами",
+            "WITH_DEPOSITS": "💰 Пользователям с депозитами",
+            "INACTIVE": "😴 Неактивным пользователям",
+        }
 
-            # Send result
-            success_rate = (stats["delivered"] / stats["total"] * 100) if stats["total"] > 0 else 0
-            result_message = (
-                f"✅ <b>Broadcast Complete!</b>\n\n"
-                f"📊 <b>Statistics:</b>\n"
-                f"• Total: {stats['total']}\n"
-                f"• Delivered: {stats['delivered']}\n"
-                f"• Blocked: {stats['blocked']}\n"
-                f"• Failed: {stats['failed']}\n"
-                f"• Success rate: {success_rate:.1f}%"
+        confirm_text = (
+            f"📢 <b>Подтверждение рассылки</b>\n\n"
+            f"<b>Аудитория:</b> {target_labels.get(target_type_str, target_type_str)}\n"
+            f"<b>Получателей:</b> {user_count}\n\n"
+            f"Нажмите <b>Превью</b> чтобы посмотреть сообщение\n"
+            f"Нажмите <b>ОТПРАВИТЬ</b> чтобы начать рассылку"
+        )
+
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            confirm_text,
+            reply_markup=get_confirm_keyboard(),
+        )
+        await telegram_notify.answer_callback_query(callback_id)
+        return
+
+    # Preview
+    if action == "preview":
+        pending = PENDING_BROADCASTS.get(telegram_id)
+        if not pending:
+            await telegram_notify.answer_callback_query(
+                callback_id, "❌ Сессия истекла", show_alert=True
             )
-            await telegram_notify.send_message(chat_id, result_message, parse_mode="HTML")
+            return
 
-            logger.info(
-                f"Broadcast #{broadcast.id} completed by admin {telegram_id}: "
-                f"{stats['delivered']}/{stats['total']} delivered"
-            )
+        # Send preview message
+        from app.services.admin.broadcast import send_telegram_message
+        await send_telegram_message(
+            chat_id=chat_id,
+            text=pending["text"],
+            photo_file_id=pending.get("photo_file_id"),
+            video_file_id=pending.get("video_file_id"),
+            entities=pending.get("entities"),
+        )
+        await telegram_notify.answer_callback_query(callback_id, "👆 Превью отправлено выше")
+        return
 
-        except Exception as e:
-            logger.error(f"Broadcast error: {e}")
-            await telegram_notify.send_message(
-                chat_id,
-                f"❌ Broadcast failed: {str(e)}",
+    # Confirm send
+    if action == "confirm" and len(parts) > 2 and parts[2] == "send":
+        pending = PENDING_BROADCASTS.get(telegram_id)
+        if not pending or not pending.get("target_type"):
+            await telegram_notify.answer_callback_query(
+                callback_id, "❌ Сессия истекла. Начните заново.", show_alert=True
             )
+            return
+
+        # Update message to show progress
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            "📤 <b>Рассылка запущена...</b>\n\nПожалуйста, подождите.",
+            reply_markup=None,
+        )
+        await telegram_notify.answer_callback_query(callback_id)
+
+        # Execute broadcast
+        async with async_session() as db:
+            try:
+                broadcast = await create_broadcast(
+                    db=db,
+                    text=pending["text"],
+                    target_type=pending["target_type"],
+                    photo_file_id=pending.get("photo_file_id"),
+                    video_file_id=pending.get("video_file_id"),
+                    entities=pending.get("entities"),
+                )
+
+                stats = await execute_broadcast(db, broadcast.id)
+
+                success_rate = (stats["delivered"] / stats["total"] * 100) if stats["total"] > 0 else 0
+                result_message = (
+                    f"✅ <b>Рассылка завершена!</b>\n\n"
+                    f"📊 <b>Статистика:</b>\n"
+                    f"• Всего: {stats['total']}\n"
+                    f"• Доставлено: {stats['delivered']}\n"
+                    f"• Заблокировано: {stats['blocked']}\n"
+                    f"• Ошибок: {stats['failed']}\n"
+                    f"• Успешность: {success_rate:.1f}%"
+                )
+
+                await telegram_notify.edit_message(
+                    chat_id, message_id,
+                    result_message,
+                    reply_markup=None,
+                )
+
+                logger.info(
+                    f"Broadcast #{broadcast.id} completed by admin {telegram_id}: "
+                    f"{stats['delivered']}/{stats['total']} delivered"
+                )
+
+            except Exception as e:
+                logger.error(f"Broadcast error: {e}")
+                await telegram_notify.edit_message(
+                    chat_id, message_id,
+                    f"❌ Ошибка рассылки: {str(e)}",
+                    reply_markup=None,
+                )
+
+        # Clean up
+        PENDING_BROADCASTS.pop(telegram_id, None)
+        return
 
 
 async def handle_start_command(message: dict) -> None:
@@ -463,6 +637,11 @@ async def telegram_webhook(request: Request):
 
     if not callback_data or not message_id:
         await telegram_notify.answer_callback_query(callback_id, t("webhook.invalid_callback"))
+        return {"ok": True}
+
+    # Handle broadcast callbacks (bc:*)
+    if callback_data.startswith("bc:"):
+        await handle_broadcast_callback(callback_query)
         return {"ok": True}
 
     # Parse callback data: "deposit:approve:123" or "withdraw:complete:456"
