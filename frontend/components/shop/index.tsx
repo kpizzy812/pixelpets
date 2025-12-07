@@ -143,7 +143,10 @@ export function ShopScreen() {
                 <div className="space-y-3">
                   {ownedPets.map((slot) => {
                     const pet = slot.pet!;
-                    const refundAmount = pet.invested * 0.7;
+                    // Progressive fee: 15% base + (profit_ratio × 85%)
+                    const profitRatio = pet.roiCap > 0 ? Math.min(pet.profitClaimed / pet.roiCap, 1) : 0;
+                    const feePercent = 0.15 + (profitRatio * 0.85);
+                    const refundAmount = pet.invested * (1 - feePercent);
                     return (
                       <div
                         key={slot.index}

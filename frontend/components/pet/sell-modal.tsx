@@ -16,7 +16,17 @@ interface SellModalProps {
   pet: Pet | null;
 }
 
-const SELL_RATE = 0.85; // 85% refund
+// Progressive fee calculation (matches backend)
+function calculateSellRefund(invested: number, profitClaimed: number, roiCap: number): { refundAmount: number; feePercent: number } {
+  const SELL_BASE_FEE = 0.15;  // 15% minimum fee
+  const SELL_MAX_FEE = 1.0;    // 100% fee at ROI cap
+
+  const profitRatio = roiCap > 0 ? Math.min(profitClaimed / roiCap, 1) : 0;
+  const feePercent = SELL_BASE_FEE + (profitRatio * (SELL_MAX_FEE - SELL_BASE_FEE));
+  const refundAmount = invested * (1 - feePercent);
+
+  return { refundAmount: Math.max(0, refundAmount), feePercent };
+}
 
 export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
   const { sellPet } = useGameStore();
@@ -46,8 +56,9 @@ export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
 
   if (!isOpen || !pet) return null;
 
-  const refundAmount = pet.invested * SELL_RATE;
+  const { refundAmount, feePercent } = calculateSellRefund(pet.invested, pet.profitClaimed, pet.roiCap);
   const lossAmount = pet.invested - refundAmount;
+  const sellRate = 1 - feePercent; // For display (e.g., 85% return = 15% fee)
 
   const handleSell = async () => {
     setIsProcessing(true);
@@ -108,7 +119,7 @@ export function SellModal({ isOpen, onClose, pet }: SellModalProps) {
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-[#64748b]">{t('sellRate')}</span>
-            <span className="text-sm text-[#fbbf24]">{formatNumber(SELL_RATE * 100, 0)}%</span>
+            <span className="text-sm text-[#fbbf24]">{formatNumber(sellRate * 100, 0)}%</span>
           </div>
           <div className="h-px bg-[#334155]" />
           <div className="flex justify-between items-center">
