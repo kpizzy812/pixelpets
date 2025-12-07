@@ -16,9 +16,11 @@ from app.models import DepositRequest, WithdrawRequest, Admin
 from app.models.enums import RequestStatus
 from app.services.admin.deposits import approve_deposit, reject_deposit
 from app.services.admin.withdrawals import complete_withdrawal, reject_withdrawal
-from app.services.admin.config import get_config_value, DEFAULT_CONFIG
+from app.services.admin.config import get_config_value, DEFAULT_CONFIG, is_broadcast_admin
 from app.services import telegram_notify
 from app.services.channel_repost import handle_channel_post
+from app.services.admin.broadcast import create_broadcast, execute_broadcast
+from app.models.enums import BroadcastTargetType
 from app.i18n import get_text as t, set_locale
 
 logger = logging.getLogger(__name__)
@@ -242,6 +244,136 @@ async def send_welcome_to_user(
     )
 
 
+async def handle_broadcast_command(message: dict) -> None:
+    """
+    Handle /broadcast command.
+    Admin replies to a message with /broadcast to send it to all users.
+    Preserves original formatting via entities.
+
+    Usage:
+    1. Reply to any message with /broadcast - sends to ALL users
+    2. Reply with /broadcast active - sends only to active users (with pets/balance)
+    """
+    chat = message.get("chat", {})
+    chat_id = chat.get("id")
+    from_user = message.get("from", {})
+    telegram_id = from_user.get("id")
+    text = message.get("text", "")
+
+    if not chat_id or not telegram_id:
+        return
+
+    # Check if user is broadcast admin
+    async with async_session() as db:
+        is_admin = await is_broadcast_admin(db, telegram_id)
+
+    if not is_admin:
+        await telegram_notify.send_message(
+            chat_id,
+            "❌ You are not authorized to use this command.\n\nContact the owner to get broadcast access.",
+        )
+        logger.warning(f"Unauthorized broadcast attempt from {telegram_id}")
+        return
+
+    # Check if message is a reply to another message
+    reply_to = message.get("reply_to_message")
+    if not reply_to:
+        await telegram_notify.send_message(
+            chat_id,
+            "📢 <b>Broadcast Command</b>\n\n"
+            "Reply to a message with <code>/broadcast</code> to send it to all users.\n\n"
+            "<b>Options:</b>\n"
+            "• <code>/broadcast</code> - send to ALL users\n"
+            "• <code>/broadcast active</code> - only active users (with pets/balance)\n"
+            "• <code>/broadcast pets</code> - only users with pets\n"
+            "• <code>/broadcast deposits</code> - only users who deposited\n\n"
+            "<b>Supports:</b> text, photos, videos with formatting preserved",
+            parse_mode="HTML",
+        )
+        return
+
+    # Parse target type from command
+    parts = text.strip().split()
+    target_type = BroadcastTargetType.ALL
+    if len(parts) > 1:
+        target_arg = parts[1].lower()
+        if target_arg == "active":
+            target_type = BroadcastTargetType.ACTIVE
+        elif target_arg == "pets":
+            target_type = BroadcastTargetType.WITH_PETS
+        elif target_arg == "deposits":
+            target_type = BroadcastTargetType.WITH_DEPOSITS
+
+    # Extract content from replied message
+    broadcast_text = reply_to.get("text") or reply_to.get("caption") or ""
+    entities = reply_to.get("entities") or reply_to.get("caption_entities")
+
+    # Get photo/video file_id if present
+    photo_file_id = None
+    video_file_id = None
+
+    photo = reply_to.get("photo")
+    if photo and isinstance(photo, list) and len(photo) > 0:
+        # Get highest resolution photo (last in array)
+        photo_file_id = photo[-1].get("file_id")
+
+    video = reply_to.get("video")
+    if video:
+        video_file_id = video.get("file_id")
+
+    if not broadcast_text and not photo_file_id and not video_file_id:
+        await telegram_notify.send_message(
+            chat_id,
+            "❌ The replied message has no content to broadcast.",
+        )
+        return
+
+    # Send progress message
+    await telegram_notify.send_message(
+        chat_id,
+        f"📤 Starting broadcast ({target_type.value})...\nPlease wait.",
+    )
+
+    # Create and execute broadcast
+    async with async_session() as db:
+        try:
+            broadcast = await create_broadcast(
+                db=db,
+                text=broadcast_text,
+                target_type=target_type,
+                photo_file_id=photo_file_id,
+                video_file_id=video_file_id,
+                entities=entities,
+            )
+
+            stats = await execute_broadcast(db, broadcast.id)
+
+            # Send result
+            success_rate = (stats["delivered"] / stats["total"] * 100) if stats["total"] > 0 else 0
+            result_message = (
+                f"✅ <b>Broadcast Complete!</b>\n\n"
+                f"📊 <b>Statistics:</b>\n"
+                f"• Total: {stats['total']}\n"
+                f"• Delivered: {stats['delivered']}\n"
+                f"• Blocked: {stats['blocked']}\n"
+                f"• Failed: {stats['failed']}\n"
+                f"• Success rate: {success_rate:.1f}%"
+            )
+            await telegram_notify.send_message(chat_id, result_message, parse_mode="HTML")
+
+            logger.info(
+                f"Broadcast #{broadcast.id} completed by admin {telegram_id}: "
+                f"{stats['delivered']}/{stats['total']} delivered"
+            )
+
+        except Exception as e:
+            logger.error(f"Broadcast error: {e}")
+            await telegram_notify.send_message(
+                chat_id,
+                f"❌ Broadcast failed: {str(e)}",
+            )
+
+
 async def handle_start_command(message: dict) -> None:
     """
     Handle /start command with optional referral code.
@@ -303,6 +435,9 @@ async def telegram_webhook(request: Request):
         text = message.get("text", "")
         if text.startswith("/start"):
             await handle_start_command(message)
+            return {"ok": True}
+        if text.startswith("/broadcast"):
+            await handle_broadcast_command(message)
             return {"ok": True}
 
     # Handle channel posts (for auto-repost feature)

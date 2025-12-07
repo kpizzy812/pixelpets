@@ -28,6 +28,8 @@ DEFAULT_CONFIG = {
     # Auto-repost settings
     "auto_repost_enabled": False,  # Toggle for auto-repost from channel
     "repost_channel_id": None,  # Channel ID to repost from (e.g., -1001234567890)
+    # Admin Telegram IDs for broadcast command
+    "broadcast_admin_ids": [],  # List of Telegram user IDs who can use /broadcast command
 }
 
 
@@ -157,3 +159,35 @@ async def set_repost_channel_id(db: AsyncSession, channel_id: int | None) -> int
     """Set channel ID for auto-repost."""
     await set_config(db, "repost_channel_id", channel_id, "Channel ID to repost from")
     return channel_id
+
+
+async def get_broadcast_admin_ids(db: AsyncSession) -> list[int]:
+    """Get list of Telegram IDs allowed to use /broadcast command."""
+    value = await get_config_value(db, "broadcast_admin_ids", [])
+    if isinstance(value, list):
+        return [int(x) for x in value]
+    return []
+
+
+async def is_broadcast_admin(db: AsyncSession, telegram_id: int) -> bool:
+    """Check if telegram user is allowed to use /broadcast command."""
+    admin_ids = await get_broadcast_admin_ids(db)
+    return telegram_id in admin_ids
+
+
+async def add_broadcast_admin(db: AsyncSession, telegram_id: int) -> list[int]:
+    """Add telegram ID to broadcast admins list."""
+    admin_ids = await get_broadcast_admin_ids(db)
+    if telegram_id not in admin_ids:
+        admin_ids.append(telegram_id)
+        await set_config(db, "broadcast_admin_ids", admin_ids, "Telegram IDs allowed to broadcast")
+    return admin_ids
+
+
+async def remove_broadcast_admin(db: AsyncSession, telegram_id: int) -> list[int]:
+    """Remove telegram ID from broadcast admins list."""
+    admin_ids = await get_broadcast_admin_ids(db)
+    if telegram_id in admin_ids:
+        admin_ids.remove(telegram_id)
+        await set_config(db, "broadcast_admin_ids", admin_ids, "Telegram IDs allowed to broadcast")
+    return admin_ids

@@ -26,6 +26,7 @@ class Broadcast(Base):
     photo_file_id: Mapped[Optional[str]] = mapped_column(String(255))  # Telegram file_id
     video_file_id: Mapped[Optional[str]] = mapped_column(String(255))  # Telegram file_id
     buttons: Mapped[Optional[dict]] = mapped_column(JSON)  # Inline keyboard config
+    entities: Mapped[Optional[List[dict]]] = mapped_column(JSON)  # Telegram message entities for formatting
 
     # Targeting
     target_type: Mapped[BroadcastTargetType] = mapped_column(

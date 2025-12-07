@@ -154,11 +154,16 @@ async def send_telegram_message(
     photo_file_id: Optional[str] = None,
     video_file_id: Optional[str] = None,
     buttons: Optional[dict] = None,
+    entities: Optional[List[dict]] = None,
 ) -> tuple[bool, Optional[int], Optional[str]]:
     """
     Send a message to a Telegram user.
     Returns (success, message_id, error).
+
+    If entities are provided, they will be used instead of parse_mode (for preserving formatting from original message).
     """
+    import json
+
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
             reply_markup = None
@@ -171,10 +176,13 @@ async def send_telegram_message(
                     "chat_id": chat_id,
                     "photo": photo_file_id,
                     "caption": text,
-                    "parse_mode": "HTML",
                 }
+                # Use entities if provided, otherwise use HTML parse_mode
+                if entities:
+                    payload["caption_entities"] = json.dumps(entities)
+                else:
+                    payload["parse_mode"] = "HTML"
                 if reply_markup:
-                    import json
                     payload["reply_markup"] = json.dumps(reply_markup)
                 response = await client.post(f"{BOT_API_URL}/sendPhoto", data=payload)
 
@@ -184,10 +192,12 @@ async def send_telegram_message(
                     "chat_id": chat_id,
                     "video": video_file_id,
                     "caption": text,
-                    "parse_mode": "HTML",
                 }
+                if entities:
+                    payload["caption_entities"] = json.dumps(entities)
+                else:
+                    payload["parse_mode"] = "HTML"
                 if reply_markup:
-                    import json
                     payload["reply_markup"] = json.dumps(reply_markup)
                 response = await client.post(f"{BOT_API_URL}/sendVideo", data=payload)
 
@@ -196,10 +206,12 @@ async def send_telegram_message(
                 payload = {
                     "chat_id": chat_id,
                     "text": text,
-                    "parse_mode": "HTML",
                 }
+                if entities:
+                    payload["entities"] = json.dumps(entities)
+                else:
+                    payload["parse_mode"] = "HTML"
                 if reply_markup:
-                    import json
                     payload["reply_markup"] = json.dumps(reply_markup)
                 response = await client.post(f"{BOT_API_URL}/sendMessage", data=payload)
 
@@ -293,6 +305,7 @@ async def execute_broadcast(
             photo_file_id=broadcast.photo_file_id,
             video_file_id=broadcast.video_file_id,
             buttons=broadcast.buttons,
+            entities=broadcast.entities,
         )
 
         # Create log entry
@@ -347,6 +360,7 @@ async def create_broadcast(
     photo_file_id: Optional[str] = None,
     video_file_id: Optional[str] = None,
     buttons: Optional[List[List[dict]]] = None,
+    entities: Optional[List[dict]] = None,
     min_balance: Optional[Decimal] = None,
     max_balance: Optional[Decimal] = None,
     has_pets: Optional[bool] = None,
@@ -369,6 +383,7 @@ async def create_broadcast(
         photo_file_id=photo_file_id,
         video_file_id=video_file_id,
         buttons=buttons,
+        entities=entities,
         min_balance=min_balance,
         max_balance=max_balance,
         has_pets=has_pets,
