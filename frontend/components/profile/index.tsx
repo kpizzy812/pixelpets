@@ -11,6 +11,7 @@ import { useTelegram } from '@/components/providers/telegram-provider';
 import { authApi } from '@/lib/api';
 import { formatNumber } from '@/lib/format';
 import { useHaptic } from '@/hooks/use-haptic';
+import { useBackButton } from '@/hooks/use-back-button';
 import type { ProfileResponse } from '@/types/api';
 
 export function ProfileScreen() {
@@ -19,6 +20,7 @@ export function ProfileScreen() {
   const router = useRouter();
   const { user: telegramUser } = useTelegram();
   const { tap } = useHaptic();
+  useBackButton({ show: true });
 
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
