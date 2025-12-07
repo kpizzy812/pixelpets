@@ -2,6 +2,7 @@
 
 import type { PetSlot } from '@/types/pet';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { PetImage } from '@/components/ui/pet-image';
@@ -121,9 +122,17 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
       {/* Bottom Info */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex flex-col">
-          <span className="text-lg font-medium text-[#f1f5f9]">
-            {pet.name} ({getLevelNumber()})
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-medium text-[#f1f5f9]">
+              {pet.name}
+            </span>
+            <Image
+              src={`/pixelicons/level${getLevelNumber()}.png`}
+              alt={`Level ${getLevelNumber()}`}
+              width={24}
+              height={24}
+            />
+          </div>
           <span className="text-xs text-[#94a3b8]">
             +${(pet.invested * pet.dailyRate / 100).toFixed(2)}/day
           </span>
