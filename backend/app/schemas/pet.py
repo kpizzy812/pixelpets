@@ -34,6 +34,8 @@ class UserPetResponse(BaseModel):
     slot_index: int
     profit_claimed: Decimal
     max_profit: Decimal
+    roi_cap: Decimal  # Same as max_profit (for frontend compatibility)
+    roi_progress: Decimal  # Progress to ROI cap (0-100%)
     training_started_at: Optional[datetime]
     training_ends_at: Optional[datetime]
     upgrade_cost: Optional[Decimal]

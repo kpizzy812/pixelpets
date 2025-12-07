@@ -53,6 +53,11 @@ async def pet_to_response(pet, db: AsyncSession) -> UserPetResponse:
     boosted_roi_cap = pet.pet_type.roi_cap_multiplier + roi_boost
     max_profit = calculate_max_profit(pet.invested_total, boosted_roi_cap)
 
+    # Calculate ROI progress (0-100%)
+    roi_progress = Decimal("0")
+    if max_profit > 0:
+        roi_progress = min((pet.profit_claimed / max_profit) * 100, Decimal("100"))
+
     next_level = get_next_level(pet.level)
     upgrade_cost = None
     evolution_fee = None
@@ -72,6 +77,8 @@ async def pet_to_response(pet, db: AsyncSession) -> UserPetResponse:
         slot_index=pet.slot_index,
         profit_claimed=pet.profit_claimed,
         max_profit=max_profit,
+        roi_cap=max_profit,  # Same as max_profit for frontend compatibility
+        roi_progress=roi_progress,
         training_started_at=pet.training_started_at,
         training_ends_at=pet.training_ends_at,
         upgrade_cost=upgrade_cost,
