@@ -18,10 +18,11 @@ interface PetCardProps {
   onUpgrade?: () => void;
   onSell?: () => void;
   onBoosts?: () => void;
+  onPetClick?: () => void;
   isFirstPet?: boolean;
 }
 
-export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onBoosts, isFirstPet = false }: PetCardProps) {
+export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onBoosts, onPetClick, isFirstPet = false }: PetCardProps) {
   const { tap } = useHaptic();
   const { pet } = slot;
   const countdown = useCountdown(pet?.trainingEndsAt);
@@ -112,11 +113,14 @@ export function PetCard({ slot, onTrain, onClaim, onShop, onUpgrade, onSell, onB
         )}
       </div>
 
-      {/* Pet Image Area */}
+      {/* Pet Image Area - Clickable */}
       <div className="flex-1 flex items-center justify-center">
-        <div className={`w-64 h-64 rounded-3xl bg-gradient-to-br ${getGradient()} border border-[#334155]/30 overflow-hidden shadow-lg`}>
+        <button
+          onClick={() => { tap(); onPetClick?.(); }}
+          className={`w-64 h-64 rounded-3xl bg-gradient-to-br ${getGradient()} border border-[#334155]/30 overflow-hidden shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform`}
+        >
           <PetImage imageKey={pet.imageKey} level={pet.level} alt={pet.name} size={256} className="w-full h-full object-cover" />
-        </div>
+        </button>
       </div>
 
       {/* Bottom Info */}

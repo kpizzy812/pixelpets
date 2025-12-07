@@ -5,9 +5,11 @@ import { ShopScreen } from '@/components/shop';
 import { TasksScreen } from '@/components/tasks';
 import { ReferralsScreen } from '@/components/referrals';
 import { SpinScreen } from '@/components/spin';
+import { PetDetailScreen } from '@/components/pet-detail';
 import { BottomNav } from './bottom-nav';
 import { FloatingSpinButton } from './floating-spin-button';
 import { useBackButton } from '@/hooks/use-back-button';
+import { useGameStore, useSelectedPet } from '@/store/game-store';
 import type { TabId } from '@/store/game-store';
 
 interface PreloadedScreensProps {
@@ -17,6 +19,13 @@ interface PreloadedScreensProps {
 export function PreloadedScreens({ activeTab }: PreloadedScreensProps) {
   // Handle Telegram back button for non-home tabs
   useBackButton();
+
+  const selectedPet = useSelectedPet();
+  const selectPet = useGameStore((state) => state.selectPet);
+
+  const handleClosePetDetail = () => {
+    selectPet(null);
+  };
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -66,6 +75,13 @@ export function PreloadedScreens({ activeTab }: PreloadedScreensProps) {
           >
             <SpinScreen />
           </div>
+
+          {/* Pet Detail Screen - Overlay when pet is selected */}
+          {selectedPet && (
+            <div className="absolute inset-0 z-50 bg-[#050712]">
+              <PetDetailScreen pet={selectedPet} onBack={handleClosePetDetail} />
+            </div>
+          )}
         </div>
 
         {/* Bottom Navigation - shared across all screens */}

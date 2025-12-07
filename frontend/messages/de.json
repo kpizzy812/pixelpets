@@ -296,5 +296,28 @@
     "transactions": "Verlauf",
     "settings": "Einstellungen",
     "memberSince": "Mitglied seit"
+  },
+  "petDetail": {
+    "title": "Tier-Details",
+    "back": "Zurück",
+    "invested": "Investiert",
+    "dailyRate": "Tägliche Rate",
+    "dailyProfit": "Täglicher Gewinn",
+    "totalEarned": "Gesamt verdient",
+    "roiProgress": "ROI-Fortschritt",
+    "roiCap": "ROI-Grenze",
+    "status": "Status",
+    "readyToClaim": "Bereit",
+    "training": "Training",
+    "idle": "Inaktiv",
+    "trainingProgress": "Trainingsfortschritt",
+    "nextLevel": "Nächste Stufe",
+    "upgradeCost": "Upgrade-Kosten",
+    "mintNft": "NFT prägen",
+    "mintNftDescription": "Verwandle dein Tier in ein einzigartiges NFT auf der Blockchain",
+    "mint": "Prägen",
+    "additionalInfo": "Weitere Infos",
+    "petId": "Tier-ID",
+    "slotIndex": "Slot"
   }
 }

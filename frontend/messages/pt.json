@@ -296,5 +296,28 @@
     "transactions": "Histórico",
     "settings": "Configurações",
     "memberSince": "Membro desde"
+  },
+  "petDetail": {
+    "title": "Detalhes do Pet",
+    "back": "Voltar",
+    "invested": "Investido",
+    "dailyRate": "Taxa Diária",
+    "dailyProfit": "Lucro Diário",
+    "totalEarned": "Total Ganho",
+    "roiProgress": "Progresso ROI",
+    "roiCap": "Limite ROI",
+    "status": "Status",
+    "readyToClaim": "Pronto",
+    "training": "Treinando",
+    "idle": "Inativo",
+    "trainingProgress": "Progresso do Treino",
+    "nextLevel": "Próximo Nível",
+    "upgradeCost": "Custo de Upgrade",
+    "mintNft": "Cunhar NFT",
+    "mintNftDescription": "Transforme seu pet em um NFT único na blockchain",
+    "mint": "Cunhar",
+    "additionalInfo": "Info Adicional",
+    "petId": "ID do Pet",
+    "slotIndex": "Slot"
   }
 }

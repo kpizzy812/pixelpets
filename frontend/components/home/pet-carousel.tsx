@@ -12,9 +12,10 @@ interface PetCarouselProps {
   onUpgrade?: (index: number) => void;
   onSell?: (index: number) => void;
   onBoosts?: (index: number) => void;
+  onPetClick?: (index: number) => void;
 }
 
-export function PetCarousel({ slots, onTrain, onClaim, onShop, onUpgrade, onSell, onBoosts }: PetCarouselProps) {
+export function PetCarousel({ slots, onTrain, onClaim, onShop, onUpgrade, onSell, onBoosts, onPetClick }: PetCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -69,6 +70,7 @@ export function PetCarousel({ slots, onTrain, onClaim, onShop, onUpgrade, onSell
                 onUpgrade={onUpgrade ? () => onUpgrade(slot.index) : undefined}
                 onSell={onSell ? () => onSell(slot.index) : undefined}
                 onBoosts={onBoosts ? () => onBoosts(slot.index) : undefined}
+                onPetClick={onPetClick ? () => onPetClick(slot.index) : undefined}
                 isFirstPet={!hasPets}
               />
             </div>

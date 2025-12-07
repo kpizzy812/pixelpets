@@ -29,6 +29,15 @@ function mapUserPetToPet(userPet: UserPet): Pet {
   const evolutionFee = userPet.evolution_fee != null
     ? (typeof userPet.evolution_fee === 'string' ? parseFloat(userPet.evolution_fee) : userPet.evolution_fee)
     : null;
+  const profitClaimed = typeof userPet.profit_claimed === 'string'
+    ? parseFloat(userPet.profit_claimed)
+    : userPet.profit_claimed;
+  const roiCap = typeof userPet.roi_cap === 'string'
+    ? parseFloat(userPet.roi_cap)
+    : userPet.roi_cap;
+  const roiProgress = typeof userPet.roi_progress === 'string'
+    ? parseFloat(userPet.roi_progress)
+    : userPet.roi_progress;
 
   return {
     id: String(userPet.id),
@@ -45,6 +54,9 @@ function mapUserPetToPet(userPet: UserPet): Pet {
       : undefined,
     upgradeCost,
     evolutionFee,
+    profitClaimed,
+    roiCap,
+    roiProgress,
   };
 }
 
@@ -85,6 +97,7 @@ interface GameState {
   // UI State
   isWalletOpen: boolean;
   activeTab: TabId;
+  selectedPetSlotIndex: number | null;
 }
 
 interface GameActions {
@@ -112,6 +125,7 @@ interface GameActions {
   openWallet: () => void;
   closeWallet: () => void;
   setActiveTab: (tab: TabId) => void;
+  selectPet: (slotIndex: number | null) => void;
 
   // Utils
   reset: () => void;
@@ -138,6 +152,7 @@ const initialState: GameState = {
   referralsLoading: false,
   isWalletOpen: false,
   activeTab: 'home',
+  selectedPetSlotIndex: null,
 };
 
 export const useGameStore = create<GameStore>()((set, get) => ({
@@ -345,6 +360,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   openWallet: () => set({ isWalletOpen: true }),
   closeWallet: () => set({ isWalletOpen: false }),
   setActiveTab: (tab) => set({ activeTab: tab }),
+  selectPet: (slotIndex) => set({ selectedPetSlotIndex: slotIndex }),
 
   // Utils
   reset: () => set(initialState),
@@ -364,3 +380,11 @@ export const usePetSlots = () => useGameStore((state) => state.petSlots);
 export const useIsLoading = () => useGameStore((state) => state.isLoading);
 
 export const useActiveTab = () => useGameStore((state) => state.activeTab);
+
+export const useSelectedPet = () => useGameStore((state) => {
+  const slotIndex = state.selectedPetSlotIndex;
+  if (slotIndex === null) return null;
+  return state.petSlots[slotIndex]?.pet ?? null;
+});
+
+export const useSelectedPetSlotIndex = () => useGameStore((state) => state.selectedPetSlotIndex);

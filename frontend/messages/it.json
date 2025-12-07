@@ -296,5 +296,28 @@
     "transactions": "Cronologia",
     "settings": "Impostazioni",
     "memberSince": "Membro dal"
+  },
+  "petDetail": {
+    "title": "Dettagli Animale",
+    "back": "Indietro",
+    "invested": "Investito",
+    "dailyRate": "Tasso Giornaliero",
+    "dailyProfit": "Profitto Giornaliero",
+    "totalEarned": "Totale Guadagnato",
+    "roiProgress": "Progresso ROI",
+    "roiCap": "Limite ROI",
+    "status": "Stato",
+    "readyToClaim": "Pronto",
+    "training": "Allenamento",
+    "idle": "Inattivo",
+    "trainingProgress": "Progresso Allenamento",
+    "nextLevel": "Livello Successivo",
+    "upgradeCost": "Costo Upgrade",
+    "mintNft": "Coniare NFT",
+    "mintNftDescription": "Trasforma il tuo animale in un NFT unico sulla blockchain",
+    "mint": "Coniare",
+    "additionalInfo": "Info Aggiuntive",
+    "petId": "ID Animale",
+    "slotIndex": "Slot"
   }
 }

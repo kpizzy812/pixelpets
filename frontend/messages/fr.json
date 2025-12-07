@@ -296,5 +296,28 @@
     "transactions": "Historique",
     "settings": "Paramètres",
     "memberSince": "Membre depuis"
+  },
+  "petDetail": {
+    "title": "Détails de l'Animal",
+    "back": "Retour",
+    "invested": "Investi",
+    "dailyRate": "Taux Journalier",
+    "dailyProfit": "Profit Journalier",
+    "totalEarned": "Total Gagné",
+    "roiProgress": "Progression ROI",
+    "roiCap": "Limite ROI",
+    "status": "Statut",
+    "readyToClaim": "Prêt",
+    "training": "Entraînement",
+    "idle": "Inactif",
+    "trainingProgress": "Progression de l'Entraînement",
+    "nextLevel": "Niveau Suivant",
+    "upgradeCost": "Coût d'Amélioration",
+    "mintNft": "Frapper NFT",
+    "mintNftDescription": "Transformez votre animal en NFT unique sur la blockchain",
+    "mint": "Frapper",
+    "additionalInfo": "Info Supplémentaire",
+    "petId": "ID Animal",
+    "slotIndex": "Emplacement"
   }
 }

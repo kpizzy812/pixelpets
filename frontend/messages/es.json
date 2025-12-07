@@ -296,5 +296,28 @@
     "transactions": "Historial",
     "settings": "Ajustes",
     "memberSince": "Miembro desde"
+  },
+  "petDetail": {
+    "title": "Detalles de Mascota",
+    "back": "Atrás",
+    "invested": "Invertido",
+    "dailyRate": "Tasa Diaria",
+    "dailyProfit": "Ganancia Diaria",
+    "totalEarned": "Total Ganado",
+    "roiProgress": "Progreso ROI",
+    "roiCap": "Límite ROI",
+    "status": "Estado",
+    "readyToClaim": "Listo",
+    "training": "Entrenando",
+    "idle": "Inactivo",
+    "trainingProgress": "Progreso de Entrenamiento",
+    "nextLevel": "Siguiente Nivel",
+    "upgradeCost": "Costo de Mejora",
+    "mintNft": "Acuñar NFT",
+    "mintNftDescription": "Convierte tu mascota en un NFT único en blockchain",
+    "mint": "Acuñar",
+    "additionalInfo": "Info Adicional",
+    "petId": "ID de Mascota",
+    "slotIndex": "Ranura"
   }
 }

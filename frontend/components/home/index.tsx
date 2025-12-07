@@ -73,6 +73,13 @@ export function HomeScreen() {
     setBoostSlotIndex(slotIndex);
   };
 
+  const handlePetClick = (slotIndex: number) => {
+    const slot = petSlots[slotIndex];
+    if (slot?.pet) {
+      useGameStore.getState().selectPet(slotIndex);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
@@ -87,6 +94,7 @@ export function HomeScreen() {
         onUpgrade={handleUpgrade}
         onSell={handleSell}
         onBoosts={handleBoosts}
+        onPetClick={handlePetClick}
       />
 
       {/* Modals */}
