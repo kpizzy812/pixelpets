@@ -59,6 +59,10 @@ class TaskType(str, enum.Enum):
     DISCORD = "DISCORD"
     WEBSITE = "WEBSITE"
     OTHER = "OTHER"
+    # Progress-based tasks
+    INVITE_FRIEND = "INVITE_FRIEND"  # Invite N friends (registered)
+    INVITE_ACTIVE_FRIEND = "INVITE_ACTIVE_FRIEND"  # Invite N active friends (with pets)
+    BUY_PET = "BUY_PET"  # Buy N pets
 
 
 class TaskStatus(str, enum.Enum):

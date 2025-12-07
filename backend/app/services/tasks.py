@@ -9,9 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.models.user import User
+from app.models.pet import UserPet
 from app.models.task import Task, UserTask
 from app.models.transaction import Transaction
-from app.models.enums import TaskStatus, TaskType, TxType
+from app.models.enums import TaskStatus, TaskType, TxType, PetStatus
 from app.i18n import get_text as t
 
 
@@ -35,6 +36,10 @@ async def get_tasks_for_user(db: AsyncSession, user_id: int) -> dict:
     )
     completed_user_tasks = {ut.task_id: ut for ut in result.scalars().all()}
 
+    # Get user for progress calculations
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one()
+
     # Build response
     tasks_data = []
     total_earned = Decimal("0")
@@ -43,6 +48,11 @@ async def get_tasks_for_user(db: AsyncSession, user_id: int) -> dict:
     for task in tasks:
         user_task = completed_user_tasks.get(task.id)
         is_completed = user_task is not None
+
+        # Get progress for progress-based tasks
+        progress = None
+        if task.task_type in (TaskType.INVITE_FRIEND, TaskType.INVITE_ACTIVE_FRIEND, TaskType.BUY_PET):
+            progress = await get_task_progress(db, user, task)
 
         task_data = {
             "id": task.id,
@@ -53,6 +63,7 @@ async def get_tasks_for_user(db: AsyncSession, user_id: int) -> dict:
             "task_type": task.task_type,
             "is_completed": is_completed,
             "completed_at": user_task.completed_at if user_task else None,
+            "progress": progress,
         }
         tasks_data.append(task_data)
 
@@ -65,6 +76,47 @@ async def get_tasks_for_user(db: AsyncSession, user_id: int) -> dict:
         "total_earned": total_earned,
         "available_count": len(tasks) - completed_count,
         "completed_count": completed_count,
+    }
+
+
+async def get_task_progress(db: AsyncSession, user: User, task: Task) -> dict | None:
+    """Get current progress for progress-based tasks."""
+    required_count = 1
+    if task.verification_data and task.verification_data.get("required_count"):
+        required_count = task.verification_data["required_count"]
+
+    current_count = 0
+
+    if task.task_type == TaskType.INVITE_FRIEND:
+        # Count direct referrals
+        result = await db.execute(
+            select(func.count(User.id)).where(User.referrer_id == user.id)
+        )
+        current_count = result.scalar() or 0
+
+    elif task.task_type == TaskType.INVITE_ACTIVE_FRIEND:
+        # Count active referrals (with pets)
+        result = await db.execute(
+            select(func.count(func.distinct(User.id)))
+            .select_from(User)
+            .join(UserPet, UserPet.user_id == User.id)
+            .where(
+                User.referrer_id == user.id,
+                UserPet.status != PetStatus.SOLD
+            )
+        )
+        current_count = result.scalar() or 0
+
+    elif task.task_type == TaskType.BUY_PET:
+        # Count total pets bought
+        result = await db.execute(
+            select(func.count(UserPet.id)).where(UserPet.user_id == user.id)
+        )
+        current_count = result.scalar() or 0
+
+    return {
+        "current": min(current_count, required_count),  # Cap at required for display
+        "required": required_count,
     }
 
 
@@ -99,9 +151,9 @@ async def check_task(
         raise ValueError(t("error.task_already_completed"))
 
     # Verify task completion (e.g., Telegram channel/chat subscription)
-    verified = await verify_task_completion(user, task)
+    verified = await verify_task_completion(user, task, db)
     if not verified:
-        raise ValueError(t("error.task_not_subscribed"))
+        raise ValueError(t("error.task_not_verified"))
 
     # Create or update user task
     now = datetime.utcnow()
@@ -176,7 +228,7 @@ async def verify_telegram_subscription(
         return False
 
 
-async def verify_task_completion(user: User, task: Task) -> bool:
+async def verify_task_completion(user: User, task: Task, db: AsyncSession = None) -> bool:
     """
     Verify task completion based on task type.
     Returns True if verified or verification not required.
@@ -206,5 +258,85 @@ async def verify_task_completion(user: User, task: Task) -> bool:
         # If no chat_id found, return False
         return False
 
+    # Progress-based tasks
+    if task.task_type == TaskType.INVITE_FRIEND:
+        return await verify_invite_friend_task(user, task, db)
+
+    if task.task_type == TaskType.INVITE_ACTIVE_FRIEND:
+        return await verify_invite_active_friend_task(user, task, db)
+
+    if task.task_type == TaskType.BUY_PET:
+        return await verify_buy_pet_task(user, task, db)
+
     # For other task types, trust the client
     return True
+
+
+async def verify_invite_friend_task(user: User, task: Task, db: AsyncSession) -> bool:
+    """
+    Verify that user has invited N friends (registered users).
+    verification_data should contain {"required_count": N}
+    """
+    if not db:
+        return False
+
+    required_count = 1
+    if task.verification_data and task.verification_data.get("required_count"):
+        required_count = task.verification_data["required_count"]
+
+    # Count direct referrals (users who registered with this user's ref code)
+    result = await db.execute(
+        select(func.count(User.id)).where(User.referrer_id == user.id)
+    )
+    referral_count = result.scalar() or 0
+
+    return referral_count >= required_count
+
+
+async def verify_invite_active_friend_task(user: User, task: Task, db: AsyncSession) -> bool:
+    """
+    Verify that user has invited N active friends (friends who have bought at least one pet).
+    verification_data should contain {"required_count": N}
+    """
+    if not db:
+        return False
+
+    required_count = 1
+    if task.verification_data and task.verification_data.get("required_count"):
+        required_count = task.verification_data["required_count"]
+
+    # Count active referrals (referrals who have at least one pet)
+    # Active means they have a pet in any status except SOLD
+    result = await db.execute(
+        select(func.count(func.distinct(User.id)))
+        .select_from(User)
+        .join(UserPet, UserPet.user_id == User.id)
+        .where(
+            User.referrer_id == user.id,
+            UserPet.status != PetStatus.SOLD
+        )
+    )
+    active_referral_count = result.scalar() or 0
+
+    return active_referral_count >= required_count
+
+
+async def verify_buy_pet_task(user: User, task: Task, db: AsyncSession) -> bool:
+    """
+    Verify that user has bought N pets.
+    verification_data should contain {"required_count": N}
+    """
+    if not db:
+        return False
+
+    required_count = 1
+    if task.verification_data and task.verification_data.get("required_count"):
+        required_count = task.verification_data["required_count"]
+
+    # Count total pets bought (including sold and evolved)
+    result = await db.execute(
+        select(func.count(UserPet.id)).where(UserPet.user_id == user.id)
+    )
+    pet_count = result.scalar() or 0
+
+    return pet_count >= required_count

@@ -145,6 +145,15 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "pt": "Você deve se inscrever no canal/chat primeiro",
         "it": "Devi prima iscriverti al canale/chat"
     },
+    "error.task_not_verified": {
+        "en": "Task requirements not met",
+        "ru": "Требования задания не выполнены",
+        "de": "Aufgabenanforderungen nicht erfüllt",
+        "es": "Requisitos de la tarea no cumplidos",
+        "fr": "Exigences de la tâche non remplies",
+        "pt": "Requisitos da tarefa não atendidos",
+        "it": "Requisiti dell'attività non soddisfatti"
+    },
     "error.withdrawal_not_found": {
         "en": "Withdrawal request not found",
         "ru": "Запрос на вывод не найден",

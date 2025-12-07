@@ -7,6 +7,11 @@ from pydantic import BaseModel
 from app.models.enums import TaskType
 
 
+class TaskProgress(BaseModel):
+    current: int
+    required: int
+
+
 class TaskResponse(BaseModel):
     id: int
     title: str
@@ -16,6 +21,7 @@ class TaskResponse(BaseModel):
     task_type: TaskType
     is_completed: bool
     completed_at: Optional[datetime] = None
+    progress: Optional[TaskProgress] = None  # For progress-based tasks
 
     class Config:
         from_attributes = True
