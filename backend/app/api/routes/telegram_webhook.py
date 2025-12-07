@@ -16,7 +16,11 @@ from app.models import DepositRequest, WithdrawRequest, Admin
 from app.models.enums import RequestStatus
 from app.services.admin.deposits import approve_deposit, reject_deposit
 from app.services.admin.withdrawals import complete_withdrawal, reject_withdrawal
-from app.services.admin.config import get_config_value, DEFAULT_CONFIG, is_broadcast_admin
+from app.services.admin.config import (
+    get_config_value, DEFAULT_CONFIG, is_broadcast_admin,
+    get_auto_repost_enabled, set_auto_repost_enabled,
+    get_repost_channel_id, set_repost_channel_id,
+)
 from app.services import telegram_notify
 from app.services.channel_repost import handle_channel_post
 from app.services.admin.broadcast import create_broadcast, execute_broadcast, get_target_users_count
@@ -548,6 +552,153 @@ async def handle_broadcast_callback(callback_query: dict) -> None:
         return
 
 
+def get_repost_menu_keyboard(enabled: bool, channel_id: int | None) -> dict:
+    """Get repost settings inline keyboard."""
+    toggle_text = "🔴 Выключить" if enabled else "🟢 Включить"
+    return {
+        "inline_keyboard": [
+            [
+                {"text": toggle_text, "callback_data": "repost:toggle"},
+            ],
+            [
+                {"text": "📺 Указать канал", "callback_data": "repost:set_channel"},
+            ],
+            [
+                {"text": "❌ Закрыть", "callback_data": "repost:close"},
+            ],
+        ]
+    }
+
+
+async def handle_repost_command(message: dict) -> None:
+    """
+    Handle /repost command - manage auto-repost settings.
+    """
+    chat = message.get("chat", {})
+    chat_id = chat.get("id")
+    from_user = message.get("from", {})
+    telegram_id = from_user.get("id")
+    text = message.get("text", "")
+
+    if not chat_id or not telegram_id:
+        return
+
+    # Check if user is broadcast admin
+    async with async_session() as db:
+        is_admin = await is_broadcast_admin(db, telegram_id)
+
+    if not is_admin:
+        await telegram_notify.send_message(
+            chat_id,
+            "❌ У вас нет доступа к этой команде.",
+        )
+        return
+
+    # Check if setting channel ID: /repost -100123456789
+    parts = text.split()
+    if len(parts) > 1:
+        try:
+            channel_id = int(parts[1])
+            async with async_session() as db:
+                await set_repost_channel_id(db, channel_id)
+            await telegram_notify.send_message(
+                chat_id,
+                f"✅ ID канала установлен: <code>{channel_id}</code>\n\n"
+                f"Теперь посты из этого канала будут пересылаться пользователям (если включен автопост).",
+                parse_mode="HTML",
+            )
+            return
+        except ValueError:
+            pass
+
+    # Show current settings
+    async with async_session() as db:
+        enabled = await get_auto_repost_enabled(db)
+        channel_id = await get_repost_channel_id(db)
+
+    status = "🟢 Включен" if enabled else "🔴 Выключен"
+    channel_text = f"<code>{channel_id}</code>" if channel_id else "❌ Не указан"
+
+    await telegram_notify.send_message(
+        chat_id,
+        f"📺 <b>Автопост из канала</b>\n\n"
+        f"<b>Статус:</b> {status}\n"
+        f"<b>ID канала:</b> {channel_text}\n\n"
+        f"<i>Чтобы указать канал:</i>\n"
+        f"<code>/repost -100123456789</code>\n\n"
+        f"<i>Как узнать ID канала:</i>\n"
+        f"Перешлите любой пост из канала боту @getmyid_bot",
+        reply_markup=get_repost_menu_keyboard(enabled, channel_id),
+        parse_mode="HTML",
+    )
+
+
+async def handle_repost_callback(callback_query: dict) -> None:
+    """Handle repost settings callbacks."""
+    callback_id = callback_query.get("id")
+    callback_data = callback_query.get("data", "")
+    from_user = callback_query.get("from", {})
+    telegram_id = from_user.get("id")
+    message = callback_query.get("message", {})
+    message_id = message.get("message_id")
+    chat_id = message.get("chat", {}).get("id")
+
+    if not telegram_id or not callback_data.startswith("repost:"):
+        return
+
+    # Check admin access
+    async with async_session() as db:
+        is_admin = await is_broadcast_admin(db, telegram_id)
+
+    if not is_admin:
+        await telegram_notify.answer_callback_query(callback_id, "❌ Нет доступа", show_alert=True)
+        return
+
+    action = callback_data.split(":")[1]
+
+    if action == "close":
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            "📺 Настройки автопоста закрыты.",
+            reply_markup=None,
+        )
+        await telegram_notify.answer_callback_query(callback_id)
+        return
+
+    if action == "toggle":
+        async with async_session() as db:
+            current = await get_auto_repost_enabled(db)
+            new_value = not current
+            await set_auto_repost_enabled(db, new_value)
+            channel_id = await get_repost_channel_id(db)
+
+        status = "🟢 Включен" if new_value else "🔴 Выключен"
+        channel_text = f"<code>{channel_id}</code>" if channel_id else "❌ Не указан"
+
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            f"📺 <b>Автопост из канала</b>\n\n"
+            f"<b>Статус:</b> {status}\n"
+            f"<b>ID канала:</b> {channel_text}\n\n"
+            f"<i>Чтобы указать канал:</i>\n"
+            f"<code>/repost -100123456789</code>",
+            reply_markup=get_repost_menu_keyboard(new_value, channel_id),
+        )
+        await telegram_notify.answer_callback_query(
+            callback_id,
+            f"Автопост {'включен' if new_value else 'выключен'}!"
+        )
+        return
+
+    if action == "set_channel":
+        await telegram_notify.answer_callback_query(
+            callback_id,
+            "Отправьте команду:\n/repost -100123456789\n\nГде число - ID вашего канала",
+            show_alert=True,
+        )
+        return
+
+
 async def handle_start_command(message: dict) -> None:
     """
     Handle /start command with optional referral code.
@@ -613,6 +764,9 @@ async def telegram_webhook(request: Request):
         if text.startswith("/broadcast"):
             await handle_broadcast_command(message)
             return {"ok": True}
+        if text.startswith("/repost"):
+            await handle_repost_command(message)
+            return {"ok": True}
 
     # Handle channel posts (for auto-repost feature)
     channel_post = data.get("channel_post")
@@ -642,6 +796,11 @@ async def telegram_webhook(request: Request):
     # Handle broadcast callbacks (bc:*)
     if callback_data.startswith("bc:"):
         await handle_broadcast_callback(callback_query)
+        return {"ok": True}
+
+    # Handle repost callbacks (repost:*)
+    if callback_data.startswith("repost:"):
+        await handle_repost_callback(callback_query)
         return {"ok": True}
 
     # Parse callback data: "deposit:approve:123" or "withdraw:complete:456"
