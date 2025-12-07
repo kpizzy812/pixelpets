@@ -131,10 +131,18 @@ async def update_referral_config(
 
 async def init_default_configs(db: AsyncSession) -> None:
     """Initialize default configs if they don't exist."""
+    import logging
+    logger = logging.getLogger(__name__)
+
+    added_keys = []
     for key, value in DEFAULT_CONFIG.items():
         existing = await get_config(db, key)
         if not existing:
             await set_config(db, key, value, f"Default value for {key}")
+            added_keys.append(key)
+
+    if added_keys:
+        logger.info(f"Added {len(added_keys)} new config keys: {added_keys}")
 
 
 async def get_auto_repost_enabled(db: AsyncSession) -> bool:
