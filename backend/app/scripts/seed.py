@@ -242,25 +242,28 @@ async def seed_super_admin():
 
 
 async def seed_system_config():
-    """Seed default system config if not exists."""
+    """Seed default system config - adds missing keys without overwriting existing."""
     async with async_session() as db:
         result = await db.execute(select(SystemConfig))
         existing = result.scalars().all()
+        existing_keys = {config.key for config in existing}
 
-        if existing:
-            print(f"System config already exists ({len(existing)} keys), skipping...")
-            return
-
+        added = 0
         for key, value in DEFAULT_CONFIG.items():
-            config = SystemConfig(
-                key=key,
-                value=value,
-                description=f"Default value for {key}",
-            )
-            db.add(config)
+            if key not in existing_keys:
+                config = SystemConfig(
+                    key=key,
+                    value=value,
+                    description=f"Default value for {key}",
+                )
+                db.add(config)
+                added += 1
 
-        await db.commit()
-        print(f"Created {len(DEFAULT_CONFIG)} system config entries")
+        if added > 0:
+            await db.commit()
+            print(f"Added {added} new system config entries (total: {len(existing) + added})")
+        else:
+            print(f"System config is up to date ({len(existing)} keys)")
 
 
 async def seed_spin_rewards():
