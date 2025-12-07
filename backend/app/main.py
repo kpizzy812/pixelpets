@@ -12,6 +12,7 @@ from app.api.routes.admin import router as admin_router
 from app.services.auto_claim import run_auto_claim_job
 from app.services.training_notifications import run_training_notification_job
 from app.services.admin.broadcast import run_broadcast_scheduler
+from app.services.admin.config import init_default_configs
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +81,11 @@ async def broadcast_scheduler():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifespan - start/stop background tasks."""
+    # Initialize default configs on startup
+    async with async_session() as db:
+        await init_default_configs(db)
+        logger.info("Default configs initialized")
+
     # Start schedulers
     auto_claim_task = asyncio.create_task(auto_claim_scheduler())
     training_notification_task = asyncio.create_task(training_notification_scheduler())
