@@ -4,7 +4,17 @@ export type TaskType =
   | "TWITTER"
   | "DISCORD"
   | "WEBSITE"
-  | "OTHER";
+  | "OTHER"
+  | "INVITE_FRIEND"
+  | "INVITE_ACTIVE_FRIEND"
+  | "BUY_PET";
+
+// Task types that require a required_count in verification_data
+export const PROGRESS_TASK_TYPES: TaskType[] = [
+  "INVITE_FRIEND",
+  "INVITE_ACTIVE_FRIEND",
+  "BUY_PET",
+];
 
 export interface Task {
   id: number;

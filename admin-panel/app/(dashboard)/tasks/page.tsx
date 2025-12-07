@@ -42,7 +42,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { getErrorMessage } from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
-import { Task, CreateTaskRequest, TaskType } from "@/types";
+import { Task, CreateTaskRequest, TaskType, PROGRESS_TASK_TYPES } from "@/types";
 
 const taskTypeColors: Record<TaskType, string> = {
   TELEGRAM_CHANNEL: "bg-cyan-100 text-cyan-800",
@@ -51,6 +51,9 @@ const taskTypeColors: Record<TaskType, string> = {
   DISCORD: "bg-purple-100 text-purple-800",
   WEBSITE: "bg-green-100 text-green-800",
   OTHER: "bg-gray-100 text-gray-800",
+  INVITE_FRIEND: "bg-amber-100 text-amber-800",
+  INVITE_ACTIVE_FRIEND: "bg-orange-100 text-orange-800",
+  BUY_PET: "bg-pink-100 text-pink-800",
 };
 
 const taskTypeLabels: Record<TaskType, string> = {
@@ -60,9 +63,16 @@ const taskTypeLabels: Record<TaskType, string> = {
   DISCORD: "Discord",
   WEBSITE: "Website",
   OTHER: "Other",
+  INVITE_FRIEND: "Invite Friend",
+  INVITE_ACTIVE_FRIEND: "Invite Active Friend",
+  BUY_PET: "Buy Pet",
 };
 
-const defaultFormData: CreateTaskRequest = {
+interface FormData extends CreateTaskRequest {
+  required_count?: number;
+}
+
+const defaultFormData: FormData = {
   title: "",
   description: "",
   reward_xpet: 0,
@@ -70,6 +80,7 @@ const defaultFormData: CreateTaskRequest = {
   task_type: "OTHER",
   is_active: true,
   order: 0,
+  required_count: 1,
 };
 
 export default function TasksPage() {
@@ -79,7 +90,7 @@ export default function TasksPage() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<Task | null>(null);
-  const [formData, setFormData] = useState<CreateTaskRequest>(defaultFormData);
+  const [formData, setFormData] = useState<FormData>(defaultFormData);
 
   const { data, isLoading } = useQuery({
     queryKey: ["tasks"],
@@ -126,6 +137,7 @@ export default function TasksPage() {
 
   const openEditDialog = (task: Task) => {
     setEditingTask(task);
+    const requiredCount = task.verification_data?.required_count as number | undefined;
     setFormData({
       title: task.title,
       description: task.description || "",
@@ -134,14 +146,26 @@ export default function TasksPage() {
       task_type: task.task_type,
       is_active: task.is_active,
       order: task.order,
+      required_count: requiredCount || 1,
     });
   };
 
   const handleSubmit = () => {
+    // Build the request data
+    const { required_count, ...baseData } = formData;
+
+    // Add verification_data for progress-based tasks
+    const requestData: CreateTaskRequest = {
+      ...baseData,
+      verification_data: PROGRESS_TASK_TYPES.includes(formData.task_type || "OTHER")
+        ? { required_count: required_count || 1 }
+        : null,
+    };
+
     if (editingTask) {
-      updateMutation.mutate({ id: editingTask.id, data: formData });
+      updateMutation.mutate({ id: editingTask.id, data: requestData });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(requestData);
     }
   };
 
@@ -207,9 +231,16 @@ export default function TasksPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${taskTypeColors[task.task_type]}`}>
-                      {taskTypeLabels[task.task_type]}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span className={`px-2 py-1 rounded text-xs font-medium inline-block w-fit ${taskTypeColors[task.task_type]}`}>
+                        {taskTypeLabels[task.task_type]}
+                      </span>
+                      {PROGRESS_TASK_TYPES.includes(task.task_type) && task.verification_data?.required_count !== undefined && (
+                        <span className="text-xs text-muted-foreground">
+                          Required: {String(task.verification_data.required_count)}
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>{formatCurrency(task.reward_xpet)} XPET</TableCell>
                   <TableCell>{task.completions_count}</TableCell>
@@ -319,9 +350,28 @@ export default function TasksPage() {
                   <SelectItem value="DISCORD">Discord</SelectItem>
                   <SelectItem value="WEBSITE">Website</SelectItem>
                   <SelectItem value="OTHER">Other</SelectItem>
+                  <SelectItem value="INVITE_FRIEND">Invite Friend (register)</SelectItem>
+                  <SelectItem value="INVITE_ACTIVE_FRIEND">Invite Active Friend (with pet)</SelectItem>
+                  <SelectItem value="BUY_PET">Buy Pet</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+            {PROGRESS_TASK_TYPES.includes(formData.task_type || "OTHER") && (
+              <div className="space-y-2">
+                <Label>Required Count</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={formData.required_count || 1}
+                  onChange={(e) => setFormData({ ...formData, required_count: parseInt(e.target.value) || 1 })}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {formData.task_type === "INVITE_FRIEND" && "Number of friends to invite (register)"}
+                  {formData.task_type === "INVITE_ACTIVE_FRIEND" && "Number of active friends (who bought a pet)"}
+                  {formData.task_type === "BUY_PET" && "Number of pets to buy"}
+                </p>
+              </div>
+            )}
             <div className="space-y-2">
               <Label>
                 Link
