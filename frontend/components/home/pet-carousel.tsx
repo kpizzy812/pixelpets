@@ -16,7 +16,7 @@ interface PetCarouselProps {
 }
 
 export function PetCarousel({ slots, onTrain, onClaim, onShop, onUpgrade, onSell, onBoosts, onPetClick }: PetCarouselProps) {
-  const [activeIndex, setActiveIndex] = useState(1);
+  const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Check if user has any pets
@@ -38,15 +38,27 @@ export function PetCarousel({ slots, onTrain, onClaim, onShop, onUpgrade, onSell
     return () => container.removeEventListener('scroll', handleScroll);
   }, [slots.length]);
 
-  // Scroll to center card on mount
+  // Scroll to center card on mount (only if more than 1 slot)
   useEffect(() => {
     const container = scrollRef.current;
-    if (!container) return;
+    if (!container || slots.length <= 1) return;
 
     const cardWidth = container.offsetWidth * 0.85;
     const gap = 16;
-    container.scrollLeft = (cardWidth + gap) * 1;
-  }, []);
+    // Scroll to middle slot
+    const middleIndex = Math.floor(slots.length / 2);
+    container.scrollLeft = (cardWidth + gap) * middleIndex;
+    setActiveIndex(middleIndex);
+  }, [slots.length]);
+
+  // Don't render anything if no slots
+  if (slots.length === 0) {
+    return (
+      <div className="flex flex-col flex-1 min-h-0 items-center justify-center">
+        <div className="text-[#64748b] text-sm">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
@@ -78,19 +90,21 @@ export function PetCarousel({ slots, onTrain, onClaim, onShop, onUpgrade, onSell
         ))}
       </div>
 
-      {/* Pagination Dots */}
-      <div className="flex justify-center gap-2 py-3">
-        {slots.map((_, i) => (
-          <div
-            key={i}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              i === activeIndex
-                ? 'bg-[#00f5d4] shadow-[0_0_8px_rgba(0,245,212,0.6)]'
-                : 'bg-[#334155]'
-            }`}
-          />
-        ))}
-      </div>
+      {/* Pagination Dots (only show if more than 1 slot) */}
+      {slots.length > 1 && (
+        <div className="flex justify-center gap-2 py-3">
+          {slots.map((_, i) => (
+            <div
+              key={i}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                i === activeIndex
+                  ? 'bg-[#00f5d4] shadow-[0_0_8px_rgba(0,245,212,0.6)]'
+                  : 'bg-[#334155]'
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
