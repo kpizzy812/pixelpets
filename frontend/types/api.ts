@@ -226,6 +226,11 @@ export interface SpinWheelResponse {
   paid_spin_cost: number;
   spins_today: number;
   winnings_today: number;
+  // Referral requirements for free spins
+  referrals_needed: number;
+  referrals_have: number;
+  has_deposits: boolean;
+  total_free_spins: number;
 }
 
 export interface SpinResultResponse {

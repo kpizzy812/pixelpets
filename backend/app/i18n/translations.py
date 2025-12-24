@@ -452,6 +452,15 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "pt": "Nenhuma recompensa de giro configurada",
         "it": "Nessuna ricompensa per il giro configurata"
     },
+    "error.spin_need_referrals": {
+        "en": "Invite {needed} friends to unlock next free spin (you have {have})",
+        "ru": "Пригласите {needed} друзей для следующего бесплатного вращения (у вас {have})",
+        "de": "Lade {needed} Freunde ein, um den nächsten Gratis-Dreh freizuschalten (du hast {have})",
+        "es": "Invita a {needed} amigos para desbloquear el próximo giro gratis (tienes {have})",
+        "fr": "Invitez {needed} amis pour débloquer le prochain tour gratuit (vous avez {have})",
+        "pt": "Convide {needed} amigos para desbloquear o próximo giro grátis (você tem {have})",
+        "it": "Invita {needed} amici per sbloccare il prossimo giro gratuito (ne hai {have})"
+    },
 
     # === User errors ===
     "error.user_not_found": {

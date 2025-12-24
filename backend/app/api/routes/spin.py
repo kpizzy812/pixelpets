@@ -33,6 +33,10 @@ async def get_wheel(
         paid_spin_cost=status["paid_spin_cost"],
         spins_today=status["spins_today"],
         winnings_today=status["winnings_today"],
+        referrals_needed=status["referrals_needed"],
+        referrals_have=status["referrals_have"],
+        has_deposits=status["has_deposits"],
+        total_free_spins=status["total_free_spins"],
     )
 
 

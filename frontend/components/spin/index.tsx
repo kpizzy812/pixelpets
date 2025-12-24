@@ -225,6 +225,27 @@ export function SpinScreen() {
           )}
         </div>
 
+        {/* Referral requirement notice */}
+        {wheelData && !wheelData.can_free_spin && !countdown && wheelData.referrals_needed > 0 && (
+          <div className="w-full p-3 rounded-xl bg-[#1a2235]/80 border border-[#f59e0b]/30 text-center">
+            <div className="text-sm text-[#f59e0b]">
+              {t('needReferrals', {
+                needed: wheelData.referrals_needed,
+                have: wheelData.referrals_have
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Non-depositor notice */}
+        {wheelData && !wheelData.has_deposits && wheelData.can_free_spin && (
+          <div className="w-full p-3 rounded-xl bg-[#1a2235]/80 border border-[#64748b]/30 text-center">
+            <div className="text-xs text-[#94a3b8]">
+              {t('minRewardNotice')}
+            </div>
+          </div>
+        )}
+
         {/* Spin Buttons - Horizontal Layout */}
         <div className="w-full flex gap-3">
           {/* Free Spin Button */}
@@ -243,8 +264,10 @@ export function SpinScreen() {
               </span>
             ) : wheelData?.can_free_spin ? (
               <span className="text-sm">{t('freeSpin')}</span>
+            ) : countdown ? (
+              <span className="text-xs">{countdown}</span>
             ) : (
-              <span className="text-xs">{countdown || '...'}</span>
+              <span className="text-xs">{t('inviteFriends')}</span>
             )}
           </button>
 

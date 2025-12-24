@@ -29,6 +29,11 @@ class SpinWheelResponse(BaseModel):
     paid_spin_cost: Decimal
     spins_today: int
     winnings_today: Decimal
+    # Referral requirements for free spins
+    referrals_needed: int  # How many referrals needed for next free spin
+    referrals_have: int  # How many referrals user currently has
+    has_deposits: bool  # Whether user has made real deposits (affects reward chances)
+    total_free_spins: int  # Total free spins used
 
 
 class SpinRequest(BaseModel):

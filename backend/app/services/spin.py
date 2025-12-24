@@ -10,12 +10,65 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import User
 from app.models.spin import SpinReward, UserSpin
 from app.models.transaction import Transaction
-from app.models.enums import SpinRewardType, TxType
+from app.models.enums import SpinRewardType, TxType, TxStatus
 from app.i18n import get_text as t
 
 # Spin costs
 FREE_SPIN_COOLDOWN_HOURS = 24
 PAID_SPIN_COST = Decimal("1")  # $1 per paid spin
+
+
+async def has_real_deposits(db: AsyncSession, user_id: int) -> bool:
+    """Check if user has made real deposits (TxType.DEPOSIT with positive amount)."""
+    result = await db.execute(
+        select(func.count(Transaction.id)).where(
+            and_(
+                Transaction.user_id == user_id,
+                Transaction.type == TxType.DEPOSIT,
+                Transaction.amount_xpet > 0,
+                Transaction.status == TxStatus.COMPLETED,
+            )
+        )
+    )
+    count = result.scalar() or 0
+    return count > 0
+
+
+async def get_total_referrals(db: AsyncSession, user_id: int) -> int:
+    """Get total number of referrals (users who registered via this user's ref link)."""
+    result = await db.execute(
+        select(func.count(User.id)).where(User.referrer_id == user_id)
+    )
+    return result.scalar() or 0
+
+
+async def count_total_free_spins(db: AsyncSession, user_id: int) -> int:
+    """Count total free spins ever used by user."""
+    result = await db.execute(
+        select(func.count(UserSpin.id)).where(
+            and_(
+                UserSpin.user_id == user_id,
+                UserSpin.is_free_spin == True,
+            )
+        )
+    )
+    return result.scalar() or 0
+
+
+async def get_minimum_reward(db: AsyncSession) -> Optional[SpinReward]:
+    """Get the minimum XPET reward (lowest value)."""
+    result = await db.execute(
+        select(SpinReward)
+        .where(
+            and_(
+                SpinReward.is_active == True,
+                SpinReward.reward_type == SpinRewardType.XPET,
+            )
+        )
+        .order_by(SpinReward.value.asc())
+        .limit(1)
+    )
+    return result.scalar_one_or_none()
 
 
 async def get_spin_rewards(db: AsyncSession) -> list[SpinReward]:
@@ -44,28 +97,42 @@ async def get_last_free_spin(db: AsyncSession, user_id: int) -> Optional[UserSpi
     return result.scalar_one_or_none()
 
 
-async def can_free_spin(db: AsyncSession, user_id: int) -> tuple[bool, Optional[datetime]]:
+async def can_free_spin(db: AsyncSession, user_id: int) -> tuple[bool, Optional[datetime], int, int]:
     """
     Check if user can do a free spin.
-    Returns (can_spin, next_free_spin_time).
+    Returns (can_spin, next_free_spin_time, referrals_needed, referrals_have).
+
+    Rules:
+    - First spin is available to everyone
+    - Each subsequent spin requires 1 referral per spin
+      (2nd spin needs 1 referral, 3rd needs 2 referrals, etc.)
     """
     last_spin = await get_last_free_spin(db, user_id)
+    total_free_spins = await count_total_free_spins(db, user_id)
+    total_referrals = await get_total_referrals(db, user_id)
 
-    if not last_spin:
-        return True, None
+    # First spin is always available (need 0 referrals for spin #1)
+    # For spin N (N >= 2), need N-1 referrals
+    referrals_needed = total_free_spins  # For next spin we need this many referrals
 
-    next_spin_time = last_spin.created_at + timedelta(hours=FREE_SPIN_COOLDOWN_HOURS)
-    now = datetime.utcnow()
+    # Check cooldown first
+    if last_spin:
+        next_spin_time = last_spin.created_at + timedelta(hours=FREE_SPIN_COOLDOWN_HOURS)
+        now = datetime.utcnow()
 
-    if now >= next_spin_time:
-        return True, None
+        if now < next_spin_time:
+            return False, next_spin_time, referrals_needed, total_referrals
 
-    return False, next_spin_time
+    # Check referral requirement (skip for first spin)
+    if total_free_spins > 0 and total_referrals < referrals_needed:
+        return False, None, referrals_needed, total_referrals
+
+    return True, None, referrals_needed, total_referrals
 
 
 async def get_spin_status(db: AsyncSession, user_id: int) -> dict:
     """Get user's spin status including free spin availability."""
-    can_spin, next_free_time = await can_free_spin(db, user_id)
+    can_spin, next_free_time, referrals_needed, referrals_have = await can_free_spin(db, user_id)
 
     # Count total spins today
     today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -91,12 +158,22 @@ async def get_spin_status(db: AsyncSession, user_id: int) -> dict:
     )
     winnings_today = winnings_result.scalar() or Decimal("0")
 
+    # Check if user has real deposits (affects reward chances)
+    has_deposits = await has_real_deposits(db, user_id)
+
+    # Total free spins used
+    total_free_spins = await count_total_free_spins(db, user_id)
+
     return {
         "can_free_spin": can_spin,
         "next_free_spin_at": next_free_time.isoformat() if next_free_time else None,
         "paid_spin_cost": PAID_SPIN_COST,
         "spins_today": spins_today,
         "winnings_today": winnings_today,
+        "referrals_needed": referrals_needed,
+        "referrals_have": referrals_have,
+        "has_deposits": has_deposits,
+        "total_free_spins": total_free_spins,
     }
 
 
@@ -118,12 +195,30 @@ async def perform_spin(
     Perform a spin and return results.
     Returns (user_spin, reward, amount_won).
     Raises ValueError if spin not allowed.
+
+    Free spin rules:
+    - First spin is available to everyone
+    - Each subsequent spin requires 1 referral per spin
+    - Users without deposits always get minimum reward on free spins
+    - Users with deposits get normal random chances on free spins
     """
     # Check if free spin is available
+    force_minimum_reward = False
+
     if is_free:
-        can_spin, next_time = await can_free_spin(db, user.id)
+        can_spin, next_time, referrals_needed, referrals_have = await can_free_spin(db, user.id)
         if not can_spin:
-            raise ValueError(t("error.spin_cooldown", time=next_time.isoformat()))
+            if next_time:
+                # Cooldown not passed
+                raise ValueError(t("error.spin_cooldown", time=next_time.isoformat()))
+            else:
+                # Not enough referrals
+                raise ValueError(t("error.spin_need_referrals", needed=referrals_needed, have=referrals_have))
+
+        # Check if user has real deposits - if not, force minimum reward
+        user_has_deposits = await has_real_deposits(db, user.id)
+        if not user_has_deposits:
+            force_minimum_reward = True
     else:
         # Paid spin - check balance
         if user.balance_xpet < PAID_SPIN_COST:
@@ -141,12 +236,19 @@ async def perform_spin(
         )
         db.add(tx)
 
-    # Get rewards and select random one
+    # Get rewards and select one
     rewards = await get_spin_rewards(db)
     if not rewards:
         raise ValueError(t("error.spin_no_config"))
 
-    reward = select_random_reward(rewards)
+    if force_minimum_reward:
+        # Non-depositor free spin - always minimum reward
+        reward = await get_minimum_reward(db)
+        if not reward:
+            raise ValueError(t("error.spin_no_config"))
+    else:
+        # Normal random selection
+        reward = select_random_reward(rewards)
 
     # Calculate actual reward value
     amount_won = Decimal("0")
@@ -163,6 +265,7 @@ async def perform_spin(
                 "reward_id": reward.id,
                 "reward_label": reward.label,
                 "is_free_spin": is_free,
+                "forced_minimum": force_minimum_reward,
             },
         )
         db.add(tx)
