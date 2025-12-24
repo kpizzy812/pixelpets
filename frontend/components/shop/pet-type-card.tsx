@@ -8,15 +8,25 @@ interface PetTypeCardProps {
   petType: PetType;
   onBuy: () => void;
   disabled?: boolean;
+  comingSoon?: boolean;
 }
 
-export function PetTypeCard({ petType, onBuy, disabled }: PetTypeCardProps) {
+export function PetTypeCard({ petType, onBuy, disabled, comingSoon }: PetTypeCardProps) {
   // daily_rate comes as decimal (0.01 = 1%), convert to percentage
   // Round to avoid floating point issues (e.g., 0.022 * 100 = 2.1999999...)
   const dailyPercent = Math.round(petType.daily_rate * 1000) / 10;
 
   return (
-    <div className="rounded-2xl bg-[#0d1220]/90 border border-[#1e293b]/50 flex flex-col overflow-hidden">
+    <div className="relative rounded-2xl bg-[#0d1220]/90 border border-[#1e293b]/50 flex flex-col overflow-hidden">
+      {/* Coming Soon Overlay */}
+      {comingSoon && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-[#0d1220]/40 backdrop-blur-[6px]">
+          <span className="text-lg font-bold text-white/90 tracking-wider drop-shadow-lg">
+            SOON
+          </span>
+        </div>
+      )}
+
       {/* Pet Image - Full width, clipped with rounded corners */}
       <div className="aspect-square overflow-hidden rounded-t-2xl">
         <img

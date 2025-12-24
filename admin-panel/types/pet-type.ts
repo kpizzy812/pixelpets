@@ -13,6 +13,7 @@ export interface PetType {
   roi_cap_multiplier: string;
   level_prices: LevelPrices;
   is_active: boolean;
+  is_available: boolean;
   created_at: string;
 }
 
@@ -24,6 +25,7 @@ export interface CreatePetTypeRequest {
   roi_cap_multiplier: number;
   level_prices: LevelPrices;
   is_active?: boolean;
+  is_available?: boolean;
 }
 
 export interface UpdatePetTypeRequest {
@@ -34,6 +36,7 @@ export interface UpdatePetTypeRequest {
   roi_cap_multiplier?: number | null;
   level_prices?: Partial<LevelPrices> | null;
   is_active?: boolean | null;
+  is_available?: boolean | null;
 }
 
 export interface DeletePetTypeResponse {

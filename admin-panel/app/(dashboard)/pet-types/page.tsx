@@ -45,6 +45,7 @@ const defaultFormData: CreatePetTypeRequest = {
   roi_cap_multiplier: 1.5,
   level_prices: { BABY: 5, ADULT: 15, MYTHIC: 30 },
   is_active: true,
+  is_available: true,
 };
 
 export default function PetTypesPage() {
@@ -109,6 +110,7 @@ export default function PetTypesPage() {
       roi_cap_multiplier: parseFloat(petType.roi_cap_multiplier),
       level_prices: petType.level_prices,
       is_active: petType.is_active,
+      is_available: petType.is_available,
     });
   };
 
@@ -147,6 +149,7 @@ export default function PetTypesPage() {
               <TableHead>ROI Cap</TableHead>
               <TableHead>Level Prices</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Shop</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -154,14 +157,14 @@ export default function PetTypesPage() {
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
-                  {Array.from({ length: 7 }).map((_, j) => (
+                  {Array.from({ length: 8 }).map((_, j) => (
                     <TableCell key={j}><Skeleton className="h-4 w-20" /></TableCell>
                   ))}
                 </TableRow>
               ))
             ) : petTypes?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   No pet types found
                 </TableCell>
               </TableRow>
@@ -182,6 +185,11 @@ export default function PetTypesPage() {
                   <TableCell>
                     <Badge variant={petType.is_active ? "success" : "secondary"}>
                       {petType.is_active ? "Active" : "Inactive"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={petType.is_available ? "success" : "outline"}>
+                      {petType.is_available ? "Available" : "Soon"}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -306,12 +314,21 @@ export default function PetTypesPage() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={formData.is_active}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-              />
-              <Label>Active</Label>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={formData.is_active}
+                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                />
+                <Label>Active</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={formData.is_available}
+                  onCheckedChange={(checked) => setFormData({ ...formData, is_available: checked })}
+                />
+                <Label>Available in Shop</Label>
+              </div>
             </div>
           </div>
           <DialogFooter>

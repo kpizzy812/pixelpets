@@ -32,6 +32,14 @@ from app.i18n import get_text as t, set_locale
 # In production, consider using Redis
 PENDING_BROADCASTS: dict[int, dict] = {}
 
+# FSM States for broadcast workflow
+class BroadcastState:
+    """FSM states for broadcast creation workflow."""
+    IDLE = "idle"
+    WAITING_CONTENT = "waiting_content"  # Waiting for text/media
+    WAITING_BUTTONS = "waiting_buttons"  # Waiting for buttons in format "name - url"
+    EDITING = "editing"  # In editing menu, can modify content/buttons
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/webhook", tags=["webhook"])
@@ -253,8 +261,156 @@ async def send_welcome_to_user(
     )
 
 
+def get_admin_menu_keyboard() -> dict:
+    """Get main admin menu inline keyboard."""
+    return {
+        "inline_keyboard": [
+            [{"text": "📢 Создать рассылку", "callback_data": "admin:broadcast:new"}],
+            [{"text": "📺 Автопост из канала", "callback_data": "admin:repost"}],
+            [{"text": "❌ Закрыть", "callback_data": "admin:close"}],
+        ]
+    }
+
+
+def get_broadcast_target_keyboard() -> dict:
+    """Get broadcast target selection keyboard."""
+    return {
+        "inline_keyboard": [
+            [
+                {"text": "👥 Всем пользователям", "callback_data": "bc:target:ALL"},
+                {"text": "⚡ Активным", "callback_data": "bc:target:ACTIVE"},
+            ],
+            [
+                {"text": "🐾 С питомцами", "callback_data": "bc:target:WITH_PETS"},
+                {"text": "💰 С депозитами", "callback_data": "bc:target:WITH_DEPOSITS"},
+            ],
+            [
+                {"text": "😴 Неактивным", "callback_data": "bc:target:INACTIVE"},
+            ],
+            [
+                {"text": "🔙 Назад", "callback_data": "bc:back_to_edit"},
+                {"text": "❌ Отмена", "callback_data": "bc:cancel"},
+            ],
+        ]
+    }
+
+
+def get_broadcast_edit_keyboard(has_content: bool = False, has_buttons: bool = False) -> dict:
+    """Get broadcast editing menu keyboard."""
+    content_icon = "✅" if has_content else "📝"
+    buttons_icon = "✅" if has_buttons else "🔘"
+
+    keyboard = [
+        [{"text": f"{content_icon} Редактировать текст/медиа", "callback_data": "bc:edit:content"}],
+        [{"text": f"{buttons_icon} Редактировать кнопки", "callback_data": "bc:edit:buttons"}],
+    ]
+
+    if has_content:
+        keyboard.append([
+            {"text": "👁 Предпросмотр", "callback_data": "bc:preview"},
+        ])
+        keyboard.append([
+            {"text": "📤 Выбрать аудиторию", "callback_data": "bc:select_target"},
+        ])
+
+    keyboard.append([{"text": "❌ Отмена", "callback_data": "bc:cancel"}])
+
+    return {"inline_keyboard": keyboard}
+
+
+def get_confirm_send_keyboard(target_type: str, user_count: int) -> dict:
+    """Get confirmation keyboard before sending."""
+    return {
+        "inline_keyboard": [
+            [{"text": f"✅ ОТПРАВИТЬ ({user_count} получателей)", "callback_data": "bc:confirm:send"}],
+            [
+                {"text": "👁 Превью", "callback_data": "bc:preview"},
+                {"text": "🔙 Назад", "callback_data": "bc:back_to_edit"},
+            ],
+            [{"text": "❌ Отмена", "callback_data": "bc:cancel"}],
+        ]
+    }
+
+
+def parse_buttons_text(text: str) -> list[list[dict]] | None:
+    """
+    Parse buttons from text format:
+    название1 - https://example.com
+    название2 - https://example2.com
+
+    Returns Telegram inline_keyboard format or None if parsing fails.
+    """
+    if not text or not text.strip():
+        return None
+
+    buttons = []
+    lines = text.strip().split("\n")
+
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+
+        # Support both " - " and " – " (en-dash)
+        separator = None
+        if " - " in line:
+            separator = " - "
+        elif " – " in line:
+            separator = " – "
+        elif " — " in line:
+            separator = " — "
+
+        if not separator:
+            continue
+
+        parts = line.split(separator, 1)
+        if len(parts) != 2:
+            continue
+
+        name, url = parts[0].strip(), parts[1].strip()
+
+        # Basic URL validation
+        if not url.startswith(("http://", "https://", "tg://")):
+            continue
+
+        if name and url:
+            buttons.append([{"text": name, "url": url}])
+
+    return buttons if buttons else None
+
+
+def format_broadcast_summary(pending: dict) -> str:
+    """Format broadcast summary for editing menu."""
+    text = pending.get("text", "")
+    has_photo = bool(pending.get("photo_file_id"))
+    has_video = bool(pending.get("video_file_id"))
+    buttons = pending.get("buttons", [])
+
+    # Truncate text for display
+    display_text = text[:200] + "..." if len(text) > 200 else text
+    if not display_text:
+        display_text = "<i>Текст не задан</i>"
+
+    media_info = ""
+    if has_photo:
+        media_info = "📷 Фото"
+    elif has_video:
+        media_info = "🎬 Видео"
+    else:
+        media_info = "📝 Только текст"
+
+    buttons_info = f"🔘 Кнопок: {len(buttons)}" if buttons else "🔘 Без кнопок"
+
+    return (
+        f"📢 <b>Редактирование рассылки</b>\n\n"
+        f"<b>Медиа:</b> {media_info}\n"
+        f"<b>Кнопки:</b> {buttons_info}\n\n"
+        f"<b>Текст:</b>\n{display_text}"
+    )
+
+
 def get_broadcast_menu_keyboard() -> dict:
-    """Get main broadcast menu inline keyboard."""
+    """Get main broadcast menu inline keyboard (legacy - for /broadcast reply mode)."""
     return {
         "inline_keyboard": [
             [
@@ -293,9 +449,250 @@ def get_confirm_keyboard() -> dict:
     }
 
 
+async def handle_admin_command(message: dict) -> None:
+    """
+    Handle /admin command.
+    Shows admin menu with broadcast and other options.
+    """
+    chat = message.get("chat", {})
+    chat_id = chat.get("id")
+    from_user = message.get("from", {})
+    telegram_id = from_user.get("id")
+
+    if not chat_id or not telegram_id:
+        return
+
+    # Check if user is broadcast admin
+    async with async_session() as db:
+        is_admin = await is_broadcast_admin(db, telegram_id)
+
+    if not is_admin:
+        await telegram_notify.send_message(
+            chat_id,
+            "❌ У вас нет доступа к этой команде.",
+        )
+        logger.warning(f"Unauthorized admin attempt from {telegram_id}")
+        return
+
+    await telegram_notify.send_message(
+        chat_id,
+        "⚙️ <b>Админ-панель</b>\n\n"
+        "Выберите действие:",
+        reply_markup=get_admin_menu_keyboard(),
+        parse_mode="HTML",
+    )
+
+
+async def handle_admin_callback(callback_query: dict) -> None:
+    """Handle admin menu callbacks."""
+    callback_id = callback_query.get("id")
+    callback_data = callback_query.get("data", "")
+    from_user = callback_query.get("from", {})
+    telegram_id = from_user.get("id")
+    message = callback_query.get("message", {})
+    message_id = message.get("message_id")
+    chat_id = message.get("chat", {}).get("id")
+
+    if not telegram_id or not callback_data.startswith("admin:"):
+        return
+
+    # Check admin access
+    async with async_session() as db:
+        is_admin = await is_broadcast_admin(db, telegram_id)
+
+    if not is_admin:
+        await telegram_notify.answer_callback_query(callback_id, "❌ Нет доступа", show_alert=True)
+        return
+
+    parts = callback_data.split(":")
+    action = parts[1] if len(parts) > 1 else ""
+
+    if action == "close":
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            "⚙️ Админ-панель закрыта.",
+            reply_markup=None,
+        )
+        await telegram_notify.answer_callback_query(callback_id)
+        return
+
+    if action == "repost":
+        # Show repost settings
+        async with async_session() as db:
+            enabled = await get_auto_repost_enabled(db)
+            channel_id = await get_repost_channel_id(db)
+
+        status = "🟢 Включен" if enabled else "🔴 Выключен"
+        channel_text = f"<code>{channel_id}</code>" if channel_id else "❌ Не указан"
+
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            f"📺 <b>Автопост из канала</b>\n\n"
+            f"<b>Статус:</b> {status}\n"
+            f"<b>ID канала:</b> {channel_text}\n\n"
+            f"<i>Чтобы указать канал:</i>\n"
+            f"<code>/repost -100123456789</code>",
+            reply_markup=get_repost_menu_keyboard(enabled, channel_id),
+        )
+        await telegram_notify.answer_callback_query(callback_id)
+        return
+
+    if action == "broadcast" and len(parts) > 2 and parts[2] == "new":
+        # Initialize new broadcast FSM
+        PENDING_BROADCASTS[telegram_id] = {
+            "state": BroadcastState.EDITING,
+            "text": "",
+            "entities": None,
+            "photo_file_id": None,
+            "video_file_id": None,
+            "buttons": [],
+            "target_type": None,
+            "chat_id": chat_id,
+            "menu_message_id": message_id,
+        }
+
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            format_broadcast_summary(PENDING_BROADCASTS[telegram_id]),
+            reply_markup=get_broadcast_edit_keyboard(has_content=False, has_buttons=False),
+        )
+        await telegram_notify.answer_callback_query(callback_id)
+        return
+
+
+async def handle_fsm_message(message: dict) -> bool:
+    """
+    Handle incoming messages for FSM states.
+    Returns True if message was handled, False otherwise.
+    """
+    chat = message.get("chat", {})
+    chat_id = chat.get("id")
+    from_user = message.get("from", {})
+    telegram_id = from_user.get("id")
+
+    if not chat_id or not telegram_id:
+        return False
+
+    # Check if user has pending broadcast
+    pending = PENDING_BROADCASTS.get(telegram_id)
+    if not pending:
+        return False
+
+    state = pending.get("state", BroadcastState.IDLE)
+
+    # Handle WAITING_CONTENT state
+    if state == BroadcastState.WAITING_CONTENT:
+        # Extract content from message
+        text = message.get("text") or message.get("caption") or ""
+        entities = message.get("entities") or message.get("caption_entities")
+
+        # Get photo/video file_id if present
+        photo_file_id = None
+        video_file_id = None
+
+        photo = message.get("photo")
+        if photo and isinstance(photo, list) and len(photo) > 0:
+            photo_file_id = photo[-1].get("file_id")
+
+        video = message.get("video")
+        if video:
+            video_file_id = video.get("file_id")
+
+        if not text and not photo_file_id and not video_file_id:
+            await telegram_notify.send_message(
+                chat_id,
+                "❌ Сообщение пустое. Отправьте текст, фото или видео с текстом.",
+            )
+            return True
+
+        # Update pending broadcast
+        pending["text"] = text
+        pending["entities"] = entities
+        pending["photo_file_id"] = photo_file_id
+        pending["video_file_id"] = video_file_id
+        pending["state"] = BroadcastState.EDITING
+
+        # Update menu message
+        menu_message_id = pending.get("menu_message_id")
+        if menu_message_id:
+            has_content = bool(text or photo_file_id or video_file_id)
+            has_buttons = bool(pending.get("buttons"))
+            await telegram_notify.edit_message(
+                chat_id, menu_message_id,
+                format_broadcast_summary(pending),
+                reply_markup=get_broadcast_edit_keyboard(has_content=has_content, has_buttons=has_buttons),
+            )
+
+        await telegram_notify.send_message(
+            chat_id,
+            "✅ Контент сохранён!",
+        )
+        return True
+
+    # Handle WAITING_BUTTONS state
+    if state == BroadcastState.WAITING_BUTTONS:
+        text = message.get("text", "")
+
+        # Check for "skip" command
+        if text.lower() in ["пропустить", "skip", "-", "нет"]:
+            pending["buttons"] = []
+            pending["state"] = BroadcastState.EDITING
+
+            menu_message_id = pending.get("menu_message_id")
+            if menu_message_id:
+                has_content = bool(pending.get("text") or pending.get("photo_file_id") or pending.get("video_file_id"))
+                await telegram_notify.edit_message(
+                    chat_id, menu_message_id,
+                    format_broadcast_summary(pending),
+                    reply_markup=get_broadcast_edit_keyboard(has_content=has_content, has_buttons=False),
+                )
+
+            await telegram_notify.send_message(
+                chat_id,
+                "✅ Кнопки убраны.",
+            )
+            return True
+
+        # Parse buttons
+        buttons = parse_buttons_text(text)
+        if not buttons:
+            await telegram_notify.send_message(
+                chat_id,
+                "❌ Не удалось распознать кнопки.\n\n"
+                "<b>Формат:</b>\n"
+                "<code>Название - https://example.com</code>\n"
+                "<code>Вторая кнопка - https://t.me/channel</code>\n\n"
+                "Или отправьте <b>пропустить</b> чтобы убрать кнопки.",
+                parse_mode="HTML",
+            )
+            return True
+
+        # Update pending broadcast
+        pending["buttons"] = buttons
+        pending["state"] = BroadcastState.EDITING
+
+        # Update menu message
+        menu_message_id = pending.get("menu_message_id")
+        if menu_message_id:
+            has_content = bool(pending.get("text") or pending.get("photo_file_id") or pending.get("video_file_id"))
+            await telegram_notify.edit_message(
+                chat_id, menu_message_id,
+                format_broadcast_summary(pending),
+                reply_markup=get_broadcast_edit_keyboard(has_content=has_content, has_buttons=True),
+            )
+
+        await telegram_notify.send_message(
+            chat_id,
+            f"✅ Добавлено кнопок: {len(buttons)}",
+        )
+        return True
+
+    return False
+
+
 async def handle_broadcast_command(message: dict) -> None:
     """
-    Handle /broadcast command.
+    Handle /broadcast command (legacy mode).
     Admin replies to a message with /broadcast to show target selection menu.
     Preserves original formatting via entities.
     """
@@ -408,12 +805,116 @@ async def handle_broadcast_callback(callback_query: dict) -> None:
         await telegram_notify.answer_callback_query(callback_id)
         return
 
-    # Back to menu
+    # Back to menu (legacy /broadcast mode)
     if action == "back":
         await telegram_notify.edit_message(
             chat_id, message_id,
             "📢 <b>Выберите аудиторию рассылки:</b>",
             reply_markup=get_broadcast_menu_keyboard(),
+        )
+        await telegram_notify.answer_callback_query(callback_id)
+        return
+
+    # Back to edit menu
+    if action == "back_to_edit":
+        pending = PENDING_BROADCASTS.get(telegram_id)
+        if not pending:
+            await telegram_notify.answer_callback_query(
+                callback_id, "❌ Сессия истекла", show_alert=True
+            )
+            return
+
+        pending["state"] = BroadcastState.EDITING
+        has_content = bool(pending.get("text") or pending.get("photo_file_id") or pending.get("video_file_id"))
+        has_buttons = bool(pending.get("buttons"))
+
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            format_broadcast_summary(pending),
+            reply_markup=get_broadcast_edit_keyboard(has_content=has_content, has_buttons=has_buttons),
+        )
+        await telegram_notify.answer_callback_query(callback_id)
+        return
+
+    # Edit content
+    if action == "edit" and len(parts) > 2 and parts[2] == "content":
+        pending = PENDING_BROADCASTS.get(telegram_id)
+        if not pending:
+            await telegram_notify.answer_callback_query(
+                callback_id, "❌ Сессия истекла", show_alert=True
+            )
+            return
+
+        pending["state"] = BroadcastState.WAITING_CONTENT
+        pending["menu_message_id"] = message_id
+
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            "📝 <b>Отправьте текст для рассылки</b>\n\n"
+            "Вы можете отправить:\n"
+            "• Текст с форматированием (жирный, курсив, ссылки)\n"
+            "• Фото с подписью\n"
+            "• Видео с подписью\n\n"
+            "<i>Форматирование будет сохранено!</i>",
+            reply_markup={
+                "inline_keyboard": [[{"text": "❌ Отмена", "callback_data": "bc:cancel"}]]
+            },
+        )
+        await telegram_notify.answer_callback_query(callback_id)
+        return
+
+    # Edit buttons
+    if action == "edit" and len(parts) > 2 and parts[2] == "buttons":
+        pending = PENDING_BROADCASTS.get(telegram_id)
+        if not pending:
+            await telegram_notify.answer_callback_query(
+                callback_id, "❌ Сессия истекла", show_alert=True
+            )
+            return
+
+        pending["state"] = BroadcastState.WAITING_BUTTONS
+        pending["menu_message_id"] = message_id
+
+        current_buttons = pending.get("buttons", [])
+        current_info = ""
+        if current_buttons:
+            buttons_text = "\n".join([f"• {btn[0]['text']} → {btn[0]['url']}" for btn in current_buttons])
+            current_info = f"\n\n<b>Текущие кнопки:</b>\n{buttons_text}"
+
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            f"🔘 <b>Настройка кнопок</b>\n\n"
+            f"Отправьте кнопки в формате:\n"
+            f"<code>Название - https://ссылка.com</code>\n"
+            f"<code>Вторая кнопка - https://t.me/channel</code>\n\n"
+            f"Каждая кнопка на новой строке.\n"
+            f"Отправьте <b>пропустить</b> чтобы убрать кнопки."
+            f"{current_info}",
+            reply_markup={
+                "inline_keyboard": [
+                    [{"text": "🔙 Назад", "callback_data": "bc:back_to_edit"}],
+                    [{"text": "❌ Отмена", "callback_data": "bc:cancel"}],
+                ]
+            },
+        )
+        await telegram_notify.answer_callback_query(callback_id)
+        return
+
+    # Select target audience
+    if action == "select_target":
+        pending = PENDING_BROADCASTS.get(telegram_id)
+        if not pending:
+            await telegram_notify.answer_callback_query(
+                callback_id, "❌ Сессия истекла", show_alert=True
+            )
+            return
+
+        pending["menu_message_id"] = message_id
+
+        await telegram_notify.edit_message(
+            chat_id, message_id,
+            "📢 <b>Выберите аудиторию рассылки:</b>",
+            reply_markup=get_broadcast_target_keyboard(),
         )
         await telegram_notify.answer_callback_query(callback_id)
         return
@@ -425,7 +926,7 @@ async def handle_broadcast_callback(callback_query: dict) -> None:
 
         if not pending:
             await telegram_notify.answer_callback_query(
-                callback_id, "❌ Сессия истекла. Начните заново с /broadcast", show_alert=True
+                callback_id, "❌ Сессия истекла. Начните заново с /admin", show_alert=True
             )
             return
 
@@ -449,10 +950,15 @@ async def handle_broadcast_callback(callback_query: dict) -> None:
             "INACTIVE": "😴 Неактивным пользователям",
         }
 
+        # Include buttons info if present
+        buttons_count = len(pending.get("buttons", []))
+        buttons_info = f"<b>Кнопок:</b> {buttons_count}\n" if buttons_count > 0 else ""
+
         confirm_text = (
             f"📢 <b>Подтверждение рассылки</b>\n\n"
             f"<b>Аудитория:</b> {target_labels.get(target_type_str, target_type_str)}\n"
-            f"<b>Получателей:</b> {user_count}\n\n"
+            f"<b>Получателей:</b> {user_count}\n"
+            f"{buttons_info}\n"
             f"Нажмите <b>Превью</b> чтобы посмотреть сообщение\n"
             f"Нажмите <b>ОТПРАВИТЬ</b> чтобы начать рассылку"
         )
@@ -460,7 +966,7 @@ async def handle_broadcast_callback(callback_query: dict) -> None:
         await telegram_notify.edit_message(
             chat_id, message_id,
             confirm_text,
-            reply_markup=get_confirm_keyboard(),
+            reply_markup=get_confirm_send_keyboard(target_type_str, user_count),
         )
         await telegram_notify.answer_callback_query(callback_id)
         return
@@ -474,7 +980,7 @@ async def handle_broadcast_callback(callback_query: dict) -> None:
             )
             return
 
-        # Send preview message
+        # Send preview message with buttons
         from app.services.admin.broadcast import send_telegram_message
         await send_telegram_message(
             chat_id=chat_id,
@@ -482,6 +988,7 @@ async def handle_broadcast_callback(callback_query: dict) -> None:
             photo_file_id=pending.get("photo_file_id"),
             video_file_id=pending.get("video_file_id"),
             entities=pending.get("entities"),
+            buttons=pending.get("buttons"),
         )
         await telegram_notify.answer_callback_query(callback_id, "👆 Превью отправлено выше")
         return
@@ -491,7 +998,7 @@ async def handle_broadcast_callback(callback_query: dict) -> None:
         pending = PENDING_BROADCASTS.get(telegram_id)
         if not pending or not pending.get("target_type"):
             await telegram_notify.answer_callback_query(
-                callback_id, "❌ Сессия истекла. Начните заново.", show_alert=True
+                callback_id, "❌ Сессия истекла. Начните заново с /admin", show_alert=True
             )
             return
 
@@ -513,11 +1020,17 @@ async def handle_broadcast_callback(callback_query: dict) -> None:
                     photo_file_id=pending.get("photo_file_id"),
                     video_file_id=pending.get("video_file_id"),
                     entities=pending.get("entities"),
+                    buttons=pending.get("buttons"),
                 )
 
                 stats = await execute_broadcast(db, broadcast.id)
 
                 success_rate = (stats["delivered"] / stats["total"] * 100) if stats["total"] > 0 else 0
+
+                # Format buttons info for report
+                buttons_count = len(pending.get("buttons", []))
+                buttons_info = f"• Кнопок: {buttons_count}\n" if buttons_count > 0 else ""
+
                 result_message = (
                     f"✅ <b>Рассылка завершена!</b>\n\n"
                     f"📊 <b>Статистика:</b>\n"
@@ -525,6 +1038,7 @@ async def handle_broadcast_callback(callback_query: dict) -> None:
                     f"• Доставлено: {stats['delivered']}\n"
                     f"• Заблокировано: {stats['blocked']}\n"
                     f"• Ошибок: {stats['failed']}\n"
+                    f"{buttons_info}"
                     f"• Успешность: {success_rate:.1f}%"
                 )
 
@@ -754,18 +1268,27 @@ async def telegram_webhook(request: Request):
     except Exception:
         raise HTTPException(status_code=400, detail=t("webhook.invalid_json"))
 
-    # Handle /start command
+    # Handle messages
     message = data.get("message")
     if message:
         text = message.get("text", "")
+
+        # Handle commands
         if text.startswith("/start"):
             await handle_start_command(message)
+            return {"ok": True}
+        if text.startswith("/admin"):
+            await handle_admin_command(message)
             return {"ok": True}
         if text.startswith("/broadcast"):
             await handle_broadcast_command(message)
             return {"ok": True}
         if text.startswith("/repost"):
             await handle_repost_command(message)
+            return {"ok": True}
+
+        # Handle FSM states (for broadcast creation workflow)
+        if await handle_fsm_message(message):
             return {"ok": True}
 
     # Handle channel posts (for auto-repost feature)
@@ -791,6 +1314,11 @@ async def telegram_webhook(request: Request):
 
     if not callback_data or not message_id:
         await telegram_notify.answer_callback_query(callback_id, t("webhook.invalid_callback"))
+        return {"ok": True}
+
+    # Handle admin menu callbacks (admin:*)
+    if callback_data.startswith("admin:"):
+        await handle_admin_callback(callback_query)
         return {"ok": True}
 
     # Handle broadcast callbacks (bc:*)

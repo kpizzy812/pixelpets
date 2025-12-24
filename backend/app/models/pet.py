@@ -24,6 +24,7 @@ class PetType(Base):
     roi_cap_multiplier: Mapped[Decimal] = mapped_column(nullable=False)  # e.g., 1.5 = 150%
     level_prices: Mapped[dict] = mapped_column(JSON, nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True)
+    is_available: Mapped[bool] = mapped_column(default=True)  # Available for purchase in shop
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
 

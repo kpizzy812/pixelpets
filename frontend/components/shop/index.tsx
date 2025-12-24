@@ -121,7 +121,8 @@ export function ShopScreen() {
                     key={petType.id}
                     petType={petType}
                     onBuy={() => handleBuy(petType)}
-                    disabled={!hasEmptySlots}
+                    disabled={!hasEmptySlots || !petType.is_available}
+                    comingSoon={!petType.is_available}
                   />
                 ))}
               </div>

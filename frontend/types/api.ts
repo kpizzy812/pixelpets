@@ -60,6 +60,7 @@ export interface PetType {
   roi_cap_multiplier: number;
   level_prices: Record<string, number>;
   is_active: boolean;
+  is_available: boolean;
 }
 
 // User Pet

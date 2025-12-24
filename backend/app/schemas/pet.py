@@ -16,6 +16,7 @@ class PetTypeResponse(BaseModel):
     daily_rate: Decimal
     roi_cap_multiplier: Decimal
     level_prices: dict
+    is_available: bool
 
     class Config:
         from_attributes = True

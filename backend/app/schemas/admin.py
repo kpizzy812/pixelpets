@@ -205,6 +205,7 @@ class PetTypeResponse(BaseModel):
     roi_cap_multiplier: Decimal
     level_prices: dict
     is_active: bool
+    is_available: bool
     created_at: datetime
 
     class Config:
@@ -222,6 +223,7 @@ class PetTypeCreateRequest(BaseModel):
         description="e.g. {'BABY': 5, 'ADULT': 15, 'MYTHIC': 30}"
     )
     is_active: bool = True
+    is_available: bool = True
 
 
 class PetTypeUpdateRequest(BaseModel):
@@ -232,6 +234,7 @@ class PetTypeUpdateRequest(BaseModel):
     roi_cap_multiplier: Optional[Decimal] = Field(None, gt=1)
     level_prices: Optional[dict] = None
     is_active: Optional[bool] = None
+    is_available: Optional[bool] = None
 
 
 # ============ Tasks ============
