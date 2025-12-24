@@ -24,6 +24,11 @@ BOT_API_URL = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}"
 SEND_DELAY_SECONDS = 0.05  # 50ms = ~20 msg/sec
 BATCH_SIZE = 100
 
+# In-memory set to track recently processed channel posts (prevents duplicate reposts from webhook retries)
+# Format: {(channel_id, message_id), ...}
+_PROCESSED_CHANNEL_POSTS: set[tuple[int, int]] = set()
+_MAX_PROCESSED_CACHE = 1000  # Keep last N entries to prevent memory leak
+
 
 async def forward_message(
     chat_id: int,
@@ -221,6 +226,8 @@ async def handle_channel_post(
 
     Returns stats if repost was executed, None if skipped.
     """
+    global _PROCESSED_CHANNEL_POSTS
+
     # Check if auto-repost is enabled
     if not await get_auto_repost_enabled(db):
         return None
@@ -240,6 +247,21 @@ async def handle_channel_post(
     message_id = channel_post.get("message_id")
     if not message_id:
         return None
+
+    # IMPORTANT: Check if already processed to prevent duplicate reposts from webhook retries
+    post_key = (chat_id, message_id)
+    if post_key in _PROCESSED_CHANNEL_POSTS:
+        logger.info(f"Skipping already processed channel post {message_id} from {chat_id}")
+        return None
+
+    # Mark as processed IMMEDIATELY before doing anything
+    _PROCESSED_CHANNEL_POSTS.add(post_key)
+
+    # Cleanup old entries to prevent memory leak
+    if len(_PROCESSED_CHANNEL_POSTS) > _MAX_PROCESSED_CACHE:
+        # Remove oldest entries (convert to list, keep last half)
+        entries = list(_PROCESSED_CHANNEL_POSTS)
+        _PROCESSED_CHANNEL_POSTS = set(entries[len(entries) // 2:])
 
     logger.info(f"Auto-reposting channel post {message_id} from {chat_id}")
 

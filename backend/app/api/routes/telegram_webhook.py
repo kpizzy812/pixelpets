@@ -995,6 +995,16 @@ async def handle_broadcast_callback(callback_query: dict) -> None:
             )
             return
 
+        # IMPORTANT: Check if already sending to prevent duplicate broadcasts from Telegram retries
+        if pending.get("sending"):
+            await telegram_notify.answer_callback_query(
+                callback_id, "⏳ Рассылка уже выполняется...", show_alert=False
+            )
+            return
+
+        # Mark as sending IMMEDIATELY to prevent Telegram retry duplicates
+        pending["sending"] = True
+
         # Update message to show progress
         await telegram_notify.edit_message(
             chat_id, message_id,
