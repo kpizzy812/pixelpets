@@ -223,6 +223,23 @@
     "telegramId": "Telegram ID",
     "refCode": "Code de ref"
   },
+  "spin": {
+    "title": "Roue de la Chance",
+    "yourBalance": "Votre solde",
+    "spinsToday": "Tours aujourd'hui",
+    "wonToday": "Gagné aujourd'hui",
+    "freeSpin": "Tour gratuit",
+    "freeSpinIn": "Tour gratuit dans",
+    "paidSpin": "Tour payant",
+    "spinning": "En cours...",
+    "tryAgain": "Réessayez !",
+    "insufficientBalance": "Solde insuffisant",
+    "spinFailed": "Échec du tour. Veuillez réessayer.",
+    "spinInfo": "Tour gratuit toutes les 24 heures. Les tours payants coûtent 1 XPET.",
+    "needReferrals": "Invitez {needed} amis pour le prochain tour ({have} invités)",
+    "inviteFriends": "Inviter des amis",
+    "minRewardNotice": "Déposez pour débloquer toutes les récompenses"
+  },
   "errors": {
     "generic": "Une erreur s'est produite",
     "networkError": "Erreur réseau. Vérifiez votre connexion.",

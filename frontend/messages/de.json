@@ -223,6 +223,23 @@
     "telegramId": "Telegram ID",
     "refCode": "Ref-Code"
   },
+  "spin": {
+    "title": "Glücksrad",
+    "yourBalance": "Dein Guthaben",
+    "spinsToday": "Drehungen heute",
+    "wonToday": "Heute gewonnen",
+    "freeSpin": "Gratis Dreh",
+    "freeSpinIn": "Gratis Dreh in",
+    "paidSpin": "Bezahlter Dreh",
+    "spinning": "Dreht...",
+    "tryAgain": "Nochmal versuchen!",
+    "insufficientBalance": "Unzureichendes Guthaben",
+    "spinFailed": "Dreh fehlgeschlagen. Bitte erneut versuchen.",
+    "spinInfo": "Gratis Dreh alle 24 Stunden. Bezahlte Drehungen kosten 1 XPET.",
+    "needReferrals": "Lade {needed} Freunde ein für den nächsten Dreh ({have} eingeladen)",
+    "inviteFriends": "Freunde einladen",
+    "minRewardNotice": "Zahle ein, um volle Belohnungen freizuschalten"
+  },
   "errors": {
     "generic": "Etwas ist schiefgelaufen",
     "networkError": "Netzwerkfehler. Bitte Verbindung prüfen.",

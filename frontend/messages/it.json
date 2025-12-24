@@ -223,6 +223,23 @@
     "telegramId": "Telegram ID",
     "refCode": "Codice ref"
   },
+  "spin": {
+    "title": "Ruota della Fortuna",
+    "yourBalance": "Il tuo saldo",
+    "spinsToday": "Giri oggi",
+    "wonToday": "Vinto oggi",
+    "freeSpin": "Giro gratis",
+    "freeSpinIn": "Giro gratis tra",
+    "paidSpin": "Giro a pagamento",
+    "spinning": "Girando...",
+    "tryAgain": "Riprova!",
+    "insufficientBalance": "Saldo insufficiente",
+    "spinFailed": "Giro fallito. Riprova.",
+    "spinInfo": "Giro gratis ogni 24 ore. I giri a pagamento costano 1 XPET.",
+    "needReferrals": "Invita {needed} amici per il prossimo giro ({have} invitati)",
+    "inviteFriends": "Invita amici",
+    "minRewardNotice": "Deposita per sbloccare tutte le ricompense"
+  },
   "errors": {
     "generic": "Qualcosa è andato storto",
     "networkError": "Errore di rete. Controlla la connessione.",
