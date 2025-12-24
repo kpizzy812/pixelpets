@@ -237,15 +237,6 @@ export function SpinScreen() {
           </div>
         )}
 
-        {/* Non-depositor notice */}
-        {wheelData && !wheelData.has_deposits && wheelData.can_free_spin && (
-          <div className="w-full p-3 rounded-xl bg-[#1a2235]/80 border border-[#64748b]/30 text-center">
-            <div className="text-xs text-[#94a3b8]">
-              {t('minRewardNotice')}
-            </div>
-          </div>
-        )}
-
         {/* Spin Buttons - Horizontal Layout */}
         <div className="w-full flex gap-3">
           {/* Free Spin Button */}
