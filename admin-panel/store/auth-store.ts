@@ -6,6 +6,8 @@ interface AuthState {
   admin: Admin | null;
   token: string | null;
   isAuthenticated: boolean;
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
   setAuth: (admin: Admin, token: string) => void;
   logout: () => void;
   hasRole: (roles: AdminRole[]) => boolean;
@@ -19,6 +21,11 @@ export const useAuthStore = create<AuthState>()(
       admin: null,
       token: null,
       isAuthenticated: false,
+      _hasHydrated: false,
+
+      setHasHydrated: (state: boolean) => {
+        set({ _hasHydrated: state });
+      },
 
       setAuth: (admin: Admin, token: string) => {
         localStorage.setItem("admin_token", token);
@@ -52,6 +59,9 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );
