@@ -330,7 +330,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
               <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-[#0d1220]/60 backdrop-blur-[6px]">
                 <div className="text-center px-4">
                   <div className="w-12 h-12 rounded-full bg-[#fbbf24]/20 flex items-center justify-center mx-auto mb-3">
-                    <Icon name="clock" size={24} className="text-[#fbbf24]" />
+                    <Icon name="lock" size={24} className="text-[#fbbf24]" />
                   </div>
                   <h3 className="text-lg font-bold text-white mb-2">SOON</h3>
                   <p className="text-sm text-[#94a3b8]">
