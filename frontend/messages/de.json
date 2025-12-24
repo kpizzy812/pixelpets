@@ -151,6 +151,7 @@
     "processing": "Verarbeitung...",
     "depositInfo": "Einzahlungen werden innerhalb von 24 Stunden bearbeitet.",
     "withdrawInfo": "Auszahlungen werden innerhalb von 24-48 Stunden bearbeitet.",
+    "epochClosed": "Auszahlungen sind während der Epochen verfügbar. Folgen Sie unseren offiziellen Kanälen, um die Öffnung nicht zu verpassen.",
     "minDeposit": "Mindesteinzahlung: 5 USDT",
     "minWithdraw": "Mindestauszahlung: 5 USDT",
     "enterAddress": "Bitte Wallet-Adresse eingeben",

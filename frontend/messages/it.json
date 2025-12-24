@@ -151,6 +151,7 @@
     "processing": "Elaborazione...",
     "depositInfo": "I depositi vengono elaborati entro 24 ore.",
     "withdrawInfo": "I prelievi vengono elaborati entro 24-48 ore.",
+    "epochClosed": "I prelievi sono disponibili durante le epoche. Segui i nostri canali ufficiali per non perdere l'apertura.",
     "minDeposit": "Deposito minimo: 5 USDT",
     "minWithdraw": "Prelievo minimo: 5 USDT",
     "enterAddress": "Inserisci il tuo indirizzo",

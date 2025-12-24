@@ -23,8 +23,17 @@ from app.services.wallet import (
     create_withdraw_request,
     get_transactions,
 )
+from app.services.admin.config import get_withdrawal_config, is_withdrawal_available
 
 router = APIRouter(prefix="/wallet", tags=["wallet"])
+
+
+@router.get("/withdrawal-config")
+async def get_withdrawal_mode_config(
+    db: AsyncSession = Depends(get_db),
+):
+    """Get withdrawal mode configuration for frontend."""
+    return await get_withdrawal_config(db)
 
 
 @router.get("", response_model=WalletResponse)
@@ -67,6 +76,12 @@ async def create_withdrawal(
     db: AsyncSession = Depends(get_db),
 ):
     """Create a withdrawal request."""
+    # Check if withdrawal is available
+    if not await is_withdrawal_available(db):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Withdrawal is currently closed. Please wait for the next epoch."
+        )
     try:
         withdraw_request, new_balance = await create_withdraw_request(
             db=db,

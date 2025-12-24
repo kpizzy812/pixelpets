@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useBalance, useGameStore } from '@/store/game-store';
-import { walletApi } from '@/lib/api';
+import { walletApi, type WithdrawalConfig } from '@/lib/api';
 import { showSuccess, showError } from '@/lib/toast';
 import { Icon } from '@/components/ui/icon';
 import { XpetCoin } from '@/components/ui/xpet-coin';
@@ -42,7 +42,25 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
   // Deposit success state
   const [depositResult, setDepositResult] = useState<DepositRequestResponse | null>(null);
 
+  // Withdrawal config state
+  const [withdrawalConfig, setWithdrawalConfig] = useState<WithdrawalConfig | null>(null);
+
+  // Load withdrawal config when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      walletApi.withdrawalConfig()
+        .then(setWithdrawalConfig)
+        .catch(() => {
+          // Default to basic mode if failed
+          setWithdrawalConfig({ mode: 'basic', epoch_open: false, available: true });
+        });
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  // Check if withdrawal is blocked (epoch mode and closed)
+  const isWithdrawalBlocked = withdrawalConfig?.mode === 'epoch' && !withdrawalConfig?.available;
 
   const resetForm = () => {
     setAmount('');
@@ -306,56 +324,89 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
         {/* Withdraw-specific fields */}
         {activeTab === 'withdraw' && (
-          <>
-            <div className="mb-4">
-              <label className="text-xs text-[#64748b] uppercase tracking-wide mb-2 block">
-                {t('walletAddress')}
-              </label>
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder={t('walletAddressPlaceholder')}
-                className="w-full p-4 rounded-xl bg-[#1e293b]/40 border border-[#334155]/50 text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#00f5d4]/50"
-              />
+          isWithdrawalBlocked ? (
+            /* Epoch mode - withdrawal closed overlay */
+            <div className="relative mb-4">
+              <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-[#0d1220]/60 backdrop-blur-[6px]">
+                <div className="text-center px-4">
+                  <div className="w-12 h-12 rounded-full bg-[#fbbf24]/20 flex items-center justify-center mx-auto mb-3">
+                    <Icon name="clock" size={24} className="text-[#fbbf24]" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">SOON</h3>
+                  <p className="text-sm text-[#94a3b8]">
+                    {t('epochClosed')}
+                  </p>
+                </div>
+              </div>
+              {/* Blurred content behind */}
+              <div className="opacity-30 pointer-events-none">
+                <div className="mb-4">
+                  <label className="text-xs text-[#64748b] uppercase tracking-wide mb-2 block">
+                    {t('walletAddress')}
+                  </label>
+                  <div className="w-full p-4 rounded-xl bg-[#1e293b]/40 border border-[#334155]/50 h-14" />
+                </div>
+                <div className="p-4 rounded-xl bg-[#1e293b]/40 space-y-2">
+                  <div className="h-4 bg-[#334155]/50 rounded w-1/2" />
+                  <div className="h-4 bg-[#334155]/50 rounded w-3/4" />
+                  <div className="h-4 bg-[#334155]/50 rounded w-2/3" />
+                </div>
+              </div>
             </div>
+          ) : (
+            <>
+              <div className="mb-4">
+                <label className="text-xs text-[#64748b] uppercase tracking-wide mb-2 block">
+                  {t('walletAddress')}
+                </label>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder={t('walletAddressPlaceholder')}
+                  className="w-full p-4 rounded-xl bg-[#1e293b]/40 border border-[#334155]/50 text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#00f5d4]/50"
+                />
+              </div>
 
-            {/* Fee Info */}
-            <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-[#64748b]">{t('amount')}</span>
-                <span className="text-[#f1f5f9] inline-flex items-center gap-1">{formatNumber(withdrawAmount)} <XpetCoin size={18} /></span>
+              {/* Fee Info */}
+              <div className="p-4 rounded-xl bg-[#1e293b]/40 mb-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#64748b]">{t('amount')}</span>
+                  <span className="text-[#f1f5f9] inline-flex items-center gap-1">{formatNumber(withdrawAmount)} <XpetCoin size={18} /></span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#64748b]">{t('fee')}</span>
+                  <span className="text-red-400 inline-flex items-center gap-1">-{formatNumber(fee)} <XpetCoin size={18} /></span>
+                </div>
+                <div className="h-px bg-[#334155]" />
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#64748b]">{t('youReceive')}</span>
+                  <span className="text-[#c7f464] font-medium">${formatNumber(netAmount)} USDT</span>
+                </div>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[#64748b]">{t('fee')}</span>
-                <span className="text-red-400 inline-flex items-center gap-1">-{formatNumber(fee)} <XpetCoin size={18} /></span>
-              </div>
-              <div className="h-px bg-[#334155]" />
-              <div className="flex justify-between text-sm">
-                <span className="text-[#64748b]">{t('youReceive')}</span>
-                <span className="text-[#c7f464] font-medium">${formatNumber(netAmount)} USDT</span>
-              </div>
-            </div>
-          </>
+            </>
+          )
         )}
 
         {/* Action Button */}
-        <Button
-          variant={activeTab === 'deposit' ? 'cyan' : 'lime'}
-          fullWidth
-          onClick={activeTab === 'deposit' ? handleDeposit : handleWithdraw}
-          disabled={isProcessing || Number(amount) < 5 || (activeTab === 'withdraw' && !address)}
-        >
-          {isProcessing
-            ? t('processing')
-            : activeTab === 'deposit'
-            ? t('createDeposit')
-            : t('submitWithdraw')}
-        </Button>
+        {!(activeTab === 'withdraw' && isWithdrawalBlocked) && (
+          <Button
+            variant={activeTab === 'deposit' ? 'cyan' : 'lime'}
+            fullWidth
+            onClick={activeTab === 'deposit' ? handleDeposit : handleWithdraw}
+            disabled={isProcessing || Number(amount) < 5 || (activeTab === 'withdraw' && !address)}
+          >
+            {isProcessing
+              ? t('processing')
+              : activeTab === 'deposit'
+              ? t('createDeposit')
+              : t('submitWithdraw')}
+          </Button>
+        )}
 
         {/* Info */}
         <p className="text-xs text-[#64748b] text-center mt-4">
-          {activeTab === 'deposit' ? t('depositInfo') : t('withdrawInfo')}
+          {activeTab === 'deposit' ? t('depositInfo') : (isWithdrawalBlocked ? '' : t('withdrawInfo'))}
         </p>
       </div>
     </div>

@@ -151,6 +151,7 @@
     "processing": "Traitement...",
     "depositInfo": "Les dépôts sont traités sous 24 heures.",
     "withdrawInfo": "Les retraits sont traités sous 24-48 heures.",
+    "epochClosed": "Les retraits sont disponibles pendant les époques. Suivez nos canaux officiels pour ne pas manquer l'ouverture.",
     "minDeposit": "Dépôt minimum : 5 USDT",
     "minWithdraw": "Retrait minimum : 5 USDT",
     "enterAddress": "Veuillez entrer votre adresse",

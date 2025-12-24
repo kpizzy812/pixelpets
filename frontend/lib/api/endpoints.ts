@@ -72,9 +72,18 @@ export const petsApi = {
     api.get<HallOfFameResponse>('/pets/hall-of-fame'),
 };
 
+// Withdrawal config type
+export interface WithdrawalConfig {
+  mode: 'basic' | 'epoch';
+  epoch_open: boolean;
+  available: boolean;
+}
+
 // Wallet
 export const walletApi = {
   info: () => api.get<WalletResponse>('/wallet'),
+
+  withdrawalConfig: () => api.get<WithdrawalConfig>('/wallet/withdrawal-config'),
 
   createDeposit: (network: NetworkType, amount: number) =>
     api.post<DepositRequestResponse>('/wallet/deposit-request', {

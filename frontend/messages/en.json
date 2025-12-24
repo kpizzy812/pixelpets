@@ -152,6 +152,7 @@
     "processing": "Processing...",
     "depositInfo": "Deposits are processed within 24 hours.",
     "withdrawInfo": "Withdrawals are processed within 24-48 hours.",
+    "epochClosed": "Withdrawals are available during epochs. Follow our official channels to not miss when it opens.",
     "minDeposit": "Minimum deposit is 5 USDT",
     "minWithdraw": "Minimum withdrawal is 5 USDT",
     "enterAddress": "Please enter your wallet address",

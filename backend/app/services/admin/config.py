@@ -30,6 +30,9 @@ DEFAULT_CONFIG = {
     "repost_channel_id": None,  # Channel ID to repost from (e.g., -1001234567890)
     # Admin Telegram IDs for broadcast command
     "broadcast_admin_ids": [],  # List of Telegram user IDs who can use /broadcast command
+    # Withdrawal mode settings
+    "withdrawal_mode": "basic",  # "basic" - always open, "epoch" - controlled by epochs
+    "withdrawal_epoch_open": False,  # Whether withdrawal is open in epoch mode
 }
 
 
@@ -199,3 +202,48 @@ async def remove_broadcast_admin(db: AsyncSession, telegram_id: int) -> list[int
         admin_ids.remove(telegram_id)
         await set_config(db, "broadcast_admin_ids", admin_ids, "Telegram IDs allowed to broadcast")
     return admin_ids
+
+
+async def get_withdrawal_mode(db: AsyncSession) -> str:
+    """Get withdrawal mode: 'basic' or 'epoch'."""
+    value = await get_config_value(db, "withdrawal_mode", "basic")
+    return str(value) if value in ("basic", "epoch") else "basic"
+
+
+async def set_withdrawal_mode(db: AsyncSession, mode: str) -> str:
+    """Set withdrawal mode."""
+    if mode not in ("basic", "epoch"):
+        raise ValueError("Invalid withdrawal mode. Must be 'basic' or 'epoch'")
+    await set_config(db, "withdrawal_mode", mode, "Withdrawal mode: basic (always open) or epoch (controlled)")
+    return mode
+
+
+async def is_withdrawal_epoch_open(db: AsyncSession) -> bool:
+    """Check if withdrawal is open in epoch mode."""
+    value = await get_config_value(db, "withdrawal_epoch_open", False)
+    return bool(value)
+
+
+async def set_withdrawal_epoch_open(db: AsyncSession, is_open: bool) -> bool:
+    """Set whether withdrawal is open in epoch mode."""
+    await set_config(db, "withdrawal_epoch_open", is_open, "Whether withdrawal is open in epoch mode")
+    return is_open
+
+
+async def is_withdrawal_available(db: AsyncSession) -> bool:
+    """Check if withdrawal is currently available based on mode and epoch status."""
+    mode = await get_withdrawal_mode(db)
+    if mode == "basic":
+        return True
+    return await is_withdrawal_epoch_open(db)
+
+
+async def get_withdrawal_config(db: AsyncSession) -> dict:
+    """Get full withdrawal config for frontend."""
+    mode = await get_withdrawal_mode(db)
+    epoch_open = await is_withdrawal_epoch_open(db)
+    return {
+        "mode": mode,
+        "epoch_open": epoch_open,
+        "available": mode == "basic" or epoch_open,
+    }
