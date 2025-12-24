@@ -41,6 +41,7 @@ async def create_pet_type(
     level_prices: dict,
     emoji: Optional[str] = None,
     is_active: bool = True,
+    is_available: bool = True,
 ) -> PetType:
     """Create new pet type."""
     pet_type = PetType(
@@ -51,6 +52,7 @@ async def create_pet_type(
         roi_cap_multiplier=roi_cap_multiplier,
         level_prices=level_prices,
         is_active=is_active,
+        is_available=is_available,
     )
     db.add(pet_type)
     await db.commit()
@@ -68,6 +70,7 @@ async def update_pet_type(
     roi_cap_multiplier: Optional[Decimal] = None,
     level_prices: Optional[dict] = None,
     is_active: Optional[bool] = None,
+    is_available: Optional[bool] = None,
 ) -> PetType:
     """Update pet type."""
     if name is not None:
@@ -84,6 +87,8 @@ async def update_pet_type(
         pet_type.level_prices = level_prices
     if is_active is not None:
         pet_type.is_active = is_active
+    if is_available is not None:
+        pet_type.is_available = is_available
 
     await db.commit()
     await db.refresh(pet_type)

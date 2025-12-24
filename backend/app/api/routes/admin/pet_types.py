@@ -56,6 +56,7 @@ async def create_new_pet_type(
         roi_cap_multiplier=request.roi_cap_multiplier,
         level_prices=request.level_prices,
         is_active=request.is_active,
+        is_available=request.is_available,
     )
 
     await log_admin_action(
@@ -105,6 +106,7 @@ async def update_existing_pet_type(
         roi_cap_multiplier=request.roi_cap_multiplier,
         level_prices=request.level_prices,
         is_active=request.is_active,
+        is_available=request.is_available,
     )
 
     # Convert Decimals to strings for JSON serialization
