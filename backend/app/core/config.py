@@ -22,6 +22,14 @@ class Settings(BaseSettings):
     # Telegram
     TELEGRAM_BOT_TOKEN: str
     ADMIN_CHAT_ID: int  # Telegram group/chat ID for admin notifications
+    ADMIN_IDS: str = ""  # Comma-separated list of admin Telegram IDs
+
+    @property
+    def admin_ids_list(self) -> list[int]:
+        """Parse ADMIN_IDS string to list of integers."""
+        if not self.ADMIN_IDS:
+            return []
+        return [int(id.strip()) for id in self.ADMIN_IDS.split(",") if id.strip()]
 
     # App
     DEBUG: bool = False

@@ -17,10 +17,15 @@ from app.models.enums import RequestStatus
 from app.services.admin.deposits import approve_deposit, reject_deposit
 from app.services.admin.withdrawals import complete_withdrawal, reject_withdrawal
 from app.services.admin.config import (
-    get_config_value, DEFAULT_CONFIG, is_broadcast_admin,
+    get_config_value, DEFAULT_CONFIG,
     get_auto_repost_enabled, set_auto_repost_enabled,
     get_repost_channel_id, set_repost_channel_id,
 )
+
+
+def is_admin(telegram_id: int) -> bool:
+    """Check if telegram_id is in ADMIN_IDS from .env."""
+    return telegram_id in settings.admin_ids_list
 from app.services import telegram_notify
 from app.services.channel_repost import handle_channel_post
 from app.services.admin.broadcast import create_broadcast, execute_broadcast, get_target_users_count
@@ -462,11 +467,8 @@ async def handle_admin_command(message: dict) -> None:
     if not chat_id or not telegram_id:
         return
 
-    # Check if user is broadcast admin
-    async with async_session() as db:
-        is_admin = await is_broadcast_admin(db, telegram_id)
-
-    if not is_admin:
+    # Check if user is admin (from ADMIN_IDS in .env)
+    if not is_admin(telegram_id):
         await telegram_notify.send_message(
             chat_id,
             "❌ У вас нет доступа к этой команде.",
@@ -497,10 +499,7 @@ async def handle_admin_callback(callback_query: dict) -> None:
         return
 
     # Check admin access
-    async with async_session() as db:
-        is_admin = await is_broadcast_admin(db, telegram_id)
-
-    if not is_admin:
+    if not is_admin(telegram_id):
         await telegram_notify.answer_callback_query(callback_id, "❌ Нет доступа", show_alert=True)
         return
 
@@ -704,11 +703,8 @@ async def handle_broadcast_command(message: dict) -> None:
     if not chat_id or not telegram_id:
         return
 
-    # Check if user is broadcast admin
-    async with async_session() as db:
-        is_admin = await is_broadcast_admin(db, telegram_id)
-
-    if not is_admin:
+    # Check if user is admin (from ADMIN_IDS in .env)
+    if not is_admin(telegram_id):
         await telegram_notify.send_message(
             chat_id,
             "❌ У вас нет доступа к этой команде.",
@@ -784,10 +780,7 @@ async def handle_broadcast_callback(callback_query: dict) -> None:
         return
 
     # Check admin access
-    async with async_session() as db:
-        is_admin = await is_broadcast_admin(db, telegram_id)
-
-    if not is_admin:
+    if not is_admin(telegram_id):
         await telegram_notify.answer_callback_query(callback_id, "❌ Нет доступа", show_alert=True)
         return
 
@@ -1097,11 +1090,8 @@ async def handle_repost_command(message: dict) -> None:
     if not chat_id or not telegram_id:
         return
 
-    # Check if user is broadcast admin
-    async with async_session() as db:
-        is_admin = await is_broadcast_admin(db, telegram_id)
-
-    if not is_admin:
+    # Check if user is admin (from ADMIN_IDS in .env)
+    if not is_admin(telegram_id):
         await telegram_notify.send_message(
             chat_id,
             "❌ У вас нет доступа к этой команде.",
@@ -1161,10 +1151,7 @@ async def handle_repost_callback(callback_query: dict) -> None:
         return
 
     # Check admin access
-    async with async_session() as db:
-        is_admin = await is_broadcast_admin(db, telegram_id)
-
-    if not is_admin:
+    if not is_admin(telegram_id):
         await telegram_notify.answer_callback_query(callback_id, "❌ Нет доступа", show_alert=True)
         return
 
