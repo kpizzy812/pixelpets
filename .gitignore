@@ -37,3 +37,9 @@ htmlcov/
 # Vercel
 .vercel/
 .vercel
+
+# Development documentation (internal)
+.dev/
+docs/
+gitbook/
+frontend-design-backup/
