@@ -146,9 +146,24 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+cors_origins = [
+    origin for origin in [
+        os.environ.get("FRONTEND_URL"),
+        os.environ.get("ADMIN_PANEL_URL"),
+    ] if origin
+]
+# Add https:// if missing
+cors_origins = [
+    f"https://{o}" if not o.startswith("http") else o
+    for o in cors_origins
+]
+# Fallback to allow all if no origins configured (local dev)
+if not cors_origins:
+    cors_origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
