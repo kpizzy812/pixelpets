@@ -1,7 +1,9 @@
 import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager
 
+import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -85,6 +87,25 @@ async def lifespan(app: FastAPI):
     async with async_session() as db:
         await init_default_configs(db)
         logger.info("Default configs initialized")
+
+    # Register Telegram webhook
+    backend_url = os.environ.get("WEBHOOK_URL")
+    if backend_url:
+        if not backend_url.startswith("http"):
+            backend_url = f"https://{backend_url}"
+        webhook_url = f"{backend_url}/webhook/telegram"
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/setWebhook",
+                json={"url": webhook_url},
+            )
+            result = resp.json()
+            if result.get("ok"):
+                logger.info(f"Telegram webhook set: {webhook_url}")
+            else:
+                logger.error(f"Failed to set Telegram webhook: {result}")
+    else:
+        logger.warning("No WEBHOOK_URL set — Telegram webhook not registered")
 
     # Start schedulers
     auto_claim_task = asyncio.create_task(auto_claim_scheduler())
